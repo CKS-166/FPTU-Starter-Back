@@ -7,16 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.30">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FPTU_Starter.Application\FPTU_Starter.Application.csproj" />
     <ProjectReference Include="..\FPTU_Starter.Domain\FPTU_Starter.Domain.csproj" />
+    <ProjectReference Include="..\FPTU_Starter.Infrastructure\FPTU_Starter.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
