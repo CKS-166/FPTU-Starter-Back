@@ -7,13 +7,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F1F9E53C-437
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{835A139E-4806-49F0-AA68-58693AFB1515}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FPTU_Starter.API", "FPTU_Starter.API\FPTU_Starter.API.csproj", "{957F8546-C888-4576-8C83-145E083693E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FPTU_Starter.API", "FPTU_Starter.API\FPTU_Starter.API.csproj", "{957F8546-C888-4576-8C83-145E083693E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FPTU_Starter.Domain", "FPTU_Starter.Domain\FPTU_Starter.Domain.csproj", "{1388B1AA-6ACB-4B34-9F0A-AF98F8E74250}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FPTU_Starter.Domain", "FPTU_Starter.Domain\FPTU_Starter.Domain.csproj", "{1388B1AA-6ACB-4B34-9F0A-AF98F8E74250}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FPTU_Starter.Application", "FPTU_Starter.Application\FPTU_Starter.Application.csproj", "{249AEB34-A7BA-4F1F-BC5B-6FC7879821AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FPTU_Starter.Application", "FPTU_Starter.Application\FPTU_Starter.Application.csproj", "{249AEB34-A7BA-4F1F-BC5B-6FC7879821AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FPTU_Starter.Infrastructure", "FPTU_Starter.Infrastructure\FPTU_Starter.Infrastructure.csproj", "{BE01C616-36B3-42A5-B5FB-D66300EA759A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FPTU_Starter.Infrastructure", "FPTU_Starter.Infrastructure\FPTU_Starter.Infrastructure.csproj", "{BE01C616-36B3-42A5-B5FB-D66300EA759A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
