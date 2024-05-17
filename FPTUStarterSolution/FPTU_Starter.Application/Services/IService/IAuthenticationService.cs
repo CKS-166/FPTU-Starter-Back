@@ -1,4 +1,5 @@
-﻿using FPTU_Starter.Application.ViewModel.AuthenticationDTO;
+﻿using FPTU_Starter.Application.ViewModel;
+using FPTU_Starter.Application.ViewModel.AuthenticationDTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace FPTU_Starter.Application.Services.IService
 {
     public interface IAuthenticationService
     {
-        Task<ResponseToken> RegisterUserAsync(RegisterModel registerModel);
-        Task<ResponseToken> LoginAsync(LoginDTO loginDTO);
+        Task<ResultDTO<ResponseToken>> RegisterUserAsync(RegisterModel registerModel, string role);
+        Task<ResultDTO<ResponseToken>> LoginAsync(LoginDTO loginDTO);
     }
 }

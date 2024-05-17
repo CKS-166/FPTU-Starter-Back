@@ -3,10 +3,12 @@ using FPTU_Starter.Application.ITokenService;
 using FPTU_Starter.Application.Services;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Domain;
+using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Infrastructure.Authentication;
 using FPTU_Starter.Infrastructure.Database;
 using FPTU_Starter.Infrastructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,14 +25,22 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddDbContext<MyDbContext>(option =>
             option.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
             b => b.MigrationsAssembly(typeof(DIConfiguration).Assembly.FullName)), ServiceLifetime.Scoped);           
+           
             service.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+
+            service.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<MyDbContext>()
+                .AddDefaultTokenProviders();
 
             service.AddAuthentication(option =>
             {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -43,9 +53,11 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
                     (Encoding.UTF8.GetBytes(configuration["Jwt:key"]!))
                 };
             });
+            
             service.AddTransient<IUserRepository, UserRepository>();
             service.AddScoped<IAuthenticationService, AuthenticationService>();
             service.AddScoped<ITokenGenerator, TokenGenerator>();
+            
             return service;
         }
     }

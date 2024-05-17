@@ -55,7 +55,13 @@ namespace FPTU_Starter.API
         }
     });
             });
-
+            //add CORS
+            builder.Services.AddCors(p => p.AddPolicy("MyCors", build =>
+            {
+                build.WithOrigins("*")
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+            }));
 
             var app = builder.Build();
 
@@ -70,7 +76,7 @@ namespace FPTU_Starter.API
             app.UseAuthentication();
             app.UseAuthorization();
 
-
+            app.UseCors("MyCors");
             app.MapControllers();
 
             app.Run();
