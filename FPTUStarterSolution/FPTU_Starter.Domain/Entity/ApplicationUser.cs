@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FPTU_Starter.Domain.Entity
 {
-    public class ApplicationUser 
+    public class ApplicationUser : IdentityUser
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }

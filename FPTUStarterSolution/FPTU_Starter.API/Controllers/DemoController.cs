@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FPTU_Starter.Domain.Constrain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -13,6 +14,12 @@ namespace FPTU_Starter.API.Controllers
         [HttpGet]
         [Authorize]
         public IEnumerable<string> Get()
+        {
+            return new string[] { "value1", "value2" };
+        }
+        [HttpGet("GetAdmin")]
+        [Authorize(Roles = Role.Admin)]
+        public IEnumerable<string> GetAdmin()
         {
             return new string[] { "value1", "value2" };
         }

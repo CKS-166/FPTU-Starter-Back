@@ -38,24 +38,30 @@ namespace FPTU_Starter.API
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                },
-                Scheme = "oauth2",
-                Name = "Bearer",
-                In = ParameterLocation.Header
-            },
-            new List<string>()
-        }
-    });
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header
+                        },
+                        new List<string>()
+                    }
+                });
             });
-
+            //add CORS
+            builder.Services.AddCors(p => p.AddPolicy("MyCors", build =>
+            {
+                build.WithOrigins("*")
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+            }));
 
             var app = builder.Build();
 
@@ -70,7 +76,7 @@ namespace FPTU_Starter.API
             app.UseAuthentication();
             app.UseAuthorization();
 
-
+            app.UseCors("MyCors");
             app.MapControllers();
 
             app.Run();

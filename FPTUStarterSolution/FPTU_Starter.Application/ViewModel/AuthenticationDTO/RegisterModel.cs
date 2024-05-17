@@ -15,6 +15,6 @@ namespace FPTU_Starter.Application.ViewModel.AuthenticationDTO
         [Compare(nameof(Password))]
         public string? ConfirmPassword { get; set; }
         public string? Address { get; set; }
-        public int Phone { get; set; }
+        public string? Phone { get; set; }
     }
 }
