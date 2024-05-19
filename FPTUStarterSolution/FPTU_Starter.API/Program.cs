@@ -1,3 +1,4 @@
+using FPTU_Starter.API.Exception;
 using FPTU_Starter.Application;
 using FPTU_Starter.Infrastructure;
 using FPTU_Starter.Infrastructure.Dependecy_Injection;
@@ -14,7 +15,13 @@ namespace FPTU_Starter.API
 
             // Add services to the container.
             builder.Services.AddInfrastructure(builder.Configuration);
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
+            builder.Services.AddControllers(options =>
+            {
+                options.Filters.Add<GlobalExceptionHandler>();
+            });
             builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

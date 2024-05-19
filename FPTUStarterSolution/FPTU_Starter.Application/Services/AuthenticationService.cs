@@ -65,16 +65,18 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<ResponseToken>.Fail("User already exists");
                 }
-                
+
 
                 // Create a new user
                 var newUser = new ApplicationUser
                 {
-                    UserName = registerModel.Name,
+                    FirstName = registerModel.FirstName,
+                    LastName = registerModel.LastName,
+                    UserName = registerModel.FirstName + registerModel.LastName,
                     Email = registerModel.Email,
-                    Address = registerModel.Address,
-                    Name = registerModel.Name,
-                    Phone = registerModel.Phone,
+                    NormalizedEmail = registerModel.Email!.ToUpper(),                  
+                    Address = registerModel.Address,                  
+                    PhoneNumber = registerModel.Phone,
                     Id = Guid.NewGuid(),
                 };
 
@@ -99,13 +101,12 @@ namespace FPTU_Starter.Application.Services
                 // Optionally commit the changes if using a unit of work pattern
                 await _unitOfWork.CommitAsync();
                 // Generate a token for the new user
-                var token = _tokenGenerator.GenerateToken(newUser,null);
+                var token = _tokenGenerator.GenerateToken(newUser, null);
                 return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = token }, "Successfully created user and token");
             }
             catch (Exception ex)
             {
-                // Log the exception and return a failure result
-                // Consider logging the exception to a file or monitoring system
+
                 return ResultDTO<ResponseToken>.Fail($"An error occurred: {ex.Message}");
             }
         }
