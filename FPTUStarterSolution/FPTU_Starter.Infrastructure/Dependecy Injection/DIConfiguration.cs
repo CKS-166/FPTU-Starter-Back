@@ -1,4 +1,5 @@
-﻿using FPTU_Starter.Application.IEmailService;
+﻿using AutoMapper;
+using FPTU_Starter.Application.IEmailService;
 using FPTU_Starter.Application.IRepository;
 using FPTU_Starter.Application.ITokenService;
 using FPTU_Starter.Application.Services;
@@ -7,8 +8,12 @@ using FPTU_Starter.Domain;
 using FPTU_Starter.Domain.EmailModel;
 using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Infrastructure.Authentication;
+using FPTU_Starter.Infrastructure.CloudinaryClassSettings;
 using FPTU_Starter.Infrastructure.Database;
 using FPTU_Starter.Infrastructure.EmailService;
+using FPTU_Starter.Infrastructure.MapperConfigs;
+using FPTU_Starter.Infrastructure.OuterService.Implementation;
+using FPTU_Starter.Infrastructure.OuterService.Interface;
 using FPTU_Starter.Infrastructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -29,7 +34,6 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddDbContext<MyDbContext>(option =>
             option.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
             b => b.MigrationsAssembly(typeof(DIConfiguration).Assembly.FullName)), ServiceLifetime.Scoped);
-
             //BaseRepository          
             service.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 
@@ -72,12 +76,19 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
                 .Get<EmailConfig>();
             service.AddSingleton(emailCofig);
 
+            //CloudinarySetting
+            service.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
+
             //Services and Repositories            
             service.AddTransient<IUserRepository, UserRepository>();
             service.AddScoped<IAuthenticationService, AuthenticationService>();
             service.AddScoped<ITokenGenerator, TokenGenerator>();
             service.AddScoped<IEmailService, EmailService.EmailService>();
-
+            service.AddScoped<IProjectRepository, ProjectRepository>();
+            service.AddScoped<IProjectManagementService, ProjectManagementService>();
+            service.AddScoped<IPackageRepository, PackageRepository>();
+            service.AddScoped<IPhotoService, UploadPhotoService>();
+            service.AddScoped<IVideoService, UploadVideoService>();
             return service;
         }
     }

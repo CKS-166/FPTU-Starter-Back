@@ -51,7 +51,7 @@ namespace FPTU_Starter.Infrastructure.Repository
             return _entitySet.FirstOrDefault(predicate);
         }
 
-        public virtual IEnumerable<T> GetAll()
+        public IEnumerable<T> GetAll()
         {
             return _entitySet.ToList();
         }
