@@ -7,6 +7,7 @@ using FPTU_Starter.Application.ViewModel.AuthenticationDTO;
 using FPTU_Starter.Domain.Constrain;
 using FPTU_Starter.Domain.EmailModel;
 using FPTU_Starter.Domain.Entity;
+using FPTU_Starter.Domain.Enum;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
@@ -111,14 +112,19 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<ResponseToken>.Fail("User already exists");
                 }
-
+                if (!Enum.TryParse<Gender>(registerModel.Gender, true, out var gender))
+                {
+                    throw new ArgumentException("Invalid gender value");
+                }
 
                 // Create a new user
                 var newUser = new ApplicationUser
                 {
-                    FirstName = registerModel.FirstName,
-                    LastName = registerModel.LastName,
-                    UserName = registerModel.FirstName + registerModel.LastName,
+                    AccountName = registerModel.AccountName,
+                    Name = registerModel.Name,                    
+                    UserName = registerModel.Name,
+                    DayOfBirth = registerModel.DayOfBirth,
+                    Gender = gender,
                     Email = registerModel.Email,
                     NormalizedEmail = registerModel.Email!.ToUpper(),
                     Address = registerModel.Address,

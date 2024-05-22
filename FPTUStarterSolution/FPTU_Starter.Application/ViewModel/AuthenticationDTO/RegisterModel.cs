@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FPTU_Starter.Domain.Enum;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,10 +10,12 @@ namespace FPTU_Starter.Application.ViewModel.AuthenticationDTO
 {
     public class RegisterModel
     {
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Email { get; set; }     
+        public string? AccountName { get; set; }
+        public string? Name { get; set; }
+        public string? Email { get; set; }
         public string? Address { get; set; }
+        public string? Gender { get; set; }
+        public DateTime DayOfBirth { get; set; }
         public string? Password { get; set; }
         [Compare(nameof(Password))]
         public string? ConfirmPassword { get; set; }
