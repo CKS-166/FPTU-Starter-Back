@@ -1,7 +1,9 @@
+using AutoMapper;
 using FPTU_Starter.API.Exception;
 using FPTU_Starter.Application;
 using FPTU_Starter.Infrastructure;
 using FPTU_Starter.Infrastructure.Dependecy_Injection;
+using FPTU_Starter.Infrastructure.MapperConfigs;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 namespace FPTU_Starter.API
@@ -25,6 +27,7 @@ namespace FPTU_Starter.API
             builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddAutoMapper(typeof(MapperConfig).Assembly);
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
