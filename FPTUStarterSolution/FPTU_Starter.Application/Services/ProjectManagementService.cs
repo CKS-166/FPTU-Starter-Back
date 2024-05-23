@@ -44,7 +44,7 @@ namespace FPTU_Starter.Application.Services
         {
             try
             {
-                IEnumerable<Project> projects = await _unitOfWork.ProjectRepository.GetQueryable().Include(p => p.Packages).ToListAsync();
+                IEnumerable<Project> projects = await _unitOfWork.ProjectRepository.GetQueryable().Include(p => p.Packages).Include(p => p.ProjectOwner).Include(p => p.Category).ToListAsync();
                 IEnumerable<ProjectViewResponse> responses = _mapper.Map<IEnumerable<Project>, IEnumerable<ProjectViewResponse>>(projects);
 
                 return ResultDTO<List<ProjectViewResponse>>.Success(responses.ToList(), "");

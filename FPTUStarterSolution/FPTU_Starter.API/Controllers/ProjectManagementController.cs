@@ -6,6 +6,8 @@ using FPTU_Starter.Application;
 using FPTU_Starter.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using FPTU_Starter.Infrastructure.OuterService.Interface;
+using FPTU_Starter.API.Exception;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 
 namespace FPTU_Starter.API.Controllers
 {
@@ -31,29 +33,40 @@ namespace FPTU_Starter.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("add-project")]
-        public async Task<IActionResult> AddProject([FromForm] ProjectAddRequest projectAddRequest, [FromForm] IFormFile thumbnailFile, [FromForm] IFormFile liveDemoFile)
+        [HttpPost]
+        public async Task<IActionResult> AddProject(ProjectAddRequest projectAddRequest)
         {
-            var thumbnailResult = await _photoService.UploadPhotoAsync(thumbnailFile);
-            projectAddRequest.ProjectThumbnail = thumbnailResult.Url != null ? thumbnailResult.Url.ToString() : "" ;
-            var videoResult = await _videoService.UploadVideoAsync(liveDemoFile);
-            projectAddRequest.ProjectLiveDemo = videoResult.Url != null ? videoResult.Url.ToString() : "";
-            var result = await _projectService.CreateProject(projectAddRequest);
-            return Ok(result);
+            try
+            {
+                //var thumbnailResult = await _photoService.UploadPhotoAsync(thumbnailFile);
+                //projectAddRequest.ProjectThumbnail = thumbnailResult.Url != null ? thumbnailResult.Url.ToString() : "";
+                //var videoResult = await _videoService.UploadVideoAsync(liveDemoFile);
+                //projectAddRequest.ProjectLiveDemo = videoResult.Url != null ? videoResult.Url.ToString() : "";
+                //Guid newId = Guid.NewGuid();
+                //projectAddRequest.Id = newId;
+               
+                var result = await _projectService.CreateProject(projectAddRequest);
+
+                return Ok(result);
+            }catch(ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }
 
         [HttpPost("add-thumbnail")]
-        public async Task<IActionResult> UploadThumbnail(IFormFile file)
+        public async Task<IActionResult> UploadThumbnail(IFormFile thumbnailFile)
         {
-            var result = await _photoService.UploadPhotoAsync(file);
+            var result = await _photoService.UploadPhotoAsync(thumbnailFile);
             return Ok(result.Url);
         }
 
         [HttpPost("add-live-demo")]
-        public async Task<IActionResult> UploadLiveDemo(IFormFile file)
+        public async Task<IActionResult> UploadLiveDemo(IFormFile liveDemoFile)
         {
-            var result = await _videoService.UploadVideoAsync(file);
-            return Ok(result);
+            var result = await _videoService.UploadVideoAsync(liveDemoFile);
+            return Ok(result.Url);
         }
     }
 }

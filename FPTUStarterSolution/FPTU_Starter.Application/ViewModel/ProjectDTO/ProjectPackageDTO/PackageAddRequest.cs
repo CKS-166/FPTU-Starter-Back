@@ -12,14 +12,9 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO
     public class PackageAddRequest
     {
         public string PackageName { get; set; } = string.Empty;
-
-        [Required]
         public int RequiredAmount { get; set; }
-        [Required]
         public int LimitQuantity { get; set; }
-        [Required]
         public string PackageType { get; set; } = string.Empty;
-        [Required]
         public Guid ProjectId { get; set; }
     }
 }

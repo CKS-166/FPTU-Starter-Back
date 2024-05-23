@@ -46,7 +46,12 @@ namespace FPTU_Starter.Domain.Entity
         [Required]
         public ProjectStatus ProjectStatus { get; set; }
 
+        [Required]
+        public Guid CategoryId { get; set; }
+
         public virtual ApplicationUser? ProjectOwner { get; set; }
+
+        public virtual Category? Category { get; set; }
 
         public ICollection<ProjectPackage> Packages { get; set; }
 
