@@ -19,16 +19,16 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
 
         public void MappingProject()
         {
-            CreateMap<Project, ProjectAddRequest>().ReverseMap();
             CreateMap<ProjectPackage, PackageAddRequest>().ReverseMap();
+            CreateMap<ProjectAddRequest,Project>()
+                .ForMember(des => des.Packages , src => src.MapFrom(x => x.Packages)).ReverseMap();
             CreateMap<ProjectPackage, PackageViewResponse>().ReverseMap();
             CreateMap<Project, ProjectViewResponse>()
                 .ForMember(des => des.PackageViewResponses, src => src.MapFrom(x => x.Packages))
-                
+                .ForMember(des => des.ProjectOwnerName , src => src.MapFrom(x => x.ProjectOwner.AccountName))
+                .ForMember(des => des.OwnerId, src => src.MapFrom(x => x.ProjectOwner.Id))
+                .ForMember(des => des.CategoryName , src => src.MapFrom(x => x.Category.Name))  
                 .ReverseMap();
-                
-
-          
         }
     }
 }

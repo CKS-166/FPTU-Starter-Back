@@ -15,6 +15,7 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
     public class ProjectAddRequest
     {
 
+        public Guid Id;
         public string ProjectName { get; set; } = string.Empty;
 
         public string ProjectDescription { get; set; } = string.Empty;
@@ -37,11 +38,10 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
 
         public string ProjectLiveDemo { get; set; } = string.Empty;
 
- 
         public Guid ProjectOwnerId { get; set; }
 
-        public virtual ApplicationUser? ProjectOwner { get; set; }
+        public Guid CategoryId { get; set; }
 
-        public List<PackageAddRequest> Packages { get; set; }
+        public List<PackageAddRequest>? Packages { get; set; }
     }
 }

@@ -86,6 +86,7 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<IEmailService, EmailService.EmailService>();
             service.AddScoped<IProjectRepository, ProjectRepository>();
             service.AddScoped<IProjectManagementService, ProjectManagementService>();
+            service.AddScoped<IPackageManagementService, PackageManagementService>();
             service.AddScoped<IPackageRepository, PackageRepository>();
             service.AddScoped<IPhotoService, UploadPhotoService>();
             service.AddScoped<IVideoService, UploadVideoService>();

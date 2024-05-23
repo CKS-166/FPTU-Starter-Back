@@ -21,6 +21,12 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
          public decimal ProjectTarget { get; set; }
         public decimal ProjectBalance { get; set; }
         public string ProjectBankAccount { get; set; } = string.Empty;
+        public Guid CategoryId { get; set; }
+        public string CategoryName { get; set; }
+
+        public Guid OwnerId { get; set; }
+        public string ProjectOwnerName {  get; set; } = string.Empty;  
+        
         public ProjectStatus ProjectStatus { get; set; }
         public List<PackageViewResponse> PackageViewResponses { get; set; }
     }
