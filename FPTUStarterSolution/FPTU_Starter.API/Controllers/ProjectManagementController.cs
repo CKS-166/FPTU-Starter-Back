@@ -11,7 +11,7 @@ using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 
 namespace FPTU_Starter.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/projects")]
     [ApiController]
     public class ProjectManagementController : ControllerBase
     {
@@ -38,15 +38,7 @@ namespace FPTU_Starter.API.Controllers
         {
             try
             {
-                //var thumbnailResult = await _photoService.UploadPhotoAsync(thumbnailFile);
-                //projectAddRequest.ProjectThumbnail = thumbnailResult.Url != null ? thumbnailResult.Url.ToString() : "";
-                //var videoResult = await _videoService.UploadVideoAsync(liveDemoFile);
-                //projectAddRequest.ProjectLiveDemo = videoResult.Url != null ? videoResult.Url.ToString() : "";
-                //Guid newId = Guid.NewGuid();
-                //projectAddRequest.Id = newId;
-               
                 var result = await _projectService.CreateProject(projectAddRequest);
-
                 return Ok(result);
             }catch(ExceptionError ex)
             {
