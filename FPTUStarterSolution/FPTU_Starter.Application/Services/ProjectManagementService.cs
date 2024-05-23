@@ -28,7 +28,9 @@ namespace FPTU_Starter.Application.Services
         {
             try
             {
+                ApplicationUser owner = _unitOfWork.UserRepository.Get(p => p.Email == projectAddRequest.ProjectOwnerEmail);
                 Project project = _mapper.Map<Project>(projectAddRequest);
+                project.ProjectOwner = owner;
                 await _unitOfWork.ProjectRepository.AddAsync(project);
                 await _unitOfWork.CommitAsync();
                 return ResultDTO<string>.Success("", "Add Sucessfully");
