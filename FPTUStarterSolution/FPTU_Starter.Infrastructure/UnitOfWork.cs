@@ -15,11 +15,14 @@ namespace FPTU_Starter.Infrastructure
     {
         private readonly MyDbContext _dbContext;
         private IUserRepository _userRepository;
-
-        public UnitOfWork(MyDbContext dbContext, IUserRepository UserRepository)
+        private IProjectRepository _projectRepository;
+        private IPackageRepository _packageRepository;
+        public UnitOfWork(MyDbContext dbContext, IUserRepository UserRepository, IProjectRepository projectRepository, IPackageRepository packageRepository)
         {
             _dbContext = dbContext;
             _userRepository = UserRepository;
+            _projectRepository = projectRepository;
+            _packageRepository = packageRepository;
         }
 
         public IUserRepository UserRepository
@@ -30,6 +33,21 @@ namespace FPTU_Starter.Infrastructure
             }
         }
 
+        public IProjectRepository ProjectRepository
+        {
+            get
+            {
+                return _projectRepository = _projectRepository ?? new ProjectRepository(_dbContext);
+            }
+        }
+
+        public IPackageRepository PackageRepository
+        {
+            get
+            {
+                return _packageRepository = _packageRepository ?? new PackageRepository(_dbContext);
+            }
+        }
         public void Commit()
              => _dbContext.SaveChanges();
 

@@ -1,10 +1,12 @@
 ﻿using FPTU_Starter.Domain.Entity;
+using FPTU_Starter.Infrastructure.ConfigEntity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,6 +24,9 @@ namespace FPTU_Starter.Infrastructure.Database
 
         }
         public DbSet<ApplicationUser> Users { get; set; }
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<ProjectPackage> Packages { get; set; }
+        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

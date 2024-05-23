@@ -11,5 +11,6 @@ namespace FPTU_Starter.Domain.Enum
         Nam,
         Nữ,
         Khác
+
     }
 }
