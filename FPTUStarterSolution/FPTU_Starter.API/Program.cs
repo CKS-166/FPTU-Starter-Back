@@ -2,8 +2,11 @@ using FPTU_Starter.API.Exception;
 using FPTU_Starter.Application;
 using FPTU_Starter.Infrastructure;
 using FPTU_Starter.Infrastructure.Dependecy_Injection;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using System.Security.Claims;
+
 namespace FPTU_Starter.API
 {
     public class Program
@@ -12,9 +15,30 @@ namespace FPTU_Starter.API
         {
 
             var builder = WebApplication.CreateBuilder(args);
-
+            
             // Add services to the container.
             builder.Services.AddInfrastructure(builder.Configuration);
+            //add CORS
+            builder.Services.AddCors(p => p.AddPolicy("MyCors", build =>
+            {
+                build.WithOrigins("*")
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+            }));
+            builder.Services.AddAuthentication().AddGoogle(opts =>
+            {
+                opts.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+                opts.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+                //opts.Scope.Add("profile");
+                //opts.Events.OnCreatingTicket = (context) =>
+                //{
+                //    var picture = context.User.GetProperty("picture").GetString();
+
+                //    context.Identity.AddClaim(new Claim("picture", picture));
+
+                //    return Task.CompletedTask;
+                //};
+            });
             builder.Services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
 );
@@ -44,6 +68,8 @@ namespace FPTU_Starter.API
                     Scheme = "Bearer"
                 });
 
+                
+
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
@@ -62,13 +88,7 @@ namespace FPTU_Starter.API
                     }
                 });
             });
-            //add CORS
-            builder.Services.AddCors(p => p.AddPolicy("MyCors", build =>
-            {
-                build.WithOrigins("*")
-                .AllowAnyMethod()
-                .AllowAnyHeader();
-            }));
+            
 
             var app = builder.Build();
 
@@ -80,10 +100,11 @@ namespace FPTU_Starter.API
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("MyCors");
+
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseCors("MyCors");
             app.MapControllers();
 
             app.Run();
