@@ -32,6 +32,7 @@ namespace FPTU_Starter.Infrastructure.Authentication
                 new Claim(ClaimTypes.Email,user.Email!),
 
             };
+
             if (userRole != null) // case: register dont need to claim role
             {
                 foreach (var role in userRole)

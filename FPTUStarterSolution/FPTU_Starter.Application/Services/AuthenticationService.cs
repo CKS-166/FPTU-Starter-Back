@@ -9,6 +9,7 @@ using FPTU_Starter.Domain.EmailModel;
 using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Domain.Enum;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
@@ -25,14 +26,15 @@ namespace FPTU_Starter.Application.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailService.IEmailService _emailService;
         private readonly ILogger<AuthenticationService> _logger;
-
+        private readonly IGoogleService _googleService;
         public AuthenticationService(IUnitOfWork unitOfWork,
             ITokenGenerator tokenGenerator,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
             IEmailService.IEmailService emailService,
-            ILogger<AuthenticationService> logger)
+            ILogger<AuthenticationService> logger,
+            IGoogleService googleService)
         {
             _unitOfWork = unitOfWork;
             _tokenGenerator = tokenGenerator;
@@ -41,7 +43,69 @@ namespace FPTU_Starter.Application.Services
             _roleManager = roleManager;
             _emailService = emailService;
             _logger = logger;
+            _googleService = googleService;
         }
+
+        public async Task<ResultDTO<LoginResponseDTO>> GoogleLogin(string token)
+        {
+            try
+            {
+                var validPayload = await _googleService.VerifyGoogleTokenAsync(token);
+
+                if (validPayload != null)
+                {
+                    // Check if the user already exists in your database based on email
+
+                    var existingUser = await _userManager.Users
+                    .FirstOrDefaultAsync(u => u.Email == validPayload.Email);
+                    //check if existingUser is exit in db 
+                    if (existingUser == null)
+                    {
+
+                        var user = new ApplicationUser
+                        {
+                            AccountName = validPayload.Email,
+                            Name = validPayload.GivenName + ' ' + validPayload.FamilyName,
+                            UserName = validPayload.Email,
+                            DayOfBirth = DateTime.Now,
+                            Gender = Gender.Khác,
+                            Email = validPayload.Email,
+                            NormalizedEmail = validPayload.Email!.ToUpper(),
+                            Address = "",
+                            PhoneNumber = "",
+                            Id = Guid.NewGuid(),
+                            TwoFactorEnabled = true, //enable 2FA
+                        };
+
+
+                        var result = await _userManager.CreateAsync(user);
+                        if (!result.Succeeded)
+                        {
+                            return ResultDTO<LoginResponseDTO>.Fail("invalid condition");
+                        }
+                        await _userManager.AddToRoleAsync(user, "User");
+                        existingUser = user;
+
+                    }
+
+                    var jwtToken = _tokenGenerator.GenerateToken(existingUser, null);
+                    var LoginRes = new LoginResponseDTO
+                    {
+                        AccessToken = jwtToken,
+                        Expire = DateTime.Now.AddMinutes(60)
+                    };
+
+                    return ResultDTO<LoginResponseDTO>.Success(LoginRes);
+                }
+
+                return ResultDTO<LoginResponseDTO>.Fail("Invalid Google token");
+            }
+            catch (Exception ex)
+            {
+                return ResultDTO<LoginResponseDTO>.Fail("Server fail");
+            }
+        }
+
         public async Task<ResultDTO<ResponseToken>> LoginAsync(LoginDTO loginDTO)
         {
             try

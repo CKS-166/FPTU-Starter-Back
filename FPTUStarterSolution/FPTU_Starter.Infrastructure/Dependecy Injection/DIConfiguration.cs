@@ -84,6 +84,8 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<IAuthenticationService, AuthenticationService>();
             service.AddScoped<ITokenGenerator, TokenGenerator>();
             service.AddScoped<IEmailService, EmailService.EmailService>();
+            service.AddScoped<IGoogleService, GoogleService>();
+
             service.AddScoped<IProjectRepository, ProjectRepository>();
             service.AddScoped<IProjectManagementService, ProjectManagementService>();
             service.AddScoped<IPackageManagementService, PackageManagementService>();
