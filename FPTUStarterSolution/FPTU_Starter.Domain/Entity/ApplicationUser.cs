@@ -14,8 +14,10 @@ namespace FPTU_Starter.Domain.Entity
         public string? AccountName { get; set; }
         public string? Name { get; set; }
         public string? Email { get; set; }
+        public string? Avatar { get; set; }
+        public string? BackgroundAvatar { get; set; }
         public string? Address { get; set; }                     
-        public Gender Gender { get; set; }                     
-        public DateTime DayOfBirth { get; set; }                     
+        public Gender? Gender { get; set; }                     
+        public DateTime? DayOfBirth { get; set; }
     }
 }

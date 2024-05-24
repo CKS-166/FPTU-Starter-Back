@@ -116,15 +116,6 @@ namespace FPTU_Starter.Application.Services
                     return ResultDTO<ResponseToken>.Fail("Email or password is wrong");
 
                 var userRole = await _userManager.GetRolesAsync(getUser);
-                if (getUser.TwoFactorEnabled)
-                {
-                    await _signInManager.SignOutAsync();
-                    await _signInManager.PasswordSignInAsync(getUser, loginDTO.Password, false, true);
-                    var emailToken = await _userManager.GenerateTwoFactorTokenAsync(getUser, "Email");
-                    var mess = new Message(new string[] { getUser.Email! }, "OTP Verification", emailToken);
-                    _emailService.SendEmail(mess);
-                    return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = $"OTP have been send to your email {getUser.Email}" });
-                }
                 var token = _tokenGenerator.GenerateToken(getUser, userRole);
                 return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = token }, "successfull create token");
 
@@ -154,7 +145,7 @@ namespace FPTU_Starter.Application.Services
                     var token = _tokenGenerator.GenerateToken(user, userRole);
                     return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = token }, "Successfully created token");
                 }
-                
+
                 _logger.LogWarning($"Invalid code provided for user {username}.");
                 return ResultDTO<ResponseToken>.Fail("Invalid Code !!!");
             }
@@ -176,27 +167,22 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<ResponseToken>.Fail("User already exists");
                 }
-                if (!Enum.TryParse<Gender>(registerModel.Gender, true, out var gender))
-                {
-                    throw new ArgumentException("Invalid gender value");
-                }
 
                 // Create a new user
                 var newUser = new ApplicationUser
                 {
                     AccountName = registerModel.AccountName,
-                    Name = registerModel.Name,                    
+                    Name = registerModel.Name,
                     UserName = registerModel.Name,
-                    DayOfBirth = registerModel.DayOfBirth,
-                    Gender = gender,
                     Email = registerModel.Email,
+                    Gender = null,
+                    DayOfBirth = null,
                     NormalizedEmail = registerModel.Email!.ToUpper(),
-                    Address = registerModel.Address,
-                    PhoneNumber = registerModel.Phone,
                     Id = Guid.NewGuid(),
                     TwoFactorEnabled = true, //enable 2FA
-                   
+
                 };
+
 
                 // Add the user using UserManager
                 var result = await _userManager.CreateAsync(newUser, registerModel.Password);
@@ -219,6 +205,15 @@ namespace FPTU_Starter.Application.Services
                 // Optionally commit the changes if using a unit of work pattern
                 await _unitOfWork.CommitAsync();
                 // Generate a token for the new user
+                if (newUser.TwoFactorEnabled)
+                {
+                    await _signInManager.SignOutAsync();
+                    await _signInManager.PasswordSignInAsync(newUser, registerModel.Password, false, true);
+                    var emailToken = await _userManager.GenerateTwoFactorTokenAsync(newUser, "Email");
+                    var mess = new Message(new string[] { newUser.Email! }, "OTP Verification", emailToken);
+                    _emailService.SendEmail(mess);
+                    return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = $"OTP have been send to your email {newUser.Email}" });
+                }
                 var token = _tokenGenerator.GenerateToken(newUser, null);
                 return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = token }, "Successfully created user and token");
             }

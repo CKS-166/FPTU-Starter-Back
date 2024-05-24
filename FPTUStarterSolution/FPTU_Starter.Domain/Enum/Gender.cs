@@ -8,8 +8,9 @@ namespace FPTU_Starter.Domain.Enum
 {
     public enum Gender
     {
-        Male,
-        Female,
-        Other
+        Nam,
+        Nữ,
+        Khác
+
     }
 }
