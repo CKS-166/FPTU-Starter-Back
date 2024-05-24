@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using FPTU_Starter.Application.ViewModel.CategoryDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using FPTU_Starter.Application.ViewModel.UserDTO;
@@ -17,6 +18,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
         {
             MappingProject();
             MappingUserProfile();
+            MappingCategory();
         }
 
         public void MappingProject()
@@ -47,6 +49,12 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ForMember(dest => dest.UserAvatarUrl, opt => opt.MapFrom(src => src.Avatar))
                 .ForMember(dest => dest.UserBgAvatarUrl, opt => opt.MapFrom(src => src.BackgroundAvatar))
                 .ReverseMap();
+        }
+        
+        public void MappingCategory()
+        {
+            CreateMap<Category,CategoryAddRequest>().ReverseMap();
+            CreateMap<Category,CategoryViewResponse>().ReverseMap();
         }
     }
 }

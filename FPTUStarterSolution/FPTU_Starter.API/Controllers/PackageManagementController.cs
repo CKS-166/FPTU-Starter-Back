@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FPTU_Starter.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/packages")]
     [ApiController]
     public class PackageManagementController : Controller
     {
