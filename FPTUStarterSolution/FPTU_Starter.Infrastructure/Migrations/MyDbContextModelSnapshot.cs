@@ -46,7 +46,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("DayOfBirth")
+                    b.Property<DateTime?>("DayOfBirth")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
@@ -56,7 +56,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<int>("Gender")
+                    b.Property<int?>("Gender")
                         .HasColumnType("int");
 
                     b.Property<bool>("LockoutEnabled")
