@@ -16,11 +16,15 @@ namespace FPTU_Starter.API.Controllers
     {
         private readonly Application.Services.IService.IAuthenticationService _authenticationService;
         private readonly IEmailService _emailService;
+        private readonly IUserManagementService _userManagementService;
 
-        public AuthenticationController(Application.Services.IService.IAuthenticationService authenticationService, IEmailService emailService)
+        public AuthenticationController(Application.Services.IService.IAuthenticationService authenticationService,
+            IEmailService emailService,
+            IUserManagementService userManagementService)
         {
             _authenticationService = authenticationService;
             _emailService = emailService;
+            _userManagementService = userManagementService;
         }
         [HttpPost("login")]
         public async Task<ActionResult<ResponseToken>> login(LoginDTO loginDTO)
@@ -67,10 +71,10 @@ namespace FPTU_Starter.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("check-user-exist")]
+        [HttpGet("check-user-exist")]
         public async Task<ActionResult> CheckUserExistByEmail(string email)
         {
-            var result = await _userManagementService.CheckIfUserExist(email);
+            var result = await _userManagementService.CheckIfUserExistByEmail(email);
             return Ok(result);
         }
 

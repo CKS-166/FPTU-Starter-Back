@@ -11,5 +11,6 @@ namespace FPTU_Starter.Application.Services.IService
     public interface IUserManagementService
     {
         Task<ResultDTO<UserInfoResponse>> GetUserInfo();
+        Task<bool> CheckIfUserExistByEmail(string email);
     }
 }

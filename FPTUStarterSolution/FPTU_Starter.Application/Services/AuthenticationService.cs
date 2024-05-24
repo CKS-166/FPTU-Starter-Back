@@ -68,7 +68,7 @@ namespace FPTU_Starter.Application.Services
                             Name = validPayload.GivenName + ' ' + validPayload.FamilyName,
                             UserName = validPayload.Email,
                             DayOfBirth = DateTime.Now,
-                            Gender = Gender.Other,
+                            Gender = Gender.Khác,
                             Email = validPayload.Email,
                             NormalizedEmail = validPayload.Email!.ToUpper(),
                             Address = "",

@@ -34,6 +34,21 @@ namespace FPTU_Starter.Application.Services
             _claimsPrincipal = httpContextAccessor.HttpContext.User;
             _mapper = mapper;
         }
+
+        public async Task<bool> CheckIfUserExistByEmail(string email)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                return user != null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+
+        }
+
         public async Task<ResultDTO<UserInfoResponse>> GetUserInfo()
         {
             try
