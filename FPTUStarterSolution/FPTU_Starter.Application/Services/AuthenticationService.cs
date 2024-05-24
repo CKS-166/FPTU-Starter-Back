@@ -112,23 +112,17 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<ResponseToken>.Fail("User already exists");
                 }
-                if (!Enum.TryParse<Gender>(registerModel.Gender, true, out var gender))
-                {
-                    throw new ArgumentException("Invalid gender value");
-                }
 
                 // Create a new user
                 var newUser = new ApplicationUser
                 {
                     AccountName = registerModel.AccountName,
-                    Name = registerModel.Name,                    
+                    Name = registerModel.Name,
                     UserName = registerModel.Name,
-                    DayOfBirth = registerModel.DayOfBirth,
-                    Gender = gender,
                     Email = registerModel.Email,
+                    Gender = null,
+                    DayOfBirth = null,
                     NormalizedEmail = registerModel.Email!.ToUpper(),
-                    Address = registerModel.Address,
-                    PhoneNumber = registerModel.Phone,
                     Id = Guid.NewGuid(),
                     TwoFactorEnabled = true, //enable 2FA
                    

@@ -2,8 +2,10 @@ using AutoMapper;
 using FPTU_Starter.API.Exception;
 using FPTU_Starter.Application;
 using FPTU_Starter.Infrastructure;
+using FPTU_Starter.Infrastructure.Database;
 using FPTU_Starter.Infrastructure.Dependecy_Injection;
 using FPTU_Starter.Infrastructure.MapperConfigs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 namespace FPTU_Starter.API

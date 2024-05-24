@@ -7,6 +7,7 @@ using AutoMapper;
 using FPTU_Starter.Application.ViewModel.CategoryDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
+using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Domain.Entity;
 
 namespace FPTU_Starter.Infrastructure.MapperConfigs
@@ -16,6 +17,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
         public MapperConfig()
         {
             MappingProject();
+            MappingUserProfile();
             MappingCategory();
         }
 
@@ -33,6 +35,22 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ReverseMap();
         }
 
+        public void MappingUserProfile()
+        {
+            CreateMap<ApplicationUser, UserInfoResponse>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.AccountName, opt => opt.MapFrom(src => src.AccountName))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.UserPhone, opt => opt.MapFrom(src => src.PhoneNumber))
+                .ForMember(dest => dest.UserBirthDate, opt => opt.MapFrom(src => src.DayOfBirth))
+                .ForMember(dest => dest.UserAddress, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.UserGender, opt => opt.MapFrom(src => src.Gender))
+                .ForMember(dest => dest.UserAvatarUrl, opt => opt.MapFrom(src => src.Avatar))
+                .ForMember(dest => dest.UserBgAvatarUrl, opt => opt.MapFrom(src => src.BackgroundAvatar))
+                .ReverseMap();
+        }
+        
         public void MappingCategory()
         {
             CreateMap<Category,CategoryAddRequest>().ReverseMap();
