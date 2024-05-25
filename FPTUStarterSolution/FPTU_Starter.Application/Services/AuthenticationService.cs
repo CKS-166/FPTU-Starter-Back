@@ -224,5 +224,63 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
+        public async Task<ResultDTO<ResponseToken>> RegisterGoogleIdentity(RegisterModel registerModel, string role)
+        {
+            try
+            {
+                // Check if the user already exists
+                var getUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == registerModel.Email);
+                if (getUser != null)
+                {
+                    return ResultDTO<ResponseToken>.Fail("User already exists");
+                }
+
+
+                // Create a new user
+                var newUser = new ApplicationUser
+                {
+                    AccountName = registerModel.AccountName,
+                    Name = registerModel.Name,
+                    UserName = registerModel.Name,
+                    Email = registerModel.Email,
+                    Gender = null,
+                    DayOfBirth = null,
+                    NormalizedEmail = registerModel.Email!.ToUpper(),
+                    Id = Guid.NewGuid(),
+                    TwoFactorEnabled = true, //enable 2FA
+                };
+
+                // Add the user using UserManager
+                var result = await _userManager.CreateAsync(newUser, registerModel.Password);
+                if (!result.Succeeded)
+                {
+                    // Handle and log errors if user creation failed
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    return ResultDTO<ResponseToken>.Fail($"User creation failed: {errors}");
+                }
+                else
+                {
+                    //config role BACKER
+                    if (!await _roleManager.RoleExistsAsync(role))
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(role));
+                    }
+                    await _userManager.AddToRoleAsync(newUser, role);
+                }
+
+                // Optionally commit the changes if using a unit of work pattern
+                await _unitOfWork.CommitAsync();
+                // Generate a token for the new user
+                var token = _tokenGenerator.GenerateToken(newUser, null);
+                return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = token }, "Successfully created user and token");
+            }
+            catch (Exception ex)
+            {
+                // Log the exception and return a failure result
+                // Consider logging the exception to a file or monitoring system
+                return ResultDTO<ResponseToken>.Fail($"An error occurred: {ex.Message}");
+            }
+        }
+
     }
 }

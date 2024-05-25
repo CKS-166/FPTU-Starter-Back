@@ -39,7 +39,7 @@ namespace FPTU_Starter.Application.Services
         {
             try
             {
-                var user = await _userManager.FindByEmailAsync(email);
+                var user = await _userManager.FindByNameAsync(email);
                 return user != null;
             }
             catch (Exception ex)
