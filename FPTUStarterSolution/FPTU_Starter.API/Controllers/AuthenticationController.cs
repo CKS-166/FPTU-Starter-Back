@@ -103,5 +103,12 @@ namespace FPTU_Starter.API.Controllers
 
             return Ok(claims);
         }
+
+        [HttpPost("register-google")]
+        public async Task<ActionResult<ResponseToken>> RegisterGoogleIdentity(RegisterModel registerModel)
+        {
+            var result = await _authenticationService.RegisterGoogleIdentity(registerModel, Role.Backer);
+            return Ok(result);
+        }
     }
 }
