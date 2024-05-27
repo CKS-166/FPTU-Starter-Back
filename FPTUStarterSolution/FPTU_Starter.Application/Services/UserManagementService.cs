@@ -2,6 +2,7 @@
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.AuthenticationDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Domain.Entity;
 using Microsoft.AspNetCore.Http;
@@ -58,7 +59,7 @@ namespace FPTU_Starter.Application.Services
                     return ResultDTO<UserInfoResponse>.Fail("User not authenticated.");
                 }
                 var userEmailClaims = _claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if(userEmailClaims == null)
+                if (userEmailClaims == null)
                 {
                     return ResultDTO<UserInfoResponse>.Fail("User not found.");
                 }
@@ -71,6 +72,36 @@ namespace FPTU_Starter.Application.Services
                 var userInfoResponse = _mapper.Map<UserInfoResponse>(applicationUser);
 
                 return ResultDTO<UserInfoResponse>.Success(userInfoResponse);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+        public async Task<ResultDTO<string>> UpdateUser(UserUpdateRequest userUpdateRequest)
+        {
+            try
+            {
+                if (_claimsPrincipal == null || !_claimsPrincipal.Identity.IsAuthenticated)
+                {
+                    return ResultDTO<string>.Fail("User not authenticated.");
+                }
+                var userEmailClaims = _claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+                if (userEmailClaims == null)
+                {
+                    return ResultDTO<string>.Fail("User not found.");
+                }
+                var userEmail = userEmailClaims.Value;
+                ApplicationUser applicationUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == userEmail);
+                if (applicationUser == null)
+                {
+                    return ResultDTO<string>.Fail("User not found.");
+                }
+                _mapper.Map(userUpdateRequest, applicationUser);
+                _unitOfWork.UserRepository.Update(applicationUser);
+                await _unitOfWork.CommitAsync();
+
+                return ResultDTO<string>.Success("Update Successfully");
             }
             catch (Exception ex)
             {

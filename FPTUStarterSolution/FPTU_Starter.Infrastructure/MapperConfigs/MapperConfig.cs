@@ -22,6 +22,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
             MappingProject();
             MappingUserProfile();
             MappingCategory();
+            MappingUserUpdateRequest();
         }
 
         public void MappingProject()
@@ -66,6 +67,19 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
             CreateMap<Category,CategoryViewResponse>().ReverseMap();
             CreateMap<SubCategory,SubCategoryAddRequest>().ReverseMap();    
             CreateMap<SubCategory,SubCategoryViewResponse>().ReverseMap();
+        }
+
+        public void MappingUserUpdateRequest()
+        {
+            CreateMap<ApplicationUser, UserUpdateRequest>()
+                .ForMember(dest => dest.AccountName, opt => opt.MapFrom(src => src.AccountName))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.UserPhone, opt => opt.MapFrom(src => src.PhoneNumber))
+                .ForMember(dest => dest.UserBirthDate, opt => opt.MapFrom(src => src.DayOfBirth))
+                .ForMember(dest => dest.UserAddress, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.UserGender, opt => opt.MapFrom(src => src.Gender))
+                .ReverseMap();
         }
     }
 }
