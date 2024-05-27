@@ -5,8 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using FPTU_Starter.Application.ViewModel.CategoryDTO;
+using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.RewardItemDTO;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Domain.Entity;
 
@@ -23,6 +26,8 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
 
         public void MappingProject()
         {
+            CreateMap<RewardItem, RewardItemAddRequest>().ReverseMap();
+            CreateMap<RewardItem,RewardItemViewResponse>().ReverseMap();
             CreateMap<ProjectPackage, PackageAddRequest>().ReverseMap();
             CreateMap<ProjectAddRequest,Project>()
                 .ForMember(des => des.Packages , src => src.MapFrom(x => x.Packages)).ReverseMap();
@@ -31,8 +36,11 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ForMember(des => des.PackageViewResponses, src => src.MapFrom(x => x.Packages))
                 .ForMember(des => des.ProjectOwnerName , src => src.MapFrom(x => x.ProjectOwner.AccountName))
                 .ForMember(des => des.OwnerId, src => src.MapFrom(x => x.ProjectOwner.Id))
-                .ForMember(des => des.CategoryName , src => src.MapFrom(x => x.Category.Name))  
+                .ForMember(des => des.CategoryName , src => src.MapFrom(x => x.Category.Name))
+                .ForMember(des => des.StoryImages, src => src.MapFrom(x => x.Images))
                 .ReverseMap();
+            CreateMap<ProjectImage,ProjectImageAddRequest>().ReverseMap();
+            CreateMap<ProjectImage,ProjectImageViewResponse>().ReverseMap();
         }
 
         public void MappingUserProfile()
@@ -53,8 +61,11 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
         
         public void MappingCategory()
         {
-            CreateMap<Category,CategoryAddRequest>().ReverseMap();
+            CreateMap<Category,CategoryAddRequest>().ReverseMap().ForMember(des => des.SubCategories 
+            ,src => src.MapFrom(x => x.SubCategories));
             CreateMap<Category,CategoryViewResponse>().ReverseMap();
+            CreateMap<SubCategory,SubCategoryAddRequest>().ReverseMap();    
+            CreateMap<SubCategory,SubCategoryViewResponse>().ReverseMap();
         }
     }
 }

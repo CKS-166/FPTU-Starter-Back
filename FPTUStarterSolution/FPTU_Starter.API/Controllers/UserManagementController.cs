@@ -1,5 +1,6 @@
 ﻿using FPTU_Starter.Application;
 using FPTU_Starter.Application.Services.IService;
+using FPTU_Starter.Domain.Constrain;
 using FPTU_Starter.Domain.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -19,7 +20,7 @@ namespace FPTU_Starter.API.Controllers
         }
 
         [HttpGet("user-profile")]
-        [Authorize]
+        [Authorize(Roles = Role.Backer + "," + Role.ProjectOwner)]
         public async Task<ActionResult> GetUserInformation()
         {
             var result = await _userManagementService.GetUserInfo();

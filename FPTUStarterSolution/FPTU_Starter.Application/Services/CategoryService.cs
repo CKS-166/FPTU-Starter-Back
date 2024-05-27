@@ -23,6 +23,11 @@ namespace FPTU_Starter.Application.Services
         }
         public async Task<ResultDTO<string>> CreateCate(CategoryAddRequest request)
         {
+            Category checkCate = _unitOfWork.CategoryRepository.Get(c => c.Name == request.Name);
+            if (checkCate != null)
+            {
+                return ResultDTO<string>.Fail("Category has already been existed");
+            }
             Category cate = _mapper.Map<Category>(request);
             await _unitOfWork.CategoryRepository.AddAsync(cate);
             await _unitOfWork.CommitAsync();

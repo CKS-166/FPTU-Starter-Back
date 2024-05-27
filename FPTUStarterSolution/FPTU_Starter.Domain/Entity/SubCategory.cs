@@ -9,7 +9,9 @@ namespace FPTU_Starter.Domain.Entity
 {
     public class SubCategory
     {
+        
         [Key]
+        [Required]
         public Guid Id { get; set; }
 
         [Required] 

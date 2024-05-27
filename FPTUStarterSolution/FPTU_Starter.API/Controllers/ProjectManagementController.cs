@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using FPTU_Starter.Infrastructure.OuterService.Interface;
 using FPTU_Starter.API.Exception;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
+using FPTU_Starter.Domain.Entity;
 
 namespace FPTU_Starter.API.Controllers
 {
@@ -18,12 +19,15 @@ namespace FPTU_Starter.API.Controllers
         private IProjectManagementService _projectService;
         private IPhotoService _photoService;
         private IVideoService _videoService;
+        private IUnitOfWork _unitOfWork;
 
-        public ProjectManagementController(IProjectManagementService projectService,IPhotoService photoService, IVideoService videoService)
+        public ProjectManagementController(IProjectManagementService projectService,
+            IPhotoService photoService, IVideoService videoService, IUnitOfWork unitOfWork)
         {
             _projectService = projectService;
             _photoService = photoService;
             _videoService = videoService;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
@@ -59,6 +63,25 @@ namespace FPTU_Starter.API.Controllers
         {
             var result = await _videoService.UploadVideoAsync(liveDemoFile);
             return Ok(result.Url);
+        }
+
+        [HttpPost("add-test")]
+        public async Task<IActionResult> AddProjectTest(Project prj)
+        {
+             await _unitOfWork.ProjectRepository.AddAsync(prj);
+            return Ok("Add Successfully");
+        }
+
+        [HttpPost("add-story")]
+        public async Task<IActionResult> UploadStory(List<IFormFile> storyFiles)
+        {
+            List<string> urls = new List<string>();
+            foreach(IFormFile formFile in storyFiles)
+            {
+                var result =  await _photoService.UploadPhotoAsync(formFile);
+                urls.Add(result.Url.ToString());
+            }
+            return Ok(urls);
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using static FPTU_Starter.Domain.Enum.ProjectEnum;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
 
 namespace FPTU_Starter.Application.ViewModel.ProjectDTO
 {
@@ -29,5 +30,6 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
         
         public ProjectStatus ProjectStatus { get; set; }
         public List<PackageViewResponse> PackageViewResponses { get; set; }
+        public List<ProjectImageViewResponse> StoryImages { get; set; }
     }
 }
