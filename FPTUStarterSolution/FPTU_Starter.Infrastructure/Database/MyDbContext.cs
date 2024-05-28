@@ -26,6 +26,9 @@ namespace FPTU_Starter.Infrastructure.Database
         public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<ProjectPackage> Packages { get; set; }
+
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<SubCategory> SubCategories { get; set; }   
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

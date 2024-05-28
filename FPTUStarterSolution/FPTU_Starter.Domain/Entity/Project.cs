@@ -55,5 +55,9 @@ namespace FPTU_Starter.Domain.Entity
 
         public ICollection<ProjectPackage> Packages { get; set; }
 
+        public virtual ICollection<SubCategory> SubCategories { get; set; }
+
+        public ICollection<ProjectImage> Images { get; set; }
+
     }
 }

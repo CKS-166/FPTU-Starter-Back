@@ -19,7 +19,6 @@ namespace FPTU_Starter.Domain.Entity
         public string Name { get; set; } = string.Empty;
 
         public virtual ICollection<Project> Projects { get; set; }
-
         public virtual ICollection<SubCategory> SubCategories { get; set; }
 
     }
