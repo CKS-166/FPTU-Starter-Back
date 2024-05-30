@@ -2,6 +2,7 @@
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Domain.Entity;
+using FPTU_Starter.Infrastructure.OuterService.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,9 +15,11 @@ namespace FPTU_Starter.API.Controllers
     public class UserManagementController : ControllerBase
     {
         private IUserManagementService _userManagementService;
-        public UserManagementController(IUserManagementService userManagementService)
+        private IPhotoService _photoService;
+        public UserManagementController(IUserManagementService userManagementService, IPhotoService photoService)
         {
             _userManagementService = userManagementService;
+            _photoService = photoService;
         }
 
         [HttpGet("user-profile")]
@@ -33,6 +36,13 @@ namespace FPTU_Starter.API.Controllers
         {
             var result = await _userManagementService.UpdateUser(userUpdateRequest);
             return Ok(result);
+        }
+
+        [HttpPost("upload-image")]
+        public async Task<IActionResult> UploadImage(IFormFile imgFile)
+        {
+            var result = await _photoService.UploadPhotoAsync(imgFile);
+            return Ok(result.Url);
         }
     }
 }

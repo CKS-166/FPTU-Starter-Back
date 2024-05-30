@@ -73,7 +73,6 @@ namespace FPTU_Starter.Application.Services
                             NormalizedEmail = validPayload.Email!.ToUpper(),
                             Address = "",
                             PhoneNumber = "",
-                            Id = Guid.NewGuid(),
                             TwoFactorEnabled = true, //enable 2FA
                         };
 
@@ -177,10 +176,8 @@ namespace FPTU_Starter.Application.Services
                     Email = registerModel.Email,
                     Gender = null,
                     DayOfBirth = null,
-                    NormalizedEmail = registerModel.Email!.ToUpper(),
-                    Id = Guid.NewGuid(),
+                    NormalizedEmail = registerModel.Email,
                     TwoFactorEnabled = true, //enable 2FA
-
                 };
 
 
@@ -224,7 +221,7 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
-        public async Task<ResultDTO<ResponseToken>> RegisterGoogleIdentity(RegisterModel registerModel, string role)
+        public async Task<ResultDTO<ResponseToken>> RegisterGoogleIdentity(RegisterModel registerModel, string role, string imgUrl)
         {
             try
             {
@@ -245,9 +242,9 @@ namespace FPTU_Starter.Application.Services
                     Email = registerModel.Email,
                     Gender = null,
                     DayOfBirth = null,
-                    NormalizedEmail = registerModel.Email!.ToUpper(),
-                    Id = Guid.NewGuid(),
+                    NormalizedEmail = registerModel.Email,
                     TwoFactorEnabled = true, //enable 2FA
+                    Avatar = imgUrl
                 };
 
                 // Add the user using UserManager

@@ -68,6 +68,8 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ForMember(dest => dest.UserBirthDate, opt => opt.MapFrom(src => src.DayOfBirth))
                 .ForMember(dest => dest.UserAddress, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.UserGender, opt => opt.MapFrom(src => src.Gender))
+                .ForMember(dest => dest.UserAvt, opt => opt.MapFrom(src => src.Avatar))
+                .ForMember(dest => dest.UserBackground, opt => opt.MapFrom(src => src.BackgroundAvatar))
                 .ReverseMap();
         }
     }
