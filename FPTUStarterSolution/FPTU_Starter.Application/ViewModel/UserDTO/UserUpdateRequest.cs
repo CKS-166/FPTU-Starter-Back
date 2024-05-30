@@ -16,5 +16,7 @@ namespace FPTU_Starter.Application.ViewModel.UserDTO
         public DateTime? UserBirthDate { get; set; }
         public string? UserAddress { get; set; } = null;
         public Gender? UserGender { get; set; }
+        public string? UserAvt { get; set; }
+        public string? UserBackground { get; set; }
     }
 }
