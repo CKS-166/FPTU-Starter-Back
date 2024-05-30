@@ -220,8 +220,7 @@ namespace FPTU_Starter.Application.Services
                 return ResultDTO<ResponseToken>.Fail($"An error occurred: {ex.Message}");
             }
         }
-
-        public async Task<ResultDTO<ResponseToken>> RegisterGoogleIdentity(RegisterModel registerModel, string role, string imgUrl)
+        public async Task<ResultDTO<ResponseToken>> RegisterGoogleIdentity(RegisterModel registerModel, string role, string avatarUrl)
         {
             try
             {
@@ -242,9 +241,9 @@ namespace FPTU_Starter.Application.Services
                     Email = registerModel.Email,
                     Gender = null,
                     DayOfBirth = null,
-                    NormalizedEmail = registerModel.Email,
+                    NormalizedEmail = registerModel.Email!.ToUpper(),
+                    Avatar = avatarUrl,
                     TwoFactorEnabled = true, //enable 2FA
-                    Avatar = imgUrl
                 };
 
                 // Add the user using UserManager
