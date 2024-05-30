@@ -10,6 +10,7 @@ using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using static FPTU_Starter.Domain.Enum.ProjectEnum;
 using Microsoft.AspNetCore.Http;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.SubCategoryPrj;
 
 namespace FPTU_Starter.Application.ViewModel.ProjectDTO
 {
@@ -39,7 +40,7 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
 
         public string ProjectOwnerEmail { get; set; }
 
-        public Guid CategoryId { get; set; }
+        public List<SubCatePrjAddRequest> SubCategories { get; set; }
 
         public List<PackageAddRequest>? Packages { get; set; }
 

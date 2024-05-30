@@ -92,6 +92,8 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<ICategoryService, CategoryService>();
             service.AddScoped<ICategoryRepository, CategoryRepository>();
             service.AddScoped<IPackageRepository, PackageRepository>();
+            service.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
+            service.AddScoped<ISubCategoryManagmentService,SubCategoryManagementService>();
             service.AddScoped<IPhotoService, UploadPhotoService>();
             service.AddScoped<IVideoService, UploadVideoService>();
             /*--User dependency Injection--*/
