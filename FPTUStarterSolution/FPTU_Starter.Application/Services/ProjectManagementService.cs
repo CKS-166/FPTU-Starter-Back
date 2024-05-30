@@ -1,17 +1,11 @@
-﻿using FPTU_Starter.Application.Services.IService;
+﻿using AutoMapper;
+using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
-using Org.BouncyCastle.Crypto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
-using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
-using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
+using FPTU_Starter.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.SubCategoryPrj;
+using static FPTU_Starter.Domain.Enum.ProjectEnum;
 
 namespace FPTU_Starter.Application.Services
 {
@@ -19,7 +13,7 @@ namespace FPTU_Starter.Application.Services
     {
         private IUnitOfWork _unitOfWork;
         private IMapper _mapper;
-        public ProjectManagementService(IUnitOfWork unitOfWork , IMapper mapper)
+        public ProjectManagementService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -43,18 +37,19 @@ namespace FPTU_Starter.Application.Services
                 await _unitOfWork.CommitAsync();
                 return ResultDTO<string>.Success("", "Add Sucessfully");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-            
+
         }
 
         public async Task<ResultDTO<List<ProjectViewResponse>>> ViewAllProjectsAsync()
         {
             try
             {
-                IEnumerable<Project> projects = await _unitOfWork.ProjectRepository.GetQueryable().Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
+                IEnumerable<Project> projects = await _unitOfWork.ProjectRepository.GetQueryable()
+                    .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
                     .Include(p => p.ProjectOwner)
                     //.Include(p => p.Category)
                     .Include(p => p.Images)
@@ -69,5 +64,22 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
+
+        public async Task<ResultDTO<string>> UpdateProjectStatus(Guid id, ProjectStatus projectStatus)
+        {
+            try
+            {
+                Project project = await _unitOfWork.ProjectRepository.GetByIdAsync(id);
+                project.ProjectStatus = projectStatus;
+                _unitOfWork.ProjectRepository.Update(project);
+                await _unitOfWork.CommitAsync();
+
+                return ResultDTO<string>.Success("", "Update Sucessfully");
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
     }
 }

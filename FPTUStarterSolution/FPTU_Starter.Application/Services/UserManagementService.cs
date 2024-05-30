@@ -40,14 +40,13 @@ namespace FPTU_Starter.Application.Services
         {
             try
             {
-                var user = await _userManager.FindByNameAsync(email);
+                var user = await _unitOfWork.UserRepository.GetAsync(x => x.Email == email);
                 return user != null;
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
             }
-
         }
 
         public async Task<ResultDTO<UserInfoResponse>> GetUserInfo()

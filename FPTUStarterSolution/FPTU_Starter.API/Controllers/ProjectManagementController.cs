@@ -1,14 +1,11 @@
-﻿using FPTU_Starter.Application.Services.IService;
-using FPTU_Starter.Application.ViewModel.ProjectDTO;
-using FPTU_Starter.Application.ViewModel;
-using Microsoft.AspNetCore.Mvc;
+﻿using FPTU_Starter.API.Exception;
 using FPTU_Starter.Application;
-using FPTU_Starter.Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using FPTU_Starter.Infrastructure.OuterService.Interface;
-using FPTU_Starter.API.Exception;
-using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
+using FPTU_Starter.Application.Services.IService;
+using FPTU_Starter.Application.ViewModel.ProjectDTO;
 using FPTU_Starter.Domain.Entity;
+using FPTU_Starter.Infrastructure.OuterService.Interface;
+using Microsoft.AspNetCore.Mvc;
+using static FPTU_Starter.Domain.Enum.ProjectEnum;
 
 namespace FPTU_Starter.API.Controllers
 {
@@ -44,11 +41,12 @@ namespace FPTU_Starter.API.Controllers
             {
                 var result = await _projectService.CreateProject(projectAddRequest);
                 return Ok(result);
-            }catch(ExceptionError ex)
+            }
+            catch (ExceptionError ex)
             {
                 return BadRequest(ex.Message);
             }
-            
+
         }
 
         [HttpPost("add-thumbnail")]
@@ -68,7 +66,7 @@ namespace FPTU_Starter.API.Controllers
         [HttpPost("add-test")]
         public async Task<IActionResult> AddProjectTest(Project prj)
         {
-             await _unitOfWork.ProjectRepository.AddAsync(prj);
+            await _unitOfWork.ProjectRepository.AddAsync(prj);
             return Ok("Add Successfully");
         }
 
@@ -76,12 +74,26 @@ namespace FPTU_Starter.API.Controllers
         public async Task<IActionResult> UploadStory(List<IFormFile> storyFiles)
         {
             List<string> urls = new List<string>();
-            foreach(IFormFile formFile in storyFiles)
+            foreach (IFormFile formFile in storyFiles)
             {
-                var result =  await _photoService.UploadPhotoAsync(formFile);
+                var result = await _photoService.UploadPhotoAsync(formFile);
                 urls.Add(result.Url.ToString());
             }
             return Ok(urls);
+        }
+
+        [HttpPut("update-project-status/{id}")]
+        public async Task<IActionResult> UpdateProjectStatus(Guid id, ProjectStatus projectStatus)
+        {
+            try
+            {
+                var result = await _projectService.UpdateProjectStatus(id, projectStatus);
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
