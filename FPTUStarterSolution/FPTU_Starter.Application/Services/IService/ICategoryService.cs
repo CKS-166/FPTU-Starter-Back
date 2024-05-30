@@ -1,5 +1,6 @@
 ﻿using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.CategoryDTO;
+using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,6 @@ namespace FPTU_Starter.Application.Services.IService
     {
         Task<ResultDTO<List<CategoryViewResponse>>> ViewAllCates();
         Task<ResultDTO<string>> CreateCate(CategoryAddRequest request);
+        Task<ResultDTO<List<SubCategoryViewResponse>>> ViewSubCates(Guid cateId);
     }
 }

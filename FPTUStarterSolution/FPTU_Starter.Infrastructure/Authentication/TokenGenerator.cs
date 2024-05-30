@@ -30,6 +30,8 @@ namespace FPTU_Starter.Infrastructure.Authentication
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Name!),
                 new Claim(ClaimTypes.Email,user.Email!),
+                new Claim("jti", "JcmF8uj2ISveL5FvvNk4pnp8xrhINz8-1614225624"),
+                new Claim("api_key" , "JcmF8uj2ISveL5FvvNk4pnp8xrhINz8")
 
             };
 

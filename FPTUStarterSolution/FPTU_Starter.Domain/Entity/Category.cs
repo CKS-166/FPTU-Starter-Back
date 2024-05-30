@@ -10,7 +10,7 @@ namespace FPTU_Starter.Domain.Entity
     public class Category 
     {
         public Category() { 
-            Projects = new HashSet<Project>();
+            //Projects = new HashSet<Project>();
             SubCategories = new HashSet<SubCategory>();
         }
         [Key]
@@ -18,7 +18,7 @@ namespace FPTU_Starter.Domain.Entity
         [Required]
         public string Name { get; set; } = string.Empty;
 
-        public virtual ICollection<Project> Projects { get; set; }
+        //public virtual ICollection<Project> Projects { get; set; }
         public virtual ICollection<SubCategory> SubCategories { get; set; }
 
     }

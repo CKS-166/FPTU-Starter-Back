@@ -19,6 +19,8 @@ namespace FPTU_Starter.Domain.Entity
         public int RequiredAmount { get; set; }
         [Required]
         public int LimitQuantity { get; set; }
+
+        public string PackageDescription { get; set; } = string.Empty;
         [Required]
         public string PackageType { get; set; } = string.Empty;
         [Required]

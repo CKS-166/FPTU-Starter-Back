@@ -203,7 +203,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     ProjectThumbnail = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProjectLiveDemo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProjectStatus = table.Column<int>(type: "int", nullable: false),
-                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ProjectOwnerId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -214,8 +214,21 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         column: x => x.ProjectOwnerId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubCategories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubCategories", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Projects_Categories_CategoryId",
+                        name: "FK_SubCategories_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
                         principalColumn: "Id",
@@ -230,6 +243,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     PackageName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RequiredAmount = table.Column<int>(type: "int", nullable: false),
                     LimitQuantity = table.Column<int>(type: "int", nullable: false),
+                    PackageDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PackageType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -263,28 +277,27 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SubCategories",
+                name: "ProjectSubCategory",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    ProjectsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SubCategoriesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SubCategories", x => x.Id);
+                    table.PrimaryKey("PK_ProjectSubCategory", x => new { x.ProjectsId, x.SubCategoriesId });
                     table.ForeignKey(
-                        name: "FK_SubCategories_Categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Categories",
+                        name: "FK_ProjectSubCategory_Projects_ProjectsId",
+                        column: x => x.ProjectsId,
+                        principalTable: "Projects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SubCategories_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "Id");
+                        name: "FK_ProjectSubCategory_SubCategories_SubCategoriesId",
+                        column: x => x.SubCategoriesId,
+                        principalTable: "SubCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -366,24 +379,19 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 column: "RewardItemsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Projects_CategoryId",
-                table: "Projects",
-                column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Projects_ProjectOwnerId",
                 table: "Projects",
                 column: "ProjectOwnerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProjectSubCategory_SubCategoriesId",
+                table: "ProjectSubCategory",
+                column: "SubCategoriesId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SubCategories_CategoryId",
                 table: "SubCategories",
                 column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SubCategories_ProjectId",
-                table: "SubCategories",
-                column: "ProjectId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -410,7 +418,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 name: "ProjectPackageRewardItem");
 
             migrationBuilder.DropTable(
-                name: "SubCategories");
+                name: "ProjectSubCategory");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -422,13 +430,16 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 name: "RewardItem");
 
             migrationBuilder.DropTable(
+                name: "SubCategories");
+
+            migrationBuilder.DropTable(
                 name: "Projects");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Categories");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "AspNetUsers");
         }
     }
 }

@@ -11,6 +11,7 @@ using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using Microsoft.EntityFrameworkCore;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.SubCategoryPrj;
 
 namespace FPTU_Starter.Application.Services
 {
@@ -29,7 +30,14 @@ namespace FPTU_Starter.Application.Services
             try
             {
                 ApplicationUser owner = _unitOfWork.UserRepository.Get(p => p.Email == projectAddRequest.ProjectOwnerEmail);
+                List<SubCategory> subCates = new List<SubCategory>();
+                foreach (SubCatePrjAddRequest sa in projectAddRequest.SubCategories)
+                {
+                    SubCategory sub = _unitOfWork.SubCategoryRepository.Get(sc => sc.Id == sa.Id);
+                    subCates.Add(sub);
+                }
                 Project project = _mapper.Map<Project>(projectAddRequest);
+                project.SubCategories = subCates;
                 project.ProjectOwner = owner;
                 await _unitOfWork.ProjectRepository.AddAsync(project);
                 await _unitOfWork.CommitAsync();
@@ -48,7 +56,7 @@ namespace FPTU_Starter.Application.Services
             {
                 IEnumerable<Project> projects = await _unitOfWork.ProjectRepository.GetQueryable().Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
                     .Include(p => p.ProjectOwner)
-                    .Include(p => p.Category)
+                    //.Include(p => p.Category)
                     .Include(p => p.Images)
                     .ToListAsync();
                 IEnumerable<ProjectViewResponse> responses = _mapper.Map<IEnumerable<Project>, IEnumerable<ProjectViewResponse>>(projects);

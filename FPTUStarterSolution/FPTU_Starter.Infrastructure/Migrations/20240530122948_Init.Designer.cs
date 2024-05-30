@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FPTU_Starter.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240527114931_Init")]
+    [Migration("20240530122948_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -131,8 +131,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
@@ -174,8 +174,6 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("ProjectOwnerId");
 
                     b.ToTable("Projects");
@@ -208,6 +206,10 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
                     b.Property<int>("LimitQuantity")
                         .HasColumnType("int");
+
+                    b.Property<string>("PackageDescription")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PackageName")
                         .IsRequired()
@@ -269,14 +271,9 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("ProjectId");
 
                     b.ToTable("SubCategories");
                 });
@@ -429,19 +426,26 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.ToTable("ProjectPackageRewardItem");
                 });
 
+            modelBuilder.Entity("ProjectSubCategory", b =>
+                {
+                    b.Property<Guid>("ProjectsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubCategoriesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ProjectsId", "SubCategoriesId");
+
+                    b.HasIndex("SubCategoriesId");
+
+                    b.ToTable("ProjectSubCategory");
+                });
+
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Project", b =>
                 {
-                    b.HasOne("FPTU_Starter.Domain.Entity.Category", "Category")
-                        .WithMany("Projects")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("FPTU_Starter.Domain.Entity.ApplicationUser", "ProjectOwner")
                         .WithMany()
                         .HasForeignKey("ProjectOwnerId");
-
-                    b.Navigation("Category");
 
                     b.Navigation("ProjectOwner");
                 });
@@ -473,10 +477,6 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("FPTU_Starter.Domain.Entity.Project", null)
-                        .WithMany("SubCategories")
-                        .HasForeignKey("ProjectId");
 
                     b.Navigation("Category");
                 });
@@ -547,10 +547,23 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ProjectSubCategory", b =>
+                {
+                    b.HasOne("FPTU_Starter.Domain.Entity.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FPTU_Starter.Domain.Entity.SubCategory", null)
+                        .WithMany()
+                        .HasForeignKey("SubCategoriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Category", b =>
                 {
-                    b.Navigation("Projects");
-
                     b.Navigation("SubCategories");
                 });
 
@@ -559,8 +572,6 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.Navigation("Images");
 
                     b.Navigation("Packages");
-
-                    b.Navigation("SubCategories");
                 });
 #pragma warning restore 612, 618
         }

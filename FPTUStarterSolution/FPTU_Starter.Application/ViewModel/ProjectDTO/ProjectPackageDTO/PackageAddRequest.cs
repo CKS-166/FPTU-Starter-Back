@@ -16,6 +16,7 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO
         public int RequiredAmount { get; set; }
         public int LimitQuantity { get; set; }
         public string PackageType { get; set; } = string.Empty;
+        public string PackageDescription {  get; set; } = string.Empty;
         public Guid ProjectId { get; set; }
 
         public List<RewardItemAddRequest> RewardItems { get; set; } 
