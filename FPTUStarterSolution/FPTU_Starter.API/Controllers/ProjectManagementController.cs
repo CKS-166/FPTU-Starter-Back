@@ -1,13 +1,11 @@
-﻿using FPTU_Starter.Application.Services.IService;
-using FPTU_Starter.Application.ViewModel.ProjectDTO;
-using FPTU_Starter.Application.ViewModel;
-using Microsoft.AspNetCore.Mvc;
+﻿using FPTU_Starter.API.Exception;
 using FPTU_Starter.Application;
-using FPTU_Starter.Infrastructure;
-using Microsoft.EntityFrameworkCore;
+using FPTU_Starter.Application.Services.IService;
+using FPTU_Starter.Application.ViewModel.ProjectDTO;
+using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Infrastructure.OuterService.Interface;
-using FPTU_Starter.API.Exception;
-using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
+using Microsoft.AspNetCore.Mvc;
+using static FPTU_Starter.Domain.Enum.ProjectEnum;
 
 namespace FPTU_Starter.API.Controllers
 {
@@ -18,12 +16,15 @@ namespace FPTU_Starter.API.Controllers
         private IProjectManagementService _projectService;
         private IPhotoService _photoService;
         private IVideoService _videoService;
+        private IUnitOfWork _unitOfWork;
 
-        public ProjectManagementController(IProjectManagementService projectService,IPhotoService photoService, IVideoService videoService)
+        public ProjectManagementController(IProjectManagementService projectService,
+            IPhotoService photoService, IVideoService videoService, IUnitOfWork unitOfWork)
         {
             _projectService = projectService;
             _photoService = photoService;
             _videoService = videoService;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
@@ -40,11 +41,12 @@ namespace FPTU_Starter.API.Controllers
             {
                 var result = await _projectService.CreateProject(projectAddRequest);
                 return Ok(result);
-            }catch(ExceptionError ex)
+            }
+            catch (ExceptionError ex)
             {
                 return BadRequest(ex.Message);
             }
-            
+
         }
 
         [HttpPost("add-thumbnail")]
@@ -59,6 +61,39 @@ namespace FPTU_Starter.API.Controllers
         {
             var result = await _videoService.UploadVideoAsync(liveDemoFile);
             return Ok(result.Url);
+        }
+
+        [HttpPost("add-test")]
+        public async Task<IActionResult> AddProjectTest(Project prj)
+        {
+            await _unitOfWork.ProjectRepository.AddAsync(prj);
+            return Ok("Add Successfully");
+        }
+
+        [HttpPost("add-story")]
+        public async Task<IActionResult> UploadStory(List<IFormFile> storyFiles)
+        {
+            List<string> urls = new List<string>();
+            foreach (IFormFile formFile in storyFiles)
+            {
+                var result = await _photoService.UploadPhotoAsync(formFile);
+                urls.Add(result.Url.ToString());
+            }
+            return Ok(urls);
+        }
+
+        [HttpPut("update-project-status/{id}")]
+        public async Task<IActionResult> UpdateProjectStatus(Guid id, ProjectStatus projectStatus)
+        {
+            try
+            {
+                var result = await _projectService.UpdateProjectStatus(id, projectStatus);
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

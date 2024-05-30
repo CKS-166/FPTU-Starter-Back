@@ -1,12 +1,7 @@
 ﻿using FPTU_Starter.Application.IRepository;
 using FPTU_Starter.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FPTU_Starter.Infrastructure.Repository
 {
@@ -69,6 +64,16 @@ namespace FPTU_Starter.Infrastructure.Repository
         public virtual async Task<T> GetAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await _entitySet.FirstOrDefaultAsync(predicate, cancellationToken);
+        }
+
+        public virtual T GetById(object id)
+        {
+            return _entitySet.Find(id);
+        }
+
+        public virtual async Task<T> GetByIdAsync(object id, CancellationToken cancellationToken = default)
+        {
+            return await _entitySet.FindAsync(new object[] { id }, cancellationToken);
         }
 
         public virtual void Remove(T entity)

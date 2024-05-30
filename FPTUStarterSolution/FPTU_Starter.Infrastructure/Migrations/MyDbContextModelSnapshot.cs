@@ -120,7 +120,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Category");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Project", b =>
@@ -179,6 +179,25 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("FPTU_Starter.Domain.Entity.ProjectImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ProjectImage");
+                });
+
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.ProjectPackage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -209,6 +228,32 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.ToTable("Packages");
                 });
 
+            modelBuilder.Entity("FPTU_Starter.Domain.Entity.RewardItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RewardItem");
+                });
+
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.SubCategory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -222,11 +267,16 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("SubCategory");
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("SubCategories");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -362,6 +412,21 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ProjectPackageRewardItem", b =>
+                {
+                    b.Property<Guid>("PackagesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RewardItemsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PackagesId", "RewardItemsId");
+
+                    b.HasIndex("RewardItemsId");
+
+                    b.ToTable("ProjectPackageRewardItem");
+                });
+
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Project", b =>
                 {
                     b.HasOne("FPTU_Starter.Domain.Entity.Category", "Category")
@@ -377,6 +442,15 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("ProjectOwner");
+                });
+
+            modelBuilder.Entity("FPTU_Starter.Domain.Entity.ProjectImage", b =>
+                {
+                    b.HasOne("FPTU_Starter.Domain.Entity.Project", "Project")
+                        .WithMany("Images")
+                        .HasForeignKey("ProjectId");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.ProjectPackage", b =>
@@ -397,6 +471,10 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("FPTU_Starter.Domain.Entity.Project", null)
+                        .WithMany("SubCategories")
+                        .HasForeignKey("ProjectId");
 
                     b.Navigation("Category");
                 });
@@ -452,6 +530,21 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ProjectPackageRewardItem", b =>
+                {
+                    b.HasOne("FPTU_Starter.Domain.Entity.ProjectPackage", null)
+                        .WithMany()
+                        .HasForeignKey("PackagesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FPTU_Starter.Domain.Entity.RewardItem", null)
+                        .WithMany()
+                        .HasForeignKey("RewardItemsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Category", b =>
                 {
                     b.Navigation("Projects");
@@ -461,7 +554,11 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Project", b =>
                 {
+                    b.Navigation("Images");
+
                     b.Navigation("Packages");
+
+                    b.Navigation("SubCategories");
                 });
 #pragma warning restore 612, 618
         }

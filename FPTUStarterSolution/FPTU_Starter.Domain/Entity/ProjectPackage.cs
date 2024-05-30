@@ -26,5 +26,6 @@ namespace FPTU_Starter.Domain.Entity
         public Guid ProjectId { get; set; }
 
         public Project? Project { get; set; }
+        public virtual ICollection<RewardItem> RewardItems { get; set; }
     }
 }

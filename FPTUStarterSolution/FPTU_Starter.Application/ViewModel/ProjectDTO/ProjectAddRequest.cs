@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using static FPTU_Starter.Domain.Enum.ProjectEnum;
 using Microsoft.AspNetCore.Http;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
 
 namespace FPTU_Starter.Application.ViewModel.ProjectDTO
 {
@@ -41,5 +42,7 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
         public Guid CategoryId { get; set; }
 
         public List<PackageAddRequest>? Packages { get; set; }
+
+        public List<ProjectImageAddRequest> Images { get; set; }
     }
 }

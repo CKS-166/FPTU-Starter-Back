@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.RewardItemDTO;
 
 namespace FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO
 {
@@ -16,5 +17,7 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO
         public int LimitQuantity { get; set; }
         public string PackageType { get; set; } = string.Empty;
         public Guid ProjectId { get; set; }
+
+        public List<RewardItemAddRequest> RewardItems { get; set; } 
     }
 }

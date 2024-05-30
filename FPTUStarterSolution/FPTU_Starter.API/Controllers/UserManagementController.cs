@@ -1,5 +1,6 @@
 ﻿using FPTU_Starter.Application;
 using FPTU_Starter.Application.Services.IService;
+using FPTU_Starter.Domain.Constrain;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Infrastructure.OuterService.Interface;
@@ -23,7 +24,7 @@ namespace FPTU_Starter.API.Controllers
         }
 
         [HttpGet("user-profile")]
-        [Authorize]
+        [Authorize(Roles = Role.Backer + "," + Role.ProjectOwner)]
         public async Task<ActionResult> GetUserInformation()
         {
             var result = await _userManagementService.GetUserInfo();
