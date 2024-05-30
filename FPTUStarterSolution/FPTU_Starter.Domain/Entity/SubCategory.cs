@@ -20,5 +20,8 @@ namespace FPTU_Starter.Domain.Entity
         public Guid CategoryId { get; set; }
 
         public Category? Category { get; set; }
+        public virtual ICollection<Project> Projects { get; set; }
+
+
     }
 }

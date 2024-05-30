@@ -3,6 +3,7 @@ using FPTU_Starter.Application.IRepository;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.CategoryDTO;
+using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
 using FPTU_Starter.Domain.Entity;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,13 @@ namespace FPTU_Starter.Application.Services
             IEnumerable<Category> cates = _unitOfWork.CategoryRepository.GetAll();
             IEnumerable<CategoryViewResponse> categoryViewResponses = _mapper.Map<IEnumerable<CategoryViewResponse>>(cates);
             return ResultDTO<List<CategoryViewResponse>>.Success(categoryViewResponses.ToList(),"");
+        }
+
+        public async Task<ResultDTO<List<SubCategoryViewResponse>>> ViewSubCates(Guid cateId)
+        {
+            IEnumerable<SubCategory> subCates = _unitOfWork.SubCategoryRepository.GetAll(sc => sc.CategoryId == cateId);
+            IEnumerable<SubCategoryViewResponse> subCateViews = _mapper.Map<IEnumerable<SubCategoryViewResponse>>(subCates);
+            return ResultDTO<List<SubCategoryViewResponse>>.Success(subCateViews.ToList(),"");
         }
     }
 }

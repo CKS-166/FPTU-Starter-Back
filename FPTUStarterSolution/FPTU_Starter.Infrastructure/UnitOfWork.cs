@@ -18,17 +18,20 @@ namespace FPTU_Starter.Infrastructure
         private IProjectRepository _projectRepository;
         private IPackageRepository _packageRepository;
         private ICategoryRepository _categoryRepository;
+        private ISubCategoryRepository _subCategoryRepository;
         public UnitOfWork(MyDbContext dbContext, 
             IUserRepository UserRepository, 
             IProjectRepository projectRepository, 
             IPackageRepository packageRepository,
-            ICategoryRepository categoryRepository)
+            ICategoryRepository categoryRepository,
+            ISubCategoryRepository subCategoryRepository)
         {
             _dbContext = dbContext;
             _userRepository = UserRepository;
             _projectRepository = projectRepository;
             _packageRepository = packageRepository;
             _categoryRepository = categoryRepository;
+            _subCategoryRepository = subCategoryRepository;
         }
 
         public IUserRepository UserRepository
@@ -59,6 +62,14 @@ namespace FPTU_Starter.Infrastructure
             get
             {
                 return _categoryRepository = _categoryRepository ?? new CategoryRepository(_dbContext);
+            }
+        }
+
+        public ISubCategoryRepository SubCategoryRepository
+        {
+            get
+            {
+                return _subCategoryRepository = _subCategoryRepository ?? new SubCategoryRepository(_dbContext);
             }
         }
         public void Commit()

@@ -26,5 +26,11 @@ namespace FPTU_Starter.API.Controllers
             var result = _categoryService.CreateCate(request);
             return Ok(result);
         }
+        [HttpGet("getSubCates")]
+        public async Task<IActionResult> GetSubCates([FromQuery] Guid cateId)
+        {
+            var result = _categoryService.ViewSubCates(cateId);
+            return Ok(result);  
+        }
     }
 }
