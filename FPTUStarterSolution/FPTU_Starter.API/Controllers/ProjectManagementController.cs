@@ -82,7 +82,7 @@ namespace FPTU_Starter.API.Controllers
             return Ok(urls);
         }
 
-        [HttpPut("update-project-status/{id}")]
+        [HttpPut("update-project-status")]
         public async Task<IActionResult> UpdateProjectStatus(Guid id, ProjectStatus projectStatus)
         {
             try
