@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FPTU_Starter.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240531100815_InitialCreate")]
+    [Migration("20240531134848_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

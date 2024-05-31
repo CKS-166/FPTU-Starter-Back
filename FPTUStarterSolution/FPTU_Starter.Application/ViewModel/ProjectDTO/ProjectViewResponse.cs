@@ -17,7 +17,8 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
         public string ProjectBankAccount { get; set; } = string.Empty;
         public Guid CategoryId { get; set; }
         public string CategoryName { get; set; }
-
+        public string ProjectThumbnail { get; set; } = string.Empty;
+        public string ProjectLiveDemo { get; set; } = string.Empty;
         public Guid OwnerId { get; set; }
         public string ProjectOwnerName { get; set; } = string.Empty;
 
