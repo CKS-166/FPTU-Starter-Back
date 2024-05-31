@@ -6,6 +6,10 @@ using FPTU_Starter.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.SubCategoryPrj;
 using static FPTU_Starter.Domain.Enum.ProjectEnum;
+using FPTU_Starter.Application.ViewModel.UserDTO;
+using System.Security.Claims;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace FPTU_Starter.Application.Services
 {
@@ -13,10 +17,12 @@ namespace FPTU_Starter.Application.Services
     {
         private IUnitOfWork _unitOfWork;
         private IMapper _mapper;
-        public ProjectManagementService(IUnitOfWork unitOfWork, IMapper mapper)
+        private ClaimsPrincipal _claimsPrincipal;
+        public ProjectManagementService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _claimsPrincipal = httpContextAccessor.HttpContext.User;
         }
 
         public async Task<ResultDTO<string>> CreateProject(ProjectAddRequest projectAddRequest)
@@ -75,6 +81,31 @@ namespace FPTU_Starter.Application.Services
                 await _unitOfWork.CommitAsync();
 
                 return ResultDTO<string>.Success("", "Update Sucessfully");
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<ResultDTO<List<ProjectViewResponse>>> GetUserProjects()
+        {
+            try
+            {
+                if (_claimsPrincipal == null || !_claimsPrincipal.Identity.IsAuthenticated)
+                {
+                    return ResultDTO<List<ProjectViewResponse>>.Fail("User not authenticated.");
+                }
+                var userEmailClaims = _claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+                if (userEmailClaims == null)
+                {
+                    return ResultDTO<List<ProjectViewResponse>>.Fail("User not found.");
+                }
+                var userEmail = userEmailClaims.Value;
+                var applicationUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == userEmail);
+                IEnumerable<Project> projectList = await _unitOfWork.ProjectRepository.GetAllAsync(x => x.ProjectOwner.Id == applicationUser.Id);
+                IEnumerable<ProjectViewResponse> responses = _mapper.Map<IEnumerable<Project>, IEnumerable<ProjectViewResponse>>(projectList);
+                return ResultDTO<List<ProjectViewResponse>>.Success(responses.ToList(), "");
             }
             catch (Exception e)
             {
