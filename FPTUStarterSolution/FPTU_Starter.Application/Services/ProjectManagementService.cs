@@ -81,5 +81,19 @@ namespace FPTU_Starter.Application.Services
                 throw new Exception(e.Message);
             }
         }
+
+        public async Task<ResultDTO<ProjectViewResponse>> GetProjectById(Guid id)
+        {
+            try
+            {
+                var project = await _unitOfWork.ProjectRepository.GetByIdAsync(id);
+                var projectDto = _mapper.Map<ProjectViewResponse>(project);
+                return ResultDTO<ProjectViewResponse>.Success(projectDto);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
     }
 }

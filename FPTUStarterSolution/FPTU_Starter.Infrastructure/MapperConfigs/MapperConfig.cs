@@ -13,6 +13,7 @@ using FPTU_Starter.Application.ViewModel.ProjectDTO.RewardItemDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.SubCategoryPrj;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Domain.Entity;
+using Microsoft.EntityFrameworkCore;
 
 namespace FPTU_Starter.Infrastructure.MapperConfigs
 {
@@ -41,6 +42,9 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ForMember(des => des.OwnerId, src => src.MapFrom(x => x.ProjectOwner.Id))
                 //.ForMember(des => des.CategoryName , src => src.MapFrom(x => x.Category.Name))
                 .ForMember(des => des.StoryImages, src => src.MapFrom(x => x.Images))
+                .ForMember(des => des.Categories, src => src.MapFrom(x => x.SubCategories
+                    .Select(sub => sub.Category)
+                    .Distinct()))
                 .ReverseMap();
             CreateMap<ProjectImage,ProjectImageAddRequest>().ReverseMap();
             CreateMap<ProjectImage,ProjectImageViewResponse>().ReverseMap();
