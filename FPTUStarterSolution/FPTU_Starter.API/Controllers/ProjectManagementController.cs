@@ -4,6 +4,7 @@ using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
 using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Infrastructure.OuterService.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static FPTU_Starter.Domain.Enum.ProjectEnum;
 
@@ -95,6 +96,21 @@ namespace FPTU_Starter.API.Controllers
             try
             {
                 var result = await _projectService.UpdateProjectStatus(id, projectStatus);
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpGet("user-project")]
+        public async Task<IActionResult> GetUserProjects()
+        {
+            try
+            {
+                var result = await _projectService.GetUserProjects();
                 return Ok(result);
             }
             catch (ExceptionError ex)
