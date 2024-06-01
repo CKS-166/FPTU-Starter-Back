@@ -35,6 +35,13 @@ namespace FPTU_Starter.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetAllProjects(Guid id)
+        {
+            var result = await _projectService.GetProjectById(id);
+            return Ok(result);
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddProject(ProjectAddRequest projectAddRequest)
         {

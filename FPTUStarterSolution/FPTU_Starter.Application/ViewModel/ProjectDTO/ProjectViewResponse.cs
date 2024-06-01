@@ -1,4 +1,6 @@
-﻿using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
+﻿using FPTU_Starter.Application.ViewModel.CategoryDTO;
+using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using static FPTU_Starter.Domain.Enum.ProjectEnum;
 
@@ -13,10 +15,8 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
         public DateTime EndDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public decimal ProjectTarget { get; set; }
-        public decimal ProjectBalance { get; set; }
+        public decimal ProjectBalance { get; set; } 
         public string ProjectBankAccount { get; set; } = string.Empty;
-        public Guid CategoryId { get; set; }
-        public string CategoryName { get; set; }
         public string ProjectThumbnail { get; set; } = string.Empty;
         public string ProjectLiveDemo { get; set; } = string.Empty;
         public Guid OwnerId { get; set; }
@@ -25,5 +25,10 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
         public ProjectStatus ProjectStatus { get; set; }
         public List<PackageViewResponse> PackageViewResponses { get; set; }
         public List<ProjectImageViewResponse> StoryImages { get; set; }
+        public List<ProjectImageViewResponse>? Images { get; set; }
+        public List<SubCategoryViewResponse>? SubCategories { get; set; }
+        public List<CategoryViewResponse>? Categories { get; set; }
+
+
     }
 }
