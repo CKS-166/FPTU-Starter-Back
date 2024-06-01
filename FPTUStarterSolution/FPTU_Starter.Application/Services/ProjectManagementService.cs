@@ -116,7 +116,13 @@ namespace FPTU_Starter.Application.Services
                 }
                 var userEmail = userEmailClaims.Value;
                 var applicationUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == userEmail);
-                IEnumerable<Project> projectList = await _unitOfWork.ProjectRepository.GetAllAsync(x => x.ProjectOwner.Id == applicationUser.Id);
+                IEnumerable<Project> projectList = await _unitOfWork.ProjectRepository.GetQueryable()
+                    .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
+                    .Include(p => p.ProjectOwner)
+                    .Include(p => p.SubCategories)
+                        .ThenInclude(s => s.Category)
+                    .Include(p => p.Images).Where(x => x.ProjectOwner.Id == applicationUser.Id)
+                    .ToListAsync();
                 IEnumerable<ProjectViewResponse> responses = _mapper.Map<IEnumerable<Project>, IEnumerable<ProjectViewResponse>>(projectList);
                 return ResultDTO<List<ProjectViewResponse>>.Success(responses.ToList(), "");
             }

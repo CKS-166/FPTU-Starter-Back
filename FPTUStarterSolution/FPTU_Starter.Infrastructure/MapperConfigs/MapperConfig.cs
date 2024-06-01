@@ -40,8 +40,6 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ForMember(des => des.PackageViewResponses, src => src.MapFrom(x => x.Packages))
                 .ForMember(des => des.ProjectOwnerName , src => src.MapFrom(x => x.ProjectOwner.AccountName))
                 .ForMember(des => des.OwnerId, src => src.MapFrom(x => x.ProjectOwner.Id))
-                .ForMember(des => des.CategoryId, src => src.MapFrom(x => x.SubCategories.FirstOrDefault().CategoryId))
-                .ForMember(des => des.CategoryName, src => src.MapFrom(x => x.SubCategories.FirstOrDefault().Category.Name))
                 .ForMember(des => des.StoryImages, src => src.MapFrom(x => x.Images))
                 .ForMember(des => des.Categories, src => src.MapFrom(x => x.SubCategories
                     .Select(sub => sub.Category)
