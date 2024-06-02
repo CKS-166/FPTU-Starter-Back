@@ -10,6 +10,8 @@ using FPTU_Starter.Application.ViewModel.UserDTO;
 using System.Security.Claims;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using FPTU_Starter.Domain.Constrain;
 
 namespace FPTU_Starter.Application.Services
 {
@@ -18,11 +20,13 @@ namespace FPTU_Starter.Application.Services
         private IUnitOfWork _unitOfWork;
         private IMapper _mapper;
         private ClaimsPrincipal _claimsPrincipal;
-        public ProjectManagementService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        private UserManager<ApplicationUser> _userManager;
+        public ProjectManagementService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _claimsPrincipal = httpContextAccessor.HttpContext.User;
+            _userManager = userManager;
         }
 
         public async Task<ResultDTO<string>> CreateProject(ProjectAddRequest projectAddRequest)
@@ -101,7 +105,7 @@ namespace FPTU_Starter.Application.Services
                 throw new Exception(e.Message);
             }
         }
-        public async Task<ResultDTO<List<ProjectViewResponse>>> GetUserProjects()
+        public async Task<ResultDTO<List<ProjectViewResponse>>> GetUserProjects(string? searchName, ProjectStatus? projectStatus, int? moneyTarget, string? categoryName)
         {
             try
             {
@@ -116,13 +120,73 @@ namespace FPTU_Starter.Application.Services
                 }
                 var userEmail = userEmailClaims.Value;
                 var applicationUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == userEmail);
-                IEnumerable<Project> projectList = await _unitOfWork.ProjectRepository.GetQueryable()
-                    .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
-                    .Include(p => p.ProjectOwner)
-                    .Include(p => p.SubCategories)
-                        .ThenInclude(s => s.Category)
-                    .Include(p => p.Images).Where(x => x.ProjectOwner.Id == applicationUser.Id)
-                    .ToListAsync();
+                IEnumerable<Project> projectList;
+                var roles = await _userManager.GetRolesAsync(applicationUser);
+                var role = roles.FirstOrDefault();
+                if(role == null)
+                {
+                    return ResultDTO<List<ProjectViewResponse>>.Fail("Error fetching user role.");
+                }
+                else
+                {
+                    switch (role)
+                    {
+                        case "Administrator":
+                            projectList = await _unitOfWork.ProjectRepository.GetQueryable()
+                             .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
+                             .Include(p => p.ProjectOwner)
+                             .Include(p => p.SubCategories)
+                                 .ThenInclude(s => s.Category)
+                             .Include(p => p.Images)
+                             .ToListAsync();
+                            break;
+                        default:
+                            projectList = await _unitOfWork.ProjectRepository.GetQueryable()
+                             .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
+                             .Include(p => p.ProjectOwner)
+                             .Include(p => p.SubCategories)
+                                 .ThenInclude(s => s.Category)
+                             .Include(p => p.Images).Where(x => x.ProjectOwner.Id == applicationUser.Id)
+                             .ToListAsync();
+                            break;
+                    }
+                }
+                //Check searchName
+                if (searchName != null)
+                {
+                    projectList = projectList.Where(x => x.ProjectName.ToLower().Contains(searchName.ToLower()));
+                }
+                //Check targetRange
+                if(moneyTarget != null)
+                {
+                    switch(moneyTarget)
+                    {
+                        case 1:
+                            projectList = projectList.Where(x => x.ProjectTarget >= 0 && x.ProjectTarget < 1000000);
+                            break;
+                        case 2:
+                            projectList = projectList.Where(x => x.ProjectTarget >= 1000000 && x.ProjectTarget < 10000000);
+                            break; 
+                        case 3:
+                            projectList = projectList.Where(x => x.ProjectTarget >= 10000000 && x.ProjectTarget < 100000000);
+                            break;
+                        case 4:
+                            projectList = projectList.Where(x => x.ProjectTarget >= 100000000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                //check categoryName
+                if(categoryName != null)
+                {
+                    projectList = projectList.Where(x => x.SubCategories.FirstOrDefault().Category.Name.ToLower().Contains(categoryName.ToLower()));
+                }
+                //check projectStatus
+                if(projectStatus != null)
+                {
+                    projectList = projectList.Where(x => x.ProjectStatus == projectStatus);
+                }
                 IEnumerable<ProjectViewResponse> responses = _mapper.Map<IEnumerable<Project>, IEnumerable<ProjectViewResponse>>(projectList);
                 return ResultDTO<List<ProjectViewResponse>>.Success(responses.ToList(), "");
             }

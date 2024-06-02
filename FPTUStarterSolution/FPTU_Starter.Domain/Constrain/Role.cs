@@ -8,10 +8,8 @@ namespace FPTU_Starter.Domain.Constrain
 {
     public static class Role
     {
-        public const string Admin = "Adminstrator";
+        public const string Admin = "Administrator";
         public const string Backer = "Backer";
         public const string ProjectOwner = "ProjectOwner";
-
-
     }
 }
