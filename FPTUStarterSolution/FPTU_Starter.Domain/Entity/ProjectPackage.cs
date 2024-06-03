@@ -29,5 +29,6 @@ namespace FPTU_Starter.Domain.Entity
 
         public Project? Project { get; set; }
         public virtual ICollection<RewardItem> RewardItems { get; set; }
+        public ICollection<PackageBacker> ProjectPackageUsers { get; set; }
     }
 }

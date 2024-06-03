@@ -19,12 +19,15 @@ namespace FPTU_Starter.Infrastructure
         private IPackageRepository _packageRepository;
         private ICategoryRepository _categoryRepository;
         private ISubCategoryRepository _subCategoryRepository;
+        private IWalletRepository _walletRepository;
+
         public UnitOfWork(MyDbContext dbContext, 
             IUserRepository UserRepository, 
             IProjectRepository projectRepository, 
             IPackageRepository packageRepository,
             ICategoryRepository categoryRepository,
-            ISubCategoryRepository subCategoryRepository)
+            ISubCategoryRepository subCategoryRepository,
+            IWalletRepository walletRepository)
         {
             _dbContext = dbContext;
             _userRepository = UserRepository;
@@ -32,6 +35,7 @@ namespace FPTU_Starter.Infrastructure
             _packageRepository = packageRepository;
             _categoryRepository = categoryRepository;
             _subCategoryRepository = subCategoryRepository;
+            _walletRepository = walletRepository;
         }
 
         public IUserRepository UserRepository
@@ -72,6 +76,15 @@ namespace FPTU_Starter.Infrastructure
                 return _subCategoryRepository = _subCategoryRepository ?? new SubCategoryRepository(_dbContext);
             }
         }
+
+        public IWalletRepository WalletRepository
+        {
+            get
+            {
+                return _walletRepository = _walletRepository ?? new WalletRepository(_dbContext);
+            }
+        }
+
         public void Commit()
              => _dbContext.SaveChanges();
 

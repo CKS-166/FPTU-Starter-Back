@@ -11,7 +11,9 @@ namespace FPTU_Starter.Domain.Entity
 {
     public class Project
     {
-        public Project() {
+        public Project()
+        {
+
             Packages = new HashSet<ProjectPackage>();
         }
         [Key]
@@ -28,7 +30,7 @@ namespace FPTU_Starter.Domain.Entity
 
         [Range(0, (double)decimal.MaxValue)]
         [Column(TypeName = "decimal(18, 2)")]
-        [Required] public decimal ProjectTarget{ get; set; }
+        [Required] public decimal ProjectTarget { get; set; }
 
         [Range(0, (double)decimal.MaxValue)]
         [Column(TypeName = "decimal(18, 2)")]
@@ -47,10 +49,6 @@ namespace FPTU_Starter.Domain.Entity
         public ProjectStatus ProjectStatus { get; set; }
         public DateTime CreatedDate { get; set; }
 
-        //[Required]
-        //public Guid CategoryId { get; set; }
-        //public virtual Category? Category { get; set; }
-
         public virtual ApplicationUser? ProjectOwner { get; set; }
 
         public ICollection<ProjectPackage> Packages { get; set; }
@@ -58,6 +56,11 @@ namespace FPTU_Starter.Domain.Entity
         public virtual ICollection<SubCategory> SubCategories { get; set; }
 
         public ICollection<ProjectImage> Images { get; set; }
+
+        public ICollection<Comment> Comments { get; set; }
+        public ICollection<Like> Likes { get; set; }
+        public ICollection<Stage> Stages { get; set; }
+        public ICollection<WithdrawRequest> WithdrawRequests { get; set; }
 
     }
 }
