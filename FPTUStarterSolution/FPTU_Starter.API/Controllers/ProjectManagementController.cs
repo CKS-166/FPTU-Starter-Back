@@ -106,11 +106,11 @@ namespace FPTU_Starter.API.Controllers
 
         [Authorize]
         [HttpGet("user-project")]
-        public async Task<IActionResult> GetUserProjects(string? searchName, ProjectStatus? projectStatus, int? moneyTarget, string? categoryName)
+        public async Task<IActionResult> GetUserProjects(string? searchType, string? searchName, ProjectStatus? projectStatus, int? moneyTarget, string? categoryName)
         {
             try
             {
-                var result = await _projectService.GetUserProjects(searchName, projectStatus, moneyTarget, categoryName);
+                var result = await _projectService.GetUserProjects(searchType, searchName, projectStatus, moneyTarget, categoryName);
                 return Ok(result);
             }
             catch (ExceptionError ex)
