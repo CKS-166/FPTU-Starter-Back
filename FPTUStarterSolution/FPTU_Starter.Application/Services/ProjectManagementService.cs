@@ -105,49 +105,49 @@ namespace FPTU_Starter.Application.Services
                 throw new Exception(e.Message);
             }
         }
-        public async Task<ResultDTO<List<ProjectViewResponse>>> GetUserProjects(string? searchName, ProjectStatus? projectStatus, int? moneyTarget, string? categoryName)
+        public async Task<ResultDTO<List<ProjectViewResponse>>> GetUserProjects(string searchType, string? searchName, ProjectStatus? projectStatus, int? moneyTarget, string? categoryName)
         {
             try
             {
+                IEnumerable<Project> projectList;
                 if (_claimsPrincipal == null || !_claimsPrincipal.Identity.IsAuthenticated)
                 {
-                    return ResultDTO<List<ProjectViewResponse>>.Fail("User not authenticated.");
-                }
-                var userEmailClaims = _claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (userEmailClaims == null)
-                {
-                    return ResultDTO<List<ProjectViewResponse>>.Fail("User not found.");
-                }
-                var userEmail = userEmailClaims.Value;
-                var applicationUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == userEmail);
-                IEnumerable<Project> projectList;
-                var roles = await _userManager.GetRolesAsync(applicationUser);
-                var role = roles.FirstOrDefault();
-                if(role == null)
-                {
-                    return ResultDTO<List<ProjectViewResponse>>.Fail("Error fetching user role.");
-                }
-                else
-                {
-                    switch (role)
-                    {
-                        case "Administrator":
-                            projectList = await _unitOfWork.ProjectRepository.GetQueryable()
+                    projectList = await _unitOfWork.ProjectRepository.GetQueryable()
                              .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
                              .Include(p => p.ProjectOwner)
                              .Include(p => p.SubCategories)
                                  .ThenInclude(s => s.Category)
                              .Include(p => p.Images)
                              .ToListAsync();
+                }
+                else
+                {
+                    var userEmailClaims = _claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+                    if (userEmailClaims == null)
+                    {
+                        return ResultDTO<List<ProjectViewResponse>>.Fail("User not found.");
+                    }
+                    var userEmail = userEmailClaims.Value;
+                    var applicationUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == userEmail);
+                    switch (searchType)
+                    {
+                        case "user":
+                            projectList = await _unitOfWork.ProjectRepository.GetQueryable()
+                                .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
+                                .Include(p => p.ProjectOwner)
+                                .Include(p => p.SubCategories)
+                                    .ThenInclude(s => s.Category)
+                                .Include(p => p.Images).Where(x => x.ProjectOwner.Id == applicationUser.Id)
+                                .ToListAsync();
                             break;
                         default:
                             projectList = await _unitOfWork.ProjectRepository.GetQueryable()
-                             .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
-                             .Include(p => p.ProjectOwner)
-                             .Include(p => p.SubCategories)
-                                 .ThenInclude(s => s.Category)
-                             .Include(p => p.Images).Where(x => x.ProjectOwner.Id == applicationUser.Id)
-                             .ToListAsync();
+                                .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
+                                .Include(p => p.ProjectOwner)
+                                .Include(p => p.SubCategories)
+                                    .ThenInclude(s => s.Category)
+                                .Include(p => p.Images)
+                                .ToListAsync();
                             break;
                     }
                 }
