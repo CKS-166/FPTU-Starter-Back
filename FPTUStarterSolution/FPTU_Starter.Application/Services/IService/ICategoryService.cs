@@ -14,5 +14,7 @@ namespace FPTU_Starter.Application.Services.IService
         Task<ResultDTO<List<CategoryViewResponse>>> ViewAllCates();
         Task<ResultDTO<string>> CreateCate(CategoryAddRequest request);
         Task<ResultDTO<List<SubCategoryViewResponse>>> ViewSubCates(Guid cateId);
+
+        Task<ResultDTO<string>> UpdateCategory(CategoryUpdateRequest req);
     }
 }

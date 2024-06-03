@@ -31,6 +31,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
         {
             CreateMap<RewardItem, RewardItemAddRequest>().ReverseMap();
             CreateMap<SubCategory,SubCatePrjAddRequest>().ReverseMap();
+            CreateMap<SubCategory, SubCategoryViewResponse>().ReverseMap();
             CreateMap<RewardItem,RewardItemViewResponse>().ReverseMap();
             CreateMap<ProjectPackage, PackageAddRequest>().ReverseMap();
             CreateMap<ProjectAddRequest,Project>()
@@ -41,12 +42,13 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ForMember(des => des.ProjectOwnerName , src => src.MapFrom(x => x.ProjectOwner.AccountName))
                 .ForMember(des => des.OwnerId, src => src.MapFrom(x => x.ProjectOwner.Id))
                 .ForMember(des => des.StoryImages, src => src.MapFrom(x => x.Images))
-                .ForMember(des => des.Categories, src => src.MapFrom(x => x.SubCategories
-                    .Select(sub => sub.Category)
-                    .Distinct()))
+                .ForMember(des => des.SubCategories, src => src.MapFrom(x => x.SubCategories))
                 .ReverseMap();
             CreateMap<ProjectImage,ProjectImageAddRequest>().ReverseMap();
             CreateMap<ProjectImage,ProjectImageViewResponse>().ReverseMap();
+            CreateMap<ProjectImage, ProjectImageUpdate>().ReverseMap();
+            CreateMap<ProjectPackage, ProjectPackageUpdate>().ReverseMap();
+            CreateMap<Project,ProjectUpdateRequest>().ReverseMap();
         }
 
         public void MappingUserProfile()
@@ -69,9 +71,10 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
         {
             CreateMap<Category,CategoryAddRequest>().ReverseMap().ForMember(des => des.SubCategories 
             ,src => src.MapFrom(x => x.SubCategories));
-            CreateMap<Category,CategoryViewResponse>().ReverseMap();
-            CreateMap<SubCategory,SubCategoryAddRequest>().ReverseMap();    
+            CreateMap<SubCategory,SubCategoryAddRequest>().ReverseMap();           
             CreateMap<SubCategory,SubCategoryViewResponse>().ReverseMap();
+            CreateMap<Category, CategoryViewResponse>().ReverseMap();
+            CreateMap<Category,CategoryUpdateRequest>().ReverseMap();
         }
 
         public void MappingUserUpdateRequest()

@@ -45,7 +45,7 @@ namespace FPTU_Starter.Application.Services
                 project.ProjectOwner = owner;
                 await _unitOfWork.ProjectRepository.AddAsync(project);
                 await _unitOfWork.CommitAsync();
-                return ResultDTO<string>.Success("", "Add Sucessfully");
+                return ResultDTO<string>.Success("Add Sucessfully", "");
             }
             catch (Exception ex)
             {
@@ -63,6 +63,7 @@ namespace FPTU_Starter.Application.Services
                     .Include(p => p.ProjectOwner)
                     //.Include(p => p.Category)
                     .Include(p => p.Images)
+                    .Include(p => p.SubCategories)
                     .ToListAsync();
                 IEnumerable<ProjectViewResponse> responses = _mapper.Map<IEnumerable<Project>, IEnumerable<ProjectViewResponse>>(projects);
 
@@ -193,6 +194,39 @@ namespace FPTU_Starter.Application.Services
             catch (Exception e)
             {
                 throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<ResultDTO<string>> UpdateProject(ProjectUpdateRequest request)
+        {
+            try
+            {
+                Project existedPrj = await _unitOfWork.ProjectRepository.GetByIdAsync(request.Id);
+                if (existedPrj != null)
+                {
+                    List<ProjectImage> iamges = _mapper.Map<List<ProjectImage>>(request.StoryImages);
+                    List<ProjectPackage> packages = _mapper.Map<List<ProjectPackage>>(request.PackageViewResponses);
+                    //List<SubCategory> subCategories = _mapper.Map<List<SubCategory>>(request.SubCategories);
+                    //existedPrj.SubCategories.Clear();
+                    //foreach(SubCategory sub in subCategories)
+                    //{
+                    //    existedPrj.SubCategories.Add(sub);
+                    //}
+
+                    _mapper.Map(request, existedPrj);
+                    _unitOfWork.ProjectRepository.Update(existedPrj);
+                    await _unitOfWork.CommitAsync();
+                    return ResultDTO<string>.Success("Add Sucessfully", "");
+                }
+                else
+                {
+                    return ResultDTO<string>.Fail("Project Not Found", 404);
+                }
+            }
+            catch(Exception e)
+            {
+                return ResultDTO<string>.Fail(e.Message, 500);
+
             }
         }
     }

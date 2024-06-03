@@ -118,5 +118,18 @@ namespace FPTU_Starter.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateProject(ProjectUpdateRequest prjRequet)
+        {
+            try
+            {
+                var result = _projectService.UpdateProject(prjRequet);
+                return Ok(result);
+            }catch(ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
