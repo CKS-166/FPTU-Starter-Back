@@ -12,5 +12,8 @@ namespace FPTU_Starter.Application.Services.IService
         Task<ResultDTO<string>> UpdateProjectStatus(Guid id, ProjectStatus projectStatus);
         Task<ResultDTO<ProjectViewResponse>> GetProjectById(Guid id);
         Task<ResultDTO<List<ProjectViewResponse>>> GetUserProjects(string? searchName, ProjectStatus? projectStatus, int? moneyTarget, string? categoryName);
+        
+        Task<ResultDTO<string>> UpdateProject(ProjectUpdateRequest request); 
+    
     }
 }

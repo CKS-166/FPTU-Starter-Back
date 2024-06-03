@@ -32,5 +32,12 @@ namespace FPTU_Starter.API.Controllers
             var result = _categoryService.ViewSubCates(cateId);
             return Ok(result);  
         }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateCate(CategoryUpdateRequest req)
+        {
+            var result = _categoryService.UpdateCategory(req);
+            return Ok(result);
+        }
     }
 }

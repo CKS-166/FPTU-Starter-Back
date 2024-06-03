@@ -5,6 +5,7 @@ using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.CategoryDTO;
 using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
 using FPTU_Starter.Domain.Entity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,9 +36,35 @@ namespace FPTU_Starter.Application.Services
             return ResultDTO<string>.Success("", "Add Sucessfully");
         }
 
+        public async Task<ResultDTO<string>> UpdateCategory(CategoryUpdateRequest req)
+        {
+            try
+            {
+                Category existedCate = await _unitOfWork.CategoryRepository.GetByIdAsync(req.Id);
+                if (existedCate != null)
+                {
+                    List<SubCategory> subs = _mapper.Map<List<SubCategory>>(req.SubCategories);
+                    _mapper.Map(req,existedCate);
+                    //cate.SubCategories = subs;
+                    _unitOfWork.CategoryRepository.Update(existedCate);
+                    await _unitOfWork.CommitAsync();
+                    return ResultDTO<string>.Success("Add Sucessfully", "");
+                }
+                else
+                {
+                    return ResultDTO<string>.Fail("", 404);
+
+                }
+            }
+            catch(Exception ex)
+            {
+                return ResultDTO<string>.Fail(ex.Message, 500);
+            }
+        }
+
         public async Task<ResultDTO<List<CategoryViewResponse>>> ViewAllCates()
         {
-            IEnumerable<Category> cates = _unitOfWork.CategoryRepository.GetAll();
+            IEnumerable<Category> cates = _unitOfWork.CategoryRepository.GetQueryable().Include(c => c.SubCategories).ToList();
             IEnumerable<CategoryViewResponse> categoryViewResponses = _mapper.Map<IEnumerable<CategoryViewResponse>>(cates);
             return ResultDTO<List<CategoryViewResponse>>.Success(categoryViewResponses.ToList(),"");
         }
