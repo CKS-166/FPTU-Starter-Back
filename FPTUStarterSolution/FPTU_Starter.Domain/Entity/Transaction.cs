@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FPTU_Starter.Domain.Entity
 {
@@ -12,6 +13,9 @@ namespace FPTU_Starter.Domain.Entity
 
         public Guid PackageId { get; set; }
         public string Description { get; set; }
+
+        [Range(0, (double)decimal.MaxValue)]
+        [Column(TypeName = "decimal(18, 2)")]
         public decimal TotalAmount { get; set; }
         public string TransactionType { get; set; }
         public DateTime CreateDate { get; set; }
