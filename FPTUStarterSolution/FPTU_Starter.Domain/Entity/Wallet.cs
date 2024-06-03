@@ -13,6 +13,9 @@ namespace FPTU_Starter.Domain.Entity
     {
         [Key]
         public Guid Id { get; set; }
+
+        [Range(0, (double)decimal.MaxValue)]
+        [Column(TypeName = "decimal(18, 2)")]
         public decimal Balance { get; set; }
 
         public ICollection<Transaction> Transactions { get; set; }

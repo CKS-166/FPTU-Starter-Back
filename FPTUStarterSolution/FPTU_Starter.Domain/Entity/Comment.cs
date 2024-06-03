@@ -17,7 +17,7 @@ namespace FPTU_Starter.Domain.Entity
 
         public Guid ProjectId { get; set; }
         public Project Project { get; set; }
-        public Guid UserId { get; set; }
+        //public Guid UserId { get; set; }
         public ApplicationUser User { get; set; }
     }
 }
