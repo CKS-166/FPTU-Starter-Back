@@ -7,11 +7,13 @@ using AutoMapper;
 using FPTU_Starter.Application.ViewModel.CategoryDTO;
 using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectDonate;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.RewardItemDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.SubCategoryPrj;
 using FPTU_Starter.Application.ViewModel.UserDTO;
+using FPTU_Starter.Application.ViewModel.WalletDTO;
 using FPTU_Starter.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,10 +48,12 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ReverseMap();
             CreateMap<ProjectImage,ProjectImageAddRequest>().ReverseMap();
             CreateMap<ProjectImage,ProjectImageViewResponse>().ReverseMap();
+
             CreateMap<ProjectImage, ProjectImageUpdate>().ReverseMap();
             CreateMap<ProjectPackage, ProjectPackageUpdate>().ReverseMap();
             CreateMap<Project,ProjectUpdateRequest>()
                 .ReverseMap();
+            CreateMap<Project,ProjectUpdateRequest>().ReverseMap();
         }
 
         public void MappingUserProfile()
@@ -91,6 +95,10 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ForMember(dest => dest.UserAvt, opt => opt.MapFrom(src => src.Avatar))
                 .ForMember(dest => dest.UserBackground, opt => opt.MapFrom(src => src.BackgroundAvatar))
                 .ReverseMap();
+        }
+        public void MappingWalletRequest()
+        {
+            CreateMap<Wallet, WalletRequest>().ReverseMap();
         }
     }
 }

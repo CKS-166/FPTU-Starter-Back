@@ -4,6 +4,7 @@ using FPTU_Starter.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FPTU_Starter.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240603144820_miggrations")]
+    partial class miggrations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,14 +140,17 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UserId")
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId1")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProjectId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId1");
 
                     b.ToTable("Comments");
                 });
@@ -165,14 +170,17 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UserId")
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId1")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProjectId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId1");
 
                     b.ToTable("Likes");
                 });
@@ -417,7 +425,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.Property<Guid?>("PackageId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("SystemWalletId")
+                    b.Property<Guid>("SystemWalletId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("TotalAmount")
@@ -670,7 +678,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
                     b.HasOne("FPTU_Starter.Domain.Entity.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Project");
 
@@ -687,7 +695,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
                     b.HasOne("FPTU_Starter.Domain.Entity.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Project");
 
@@ -768,7 +776,9 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 {
                     b.HasOne("FPTU_Starter.Domain.Entity.SystemWallet", "SystemWallet")
                         .WithMany("Transactions")
-                        .HasForeignKey("SystemWalletId");
+                        .HasForeignKey("SystemWalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("FPTU_Starter.Domain.Entity.Wallet", "Wallet")
                         .WithMany("Transactions")

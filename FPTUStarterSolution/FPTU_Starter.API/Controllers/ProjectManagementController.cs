@@ -3,6 +3,8 @@ using FPTU_Starter.Application;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectDonate;
+using FPTU_Starter.Domain.Constrain;
 using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Infrastructure.OuterService.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -120,6 +122,7 @@ namespace FPTU_Starter.API.Controllers
             }
         }
 
+
         [HttpPut]
         public async Task<IActionResult> UpdateProject(ProjectUpdateRequest prjRequet)
         {
@@ -127,10 +130,49 @@ namespace FPTU_Starter.API.Controllers
             {
                 var result = _projectService.UpdateProject(prjRequet);
                 return Ok(result);
-            }catch(ExceptionError ex)
+            }
+            catch (ExceptionError ex)
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [Authorize(Roles = Role.Backer)]
+        [HttpPost("free-backer-donate")]
+        public async Task<IActionResult> DonateProject([FromBody] ProjectDonateRequest projectDonate)
+        {
+            try
+            {
+                var result = await _projectService.DonateProject(projectDonate);
+                if (!result._isSuccess)
+                {
+                    return BadRequest();
+                }
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [Authorize(Roles = Role.Backer)]
+        [HttpPost("package-backer-donate")]
+        public async Task<IActionResult> packageDonateProject([FromBody] PackageDonateRequest projectDonate)
+        {
+            try
+            {
+                var result = await _projectService.PackageDonateProject(projectDonate);
+                if (!result._isSuccess)
+                {
+                    return BadRequest(result._message);
+                }
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
 
         [HttpPut("update-packages")]
