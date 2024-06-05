@@ -28,8 +28,8 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
         public string ProjectOwnerName { get; set; } = string.Empty;
 
         public ProjectStatus ProjectStatus { get; set; }
-        public List<PackageViewResponse> PackageViewResponses { get; set; }
-        public List<ProjectImageViewResponse> StoryImages { get; set; }
-        public List<SubCategoryViewResponse>? SubCategories { get; set; }
+        //public List<PackageViewResponse> Packages { get; set; }
+        public List<ProjectImageViewResponse> Images { get; set; }
+        //public List<SubCategoryViewResponse>? SubCategories { get; set; }
     }
 }

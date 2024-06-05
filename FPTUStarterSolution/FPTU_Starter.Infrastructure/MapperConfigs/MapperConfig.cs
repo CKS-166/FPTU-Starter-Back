@@ -51,8 +51,9 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
 
             CreateMap<ProjectImage, ProjectImageUpdate>().ReverseMap();
             CreateMap<ProjectPackage, ProjectPackageUpdate>().ReverseMap();
+            CreateMap<Project,ProjectUpdateRequest>()
+                .ReverseMap();
             CreateMap<Project,ProjectUpdateRequest>().ReverseMap();
-
         }
 
         public void MappingUserProfile()

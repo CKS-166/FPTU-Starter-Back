@@ -2,6 +2,7 @@
 using FPTU_Starter.Application;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectDonate;
 using FPTU_Starter.Domain.Constrain;
 using FPTU_Starter.Domain.Entity;
@@ -172,6 +173,20 @@ namespace FPTU_Starter.API.Controllers
                 return BadRequest(ex.Message);
             }
 
+        }
+
+        [HttpPut("update-packages")]
+        public async Task<IActionResult> UpdatePackages([FromQuery] Guid id, List<PackageViewResponse> req)
+        {
+            try
+            {
+                var result = _projectService.UpdatePackages(id, req);
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

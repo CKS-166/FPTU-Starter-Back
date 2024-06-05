@@ -88,12 +88,14 @@ namespace FPTU_Starter.Infrastructure.Repository
 
         public virtual void Update(T entity)
         {
-            _context.Update(entity);
+            _entitySet.Update(entity).State = EntityState.Modified;
+            //_context.Update(entity);
         }
 
         public virtual void UpdateRange(IEnumerable<T> entities)
         {
-            _context.UpdateRange(entities);
+            //_context.UpdateRange(entities);
+            _entitySet.UpdateRange(entities);
         }
 
         public IQueryable<T> GetQueryable()
