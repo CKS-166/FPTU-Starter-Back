@@ -2,6 +2,7 @@
 using FPTU_Starter.Application;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Infrastructure.OuterService.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -127,6 +128,20 @@ namespace FPTU_Starter.API.Controllers
                 var result = _projectService.UpdateProject(prjRequet);
                 return Ok(result);
             }catch(ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("update-packages")]
+        public async Task<IActionResult> UpdatePackages([FromQuery] Guid id, List<PackageViewResponse> req)
+        {
+            try
+            {
+                var result = _projectService.UpdatePackages(id, req);
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
             {
                 return BadRequest(ex.Message);
             }

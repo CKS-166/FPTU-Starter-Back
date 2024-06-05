@@ -12,6 +12,9 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using FPTU_Starter.Domain.Constrain;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
+using Org.BouncyCastle.Asn1.Ocsp;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.RewardItemDTO;
 
 namespace FPTU_Starter.Application.Services
 {
@@ -204,19 +207,17 @@ namespace FPTU_Starter.Application.Services
                 Project existedPrj = await _unitOfWork.ProjectRepository.GetByIdAsync(request.Id);
                 if (existedPrj != null)
                 {
-                    List<ProjectImage> iamges = _mapper.Map<List<ProjectImage>>(request.StoryImages);
-                    List<ProjectPackage> packages = _mapper.Map<List<ProjectPackage>>(request.PackageViewResponses);
-                    //List<SubCategory> subCategories = _mapper.Map<List<SubCategory>>(request.SubCategories);
-                    //existedPrj.SubCategories.Clear();
-                    //foreach(SubCategory sub in subCategories)
-                    //{
-                    //    existedPrj.SubCategories.Add(sub);
-                    //}
-
+                    List<ProjectImage> images = _mapper.Map<List<ProjectImage>>(request.Images);
+                    //List<ProjectPackage> packages = _mapper.Map<List<ProjectPackage>>(request.Packages);
+                    foreach (ProjectImage image in images)
+                    {
+                        image.ProjectId = existedPrj.Id;
+                    }
                     _mapper.Map(request, existedPrj);
+                    existedPrj.Images = images;
                     _unitOfWork.ProjectRepository.Update(existedPrj);
                     await _unitOfWork.CommitAsync();
-                    return ResultDTO<string>.Success("Add Sucessfully", "");
+                    return ResultDTO<string>.Success("Update Sucessfully");
                 }
                 else
                 {
@@ -228,6 +229,42 @@ namespace FPTU_Starter.Application.Services
                 return ResultDTO<string>.Fail(e.Message, 500);
 
             }
+        }
+
+        public async Task<ResultDTO<string>> UpdatePackages(Guid id, List<PackageViewResponse> req)
+        {
+            try
+            {
+                List<ProjectPackage> nPack = new List<ProjectPackage>();
+                foreach(PackageViewResponse response in req)
+                {
+                    ProjectPackage pack = _unitOfWork.PackageRepository.GetQueryable().Include(p => p.RewardItems).FirstOrDefault(p => p.Id == response.Id);
+                    List<RewardItem> rewardItems = new List<RewardItem>();
+                    nPack.Add(pack);
+                    _mapper.Map(response, pack);
+                    foreach(RewardItemViewResponse item in response.RewardItems)
+                    {
+                        RewardItem reward = _unitOfWork.RewardItemRepository.GetById(item.Id);
+                        reward.Name  =item.Name;
+                        reward.Description =item.Description;
+                        reward.Quantity = item.Quantity;
+                        reward.ImageUrl = item.ImageUrl;
+                        rewardItems.Add(reward);
+                    }
+                    pack.RewardItems = rewardItems;
+                    _unitOfWork.PackageRepository.Update(pack);
+                }
+                _mapper.Map(req,nPack);
+                //_unitOfWork.PackageRepository.UpdateRange(nPack);
+                await _unitOfWork.CommitAsync();
+                return ResultDTO<string>.Success("Update Sucessfully");
+            }
+            catch (Exception e)
+            {
+                return ResultDTO<string>.Fail(e.Message, 500);
+
+            }
+
         }
     }
 }

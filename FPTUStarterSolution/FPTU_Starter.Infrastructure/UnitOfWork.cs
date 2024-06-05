@@ -20,6 +20,7 @@ namespace FPTU_Starter.Infrastructure
         private ICategoryRepository _categoryRepository;
         private ISubCategoryRepository _subCategoryRepository;
         private IWalletRepository _walletRepository;
+        private IRewardItemRepository _rewardItemRepository;
 
         public UnitOfWork(MyDbContext dbContext, 
             IUserRepository UserRepository, 
@@ -82,6 +83,14 @@ namespace FPTU_Starter.Infrastructure
             get
             {
                 return _walletRepository = _walletRepository ?? new WalletRepository(_dbContext);
+            }
+        }
+
+        public IRewardItemRepository RewardItemRepository
+        {
+            get
+            {
+                return _rewardItemRepository = _rewardItemRepository ?? new RewardItemRepository(_dbContext);
             }
         }
 

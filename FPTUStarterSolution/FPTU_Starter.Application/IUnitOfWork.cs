@@ -15,6 +15,8 @@ namespace FPTU_Starter.Application
         ICategoryRepository CategoryRepository { get; }
         ISubCategoryRepository SubCategoryRepository { get; }
         IWalletRepository WalletRepository { get; }
+
+        IRewardItemRepository RewardItemRepository { get; }
         void Commit();
         void Rollback();
         Task CommitAsync();
