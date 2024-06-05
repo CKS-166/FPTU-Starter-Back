@@ -1,5 +1,10 @@
+
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
+﻿using FPTU_Starter.Domain.Enum;
+using System.ComponentModel.DataAnnotations;
+
 
 namespace FPTU_Starter.Domain.Entity
 {
@@ -16,11 +21,12 @@ namespace FPTU_Starter.Domain.Entity
 
         [Range(0, (double)decimal.MaxValue)]
         [Column(TypeName = "decimal(18, 2)")]
+
         public decimal TotalAmount { get; set; }
-        public string TransactionType { get; set; }
+        public TransactionTypes TransactionType { get; set; }
         public DateTime CreateDate { get; set; }
 
-        public Guid SystemWalletId { get; set; }
-        public SystemWallet SystemWallet { get; set; }
+        public Guid? SystemWalletId { get; set; }
+        public SystemWallet? SystemWallet { get; set; }
     }
 }

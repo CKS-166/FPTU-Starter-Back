@@ -25,7 +25,7 @@ namespace FPTU_Starter.Application.Services
             try
             {
                 List<ProjectPackage> projectPackages = _mapper.Map<List<ProjectPackage>>(projectAddRequests);
-                foreach(ProjectPackage projectPackage in projectPackages)
+                foreach (ProjectPackage projectPackage in projectPackages)
                 {
                     await _unitOfWork.PackageRepository.AddAsync(projectPackage);
 
@@ -39,6 +39,21 @@ namespace FPTU_Starter.Application.Services
                 throw new Exception(ex.Message);
             }
 
+        }
+
+        public async Task<ResultDTO<List<ProjectPackage>>> FindPackagesByProjectId(Guid? ProjectId)
+        {
+            try
+            {
+                var package = await _unitOfWork.PackageRepository.GetAllAsync(x => x.ProjectId.Equals(ProjectId));
+                //List<ProjectPackage> list = new List<ProjectPackage>();
+                //list.Add(package);
+                return ResultDTO<List<ProjectPackage>>.Success(package.ToList(), "successfull");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
