@@ -23,9 +23,9 @@ namespace FPTU_Starter.Infrastructure
         private IRewardItemRepository _rewardItemRepository;
         private ITransactionRepository _transactionRepository;
 
-        public UnitOfWork(MyDbContext dbContext, 
-            IUserRepository UserRepository, 
-            IProjectRepository projectRepository, 
+        public UnitOfWork(MyDbContext dbContext,
+            IUserRepository UserRepository,
+            IProjectRepository projectRepository,
             IPackageRepository packageRepository,
             ICategoryRepository categoryRepository,
             ISubCategoryRepository subCategoryRepository,
@@ -94,6 +94,8 @@ namespace FPTU_Starter.Infrastructure
             get
             {
                 return _rewardItemRepository = _rewardItemRepository ?? new RewardItemRepository(_dbContext);
+            }
+        }
         public ITransactionRepository TransactionRepository
         {
             get
