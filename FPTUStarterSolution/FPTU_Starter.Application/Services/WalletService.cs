@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
+using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Application.ViewModel.WalletDTO;
 using FPTU_Starter.Domain.Entity;
 using Google.Apis.Util;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,12 +20,14 @@ namespace FPTU_Starter.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserManagementService _userManagement;
         private readonly IMapper _mapper;
+        private readonly ClaimsPrincipal _claimsPrincipal;
         private const decimal MINIMUM_AMOUNT = 5000;
 
-        public WalletService(IUnitOfWork unitOfWork, IUserManagementService userManagement, IMapper mapper)
+        public WalletService(IUnitOfWork unitOfWork, IUserManagementService userManagement, IHttpContextAccessor httpContextAccessor, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _userManagement = userManagement;
+            _claimsPrincipal = httpContextAccessor.HttpContext.User;
             _mapper = mapper;
         }
 
@@ -68,6 +73,29 @@ namespace FPTU_Starter.Application.Services
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<ResultDTO<WalletResponse>> GetUserWallet()
+        {
+            try
+            {
+                if (_claimsPrincipal == null || !_claimsPrincipal.Identity.IsAuthenticated)
+                {
+                    return ResultDTO<WalletResponse>.Fail("User not authenticated.");
+                }
+                var userIdClaim = _claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                if (userIdClaim == null)
+                {
+                    return ResultDTO<WalletResponse>.Fail("User not found.");
+                }
+                var wallet = await _unitOfWork.WalletRepository.GetAsync(x => x.BackerId.Equals(userIdClaim.Value));
+                var walletDTO = _mapper.Map<WalletResponse>(wallet);
+                return ResultDTO<WalletResponse>.Success(walletDTO);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
             }
         }
     }

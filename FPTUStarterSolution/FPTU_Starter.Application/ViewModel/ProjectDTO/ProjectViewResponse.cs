@@ -15,7 +15,7 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
         public DateTime EndDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public decimal ProjectTarget { get; set; }
-        public decimal ProjectBalance { get; set; } 
+        public decimal ProjectBalance { get; set; }
         public string ProjectBankAccount { get; set; } = string.Empty;
         public string ProjectThumbnail { get; set; } = string.Empty;
         public string ProjectLiveDemo { get; set; } = string.Empty;
@@ -25,7 +25,9 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
         public ProjectStatus ProjectStatus { get; set; }
         public List<PackageViewResponse> PackageViewResponses { get; set; }
         public List<ProjectImageViewResponse> StoryImages { get; set; }
+        public List<ProjectImageViewResponse>? Images { get; set; }
         public List<SubCategoryViewResponse>? SubCategories { get; set; }
+        public List<CategoryViewResponse>? Categories { get; set; }
 
 
     }

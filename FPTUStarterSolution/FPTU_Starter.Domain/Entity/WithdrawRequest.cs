@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FPTU_Starter.Domain.Enum;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,7 +19,7 @@ namespace FPTU_Starter.Domain.Entity
         public decimal Amount { get; set; }
         public bool IsFinished { get; set; }
         public string RequestType { get; set; }
-        public string Status { get; set; }
+        public WithdrawRequestStatus Status { get; set; }
         public DateTime CreatedDate { get; set; }
 
         public Guid WalletId { get; set; }
