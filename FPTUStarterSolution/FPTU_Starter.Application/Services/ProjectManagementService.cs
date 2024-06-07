@@ -109,16 +109,16 @@ namespace FPTU_Starter.Application.Services
         {
             try
             {
-                IEnumerable<Project> projectList;
+                IQueryable<Project> projectQuery = _unitOfWork.ProjectRepository.GetQueryable()
+                    .AsNoTracking()
+                    .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
+                    .Include(p => p.ProjectOwner)
+                    .Include(p => p.SubCategories).ThenInclude(s => s.Category)
+                    .Include(p => p.Images);
+
                 if (_claimsPrincipal == null || !_claimsPrincipal.Identity.IsAuthenticated)
                 {
-                    projectList = await _unitOfWork.ProjectRepository.GetQueryable()
-                             .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
-                             .Include(p => p.ProjectOwner)
-                             .Include(p => p.SubCategories)
-                                 .ThenInclude(s => s.Category)
-                             .Include(p => p.Images)
-                             .ToListAsync();
+                    
                 }
                 else
                 {
@@ -129,71 +129,60 @@ namespace FPTU_Starter.Application.Services
                     }
                     var userEmail = userEmailClaims.Value;
                     var applicationUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == userEmail);
-                    switch (searchType)
+
+                    if (searchType == "user")
                     {
-                        case "user":
-                            projectList = await _unitOfWork.ProjectRepository.GetQueryable()
-                                .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
-                                .Include(p => p.ProjectOwner)
-                                .Include(p => p.SubCategories)
-                                    .ThenInclude(s => s.Category)
-                                .Include(p => p.Images).Where(x => x.ProjectOwner.Id == applicationUser.Id)
-                                .ToListAsync();
-                            break;
-                        default:
-                            projectList = await _unitOfWork.ProjectRepository.GetQueryable()
-                                .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
-                                .Include(p => p.ProjectOwner)
-                                .Include(p => p.SubCategories)
-                                    .ThenInclude(s => s.Category)
-                                .Include(p => p.Images)
-                                .ToListAsync();
-                            break;
+                        projectQuery = projectQuery.Where(x => x.ProjectOwner.Id == applicationUser.Id);
                     }
                 }
-                //Check searchName
-                if (searchName != null)
+
+                // Apply filters before executing the query
+                if (!string.IsNullOrEmpty(searchName))
                 {
-                    projectList = projectList.Where(x => x.ProjectName.ToLower().Contains(searchName.ToLower()));
+                    projectQuery = projectQuery.Where(x => x.ProjectName.ToLower().Contains(searchName.ToLower()));
                 }
-                //Check targetRange
-                if(moneyTarget != null)
+
+                if (moneyTarget.HasValue)
                 {
-                    switch(moneyTarget)
+                    switch (moneyTarget.Value)
                     {
                         case 1:
-                            projectList = projectList.Where(x => x.ProjectTarget >= 0 && x.ProjectTarget < 1000000);
+                            projectQuery = projectQuery.Where(x => x.ProjectTarget >= 0 && x.ProjectTarget < 1000000);
                             break;
                         case 2:
-                            projectList = projectList.Where(x => x.ProjectTarget >= 1000000 && x.ProjectTarget < 10000000);
-                            break; 
+                            projectQuery = projectQuery.Where(x => x.ProjectTarget >= 1000000 && x.ProjectTarget < 10000000);
+                            break;
                         case 3:
-                            projectList = projectList.Where(x => x.ProjectTarget >= 10000000 && x.ProjectTarget < 100000000);
+                            projectQuery = projectQuery.Where(x => x.ProjectTarget >= 10000000 && x.ProjectTarget < 100000000);
                             break;
                         case 4:
-                            projectList = projectList.Where(x => x.ProjectTarget >= 100000000);
+                            projectQuery = projectQuery.Where(x => x.ProjectTarget >= 100000000);
                             break;
                         default:
                             break;
                     }
                 }
-                //check categoryName
-                if(categoryName != null)
+
+                if (!string.IsNullOrEmpty(categoryName))
                 {
-                    projectList = projectList.Where(x => x.SubCategories.FirstOrDefault().Category.Name.ToLower().Contains(categoryName.ToLower()));
+                    projectQuery = projectQuery.Where(x => x.SubCategories.Any(s => s.Category.Name.ToLower().Contains(categoryName.ToLower())));
                 }
-                //check projectStatus
-                if(projectStatus != null)
+
+                if (projectStatus.HasValue)
                 {
-                    projectList = projectList.Where(x => x.ProjectStatus == projectStatus);
+                    projectQuery = projectQuery.Where(x => x.ProjectStatus == projectStatus.Value);
                 }
-                IEnumerable<ProjectViewResponse> responses = _mapper.Map<IEnumerable<Project>, IEnumerable<ProjectViewResponse>>(projectList);
-                return ResultDTO<List<ProjectViewResponse>>.Success(responses.ToList(), "");
+
+                var projectList = await projectQuery.ToListAsync();
+
+                var responses = _mapper.Map<List<ProjectViewResponse>>(projectList);
+                return ResultDTO<List<ProjectViewResponse>>.Success(responses, "");
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
         }
+
     }
 }
