@@ -15,7 +15,9 @@ namespace FPTU_Starter.Application.ViewModel.TransactionDTO
         public string Description { get; set; }
         public decimal TotalAmount { get; set; }
         public TransactionTypes TransactionTypes { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreateDate { get; set; }
+
+        public string BackerName { get; set; }
        
     }
 }

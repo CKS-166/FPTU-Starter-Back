@@ -23,6 +23,25 @@ namespace FPTU_Starter.Application.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
+
+        public async Task<ResultDTO<List<SubCateCount>>> CountCateProjects()
+        {
+            var subCates = _unitOfWork.SubCategoryRepository.GetQueryable().Include(sc => sc.Projects).ToList();
+            List<SubCateCount> subCateCounts = new List<SubCateCount>();
+            foreach (SubCategory sc in subCates)
+            {
+                SubCateCount subCount = new SubCateCount
+                {
+                    Name = sc.Name,
+                    ProjectsCount = sc.Projects.Count,
+                };
+
+                subCateCounts.Add(subCount);
+            }
+            return ResultDTO<List<SubCateCount>>.Success(subCateCounts, "");
+
+        }
+
         public async Task<ResultDTO<string>> CreateCate(CategoryAddRequest request)
         {
             Category checkCate = _unitOfWork.CategoryRepository.Get(c => c.Name == request.Name);
@@ -44,7 +63,7 @@ namespace FPTU_Starter.Application.Services
                 if (existedCate != null)
                 {
                     List<SubCategory> subs = _mapper.Map<List<SubCategory>>(req.SubCategories);
-                    _mapper.Map(req,existedCate);
+                    _mapper.Map(req, existedCate);
                     //cate.SubCategories = subs;
                     _unitOfWork.CategoryRepository.Update(existedCate);
                     await _unitOfWork.CommitAsync();
@@ -56,7 +75,7 @@ namespace FPTU_Starter.Application.Services
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return ResultDTO<string>.Fail(ex.Message, 500);
             }
@@ -66,14 +85,14 @@ namespace FPTU_Starter.Application.Services
         {
             IEnumerable<Category> cates = _unitOfWork.CategoryRepository.GetQueryable().Include(c => c.SubCategories).ToList();
             IEnumerable<CategoryViewResponse> categoryViewResponses = _mapper.Map<IEnumerable<CategoryViewResponse>>(cates);
-            return ResultDTO<List<CategoryViewResponse>>.Success(categoryViewResponses.ToList(),"");
+            return ResultDTO<List<CategoryViewResponse>>.Success(categoryViewResponses.ToList(), "");
         }
 
         public async Task<ResultDTO<List<SubCategoryViewResponse>>> ViewSubCates(Guid cateId)
         {
             IEnumerable<SubCategory> subCates = _unitOfWork.SubCategoryRepository.GetAll(sc => sc.CategoryId == cateId);
             IEnumerable<SubCategoryViewResponse> subCateViews = _mapper.Map<IEnumerable<SubCategoryViewResponse>>(subCates);
-            return ResultDTO<List<SubCategoryViewResponse>>.Success(subCateViews.ToList(),"");
+            return ResultDTO<List<SubCategoryViewResponse>>.Success(subCateViews.ToList(), "");
         }
     }
 }

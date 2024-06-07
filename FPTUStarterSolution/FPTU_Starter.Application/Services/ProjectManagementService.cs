@@ -229,6 +229,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     List<ProjectImage> images = _mapper.Map<List<ProjectImage>>(request.Images);
                     //List<ProjectPackage> packages = _mapper.Map<List<ProjectPackage>>(request.Packages);
+                    existedPrj.Images.Clear();
                     foreach (ProjectImage image in images)
                     {
                         image.ProjectId = existedPrj.Id;
@@ -381,7 +382,7 @@ namespace FPTU_Starter.Application.Services
                     // check enough money then allow to donate (minus the amount donation)
                     userWallet.Balance -= request.AmountDonate;
                     project.ProjectBalance += request.AmountDonate;
-
+                    IsFoundPackage.LimitQuantity -= 1;
                     //create a transaction
                     var transaction = new Transaction
                     {

@@ -21,14 +21,16 @@ namespace FPTU_Starter.API.Controllers
         private IPhotoService _photoService;
         private IVideoService _videoService;
         private IUnitOfWork _unitOfWork;
+        private ITransactionService _transactionService;
 
         public ProjectManagementController(IProjectManagementService projectService,
-            IPhotoService photoService, IVideoService videoService, IUnitOfWork unitOfWork)
+            IPhotoService photoService, IVideoService videoService, IUnitOfWork unitOfWork, ITransactionService transactionService)
         {
             _projectService = projectService;
             _photoService = photoService;
             _videoService = videoService;
             _unitOfWork = unitOfWork;
+            _transactionService = transactionService;
         }
 
         [HttpGet]
@@ -74,12 +76,6 @@ namespace FPTU_Starter.API.Controllers
             return Ok(result.Url);
         }
 
-        [HttpPost("add-test")]
-        public async Task<IActionResult> AddProjectTest(Project prj)
-        {
-            await _unitOfWork.ProjectRepository.AddAsync(prj);
-            return Ok("Add Successfully");
-        }
 
         [HttpPost("add-story")]
         public async Task<IActionResult> UploadStory(List<IFormFile> storyFiles)
@@ -188,5 +184,19 @@ namespace FPTU_Starter.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("get-trans")]
+        public async Task<IActionResult> GetAllTrans()
+        {
+            try
+            {
+                var result = _transactionService.GetAllTrans();
+                return Ok(result);
+            }catch(ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }
