@@ -348,7 +348,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Url = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -357,7 +357,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         name: "FK_ProjectImage_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -392,9 +393,9 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     PackageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    TransactionType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TransactionType = table.Column<int>(type: "int", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SystemWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    SystemWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -403,8 +404,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         name: "FK_Transactions_SystemWallets_SystemWalletId",
                         column: x => x.SystemWalletId,
                         principalTable: "SystemWallets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Transactions_Wallets_WalletId",
                         column: x => x.WalletId,
@@ -421,7 +421,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IsFinished = table.Column<bool>(type: "bit", nullable: false),
                     RequestType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)

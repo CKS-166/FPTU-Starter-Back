@@ -102,6 +102,7 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             /*--User dependency Injection--*/
             service.AddScoped<IUserManagementService, UserManagementService>();
             service.AddScoped<IUserRepository, UserRepository>();
+            service.AddScoped<ITransactionService,TransactionService>();
             return service;
         }
     }

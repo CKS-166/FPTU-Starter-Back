@@ -39,5 +39,13 @@ namespace FPTU_Starter.API.Controllers
             var result = _categoryService.UpdateCategory(req);
             return Ok(result);
         }
+
+        [HttpGet("count-subCates")]
+        public async Task<IActionResult> CountSubCatesProjects()
+        {
+            var result = _categoryService.CountCateProjects();
+            return Ok(result);
+        }
+
     }
 }

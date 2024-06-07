@@ -261,7 +261,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ProjectId")
+                    b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Url")
@@ -412,9 +412,10 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("PackageId")
+                    b.Property<Guid>("PackageId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("SystemWalletId")
@@ -481,9 +482,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("WalletId")
                         .HasColumnType("uniqueidentifier");
@@ -726,7 +726,9 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 {
                     b.HasOne("FPTU_Starter.Domain.Entity.Project", "Project")
                         .WithMany("Images")
-                        .HasForeignKey("ProjectId");
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Project");
                 });

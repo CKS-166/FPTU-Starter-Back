@@ -8,7 +8,7 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage
 {
     public class ProjectImageViewResponse
     {
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
         public string? Url { get; set; }
     }
 }
