@@ -355,20 +355,13 @@ namespace FPTU_Starter.Application.Services
                     return ResultDTO<ProjectDonateResponse>.Fail("Project Packages cannot be found");
                 }
 
-                //check amount equal to the package
-                if (IsFoundPackage.RequiredAmount != request.AmountDonate)
-                {
-                    return ResultDTO<ProjectDonateResponse>.Fail("You must donate the exact amount");
-                }
 
-
-
-                var IsEnoughMoney = await _walletService.CheckAccoutBallance(request.AmountDonate);
+                var IsEnoughMoney = await _walletService.CheckAccoutBallance(IsFoundPackage.RequiredAmount);
                 if (IsEnoughMoney._isSuccess)
                 {
                     // check enough money then allow to donate (minus the amount donation)
-                    userWallet.Balance -= request.AmountDonate;
-                    project.ProjectBalance += request.AmountDonate;
+                    userWallet.Balance -= IsFoundPackage.RequiredAmount;
+                    project.ProjectBalance += IsFoundPackage.RequiredAmount;
                     IsFoundPackage.LimitQuantity -= 1;
                     //create a transaction
                     var transaction = new Transaction
@@ -378,7 +371,7 @@ namespace FPTU_Starter.Application.Services
                         Wallet = exitUser.Wallet,
                         CreateDate = DateTime.Now,
                         Description = $"{exitUser.Name} has just donated project {project.ProjectName} with package",
-                        TotalAmount = request.AmountDonate,
+                        TotalAmount = IsFoundPackage.RequiredAmount,
                         TransactionType = TransactionTypes.PackageDonation,
                         PackageId = IsFoundPackage.Id
                     };
@@ -391,7 +384,7 @@ namespace FPTU_Starter.Application.Services
                     var response = new ProjectDonateResponse
                     {
                         ProjectName = project.ProjectName,
-                        DonateAmount = request.AmountDonate,
+                        DonateAmount = IsFoundPackage.RequiredAmount,
                         status = true
 
                     };
