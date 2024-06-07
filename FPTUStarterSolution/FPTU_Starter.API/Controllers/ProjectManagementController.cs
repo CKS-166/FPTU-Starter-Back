@@ -103,7 +103,6 @@ namespace FPTU_Starter.API.Controllers
             }
         }
 
-        [Authorize]
         [HttpGet("user-project")]
         public async Task<IActionResult> GetUserProjects(string? searchType, string? searchName, ProjectStatus? projectStatus, int? moneyTarget, string? categoryName)
         {
