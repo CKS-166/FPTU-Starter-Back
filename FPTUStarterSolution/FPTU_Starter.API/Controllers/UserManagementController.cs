@@ -31,6 +31,17 @@ namespace FPTU_Starter.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("user-profile/{id}")]
+        public async Task<ActionResult> GetUserInformation(Guid id)
+        {
+            var result = await _userManagementService.GetUserInfoById(id);
+            if(result._isSuccess is false)
+            {
+                return StatusCode(result._statusCode, result);
+            }
+            return Ok(result);
+        }
+
         [HttpPut("user-profile")]
         [Authorize]
         public async Task<ActionResult> UpdateUser(UserUpdateRequest userUpdateRequest)

@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage
 {
-    public class ProjectImageViewResponse
+    public class ProjectImageUpdate
     {
-        //public Guid Id { get; set; }
+        public Guid Id { get; set; }
         public string? Url { get; set; }
+
     }
 }

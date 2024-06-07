@@ -2,6 +2,9 @@
 using FPTU_Starter.Application;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectDonate;
+using FPTU_Starter.Domain.Constrain;
 using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Infrastructure.OuterService.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -18,14 +21,16 @@ namespace FPTU_Starter.API.Controllers
         private IPhotoService _photoService;
         private IVideoService _videoService;
         private IUnitOfWork _unitOfWork;
+        private ITransactionService _transactionService;
 
         public ProjectManagementController(IProjectManagementService projectService,
-            IPhotoService photoService, IVideoService videoService, IUnitOfWork unitOfWork)
+            IPhotoService photoService, IVideoService videoService, IUnitOfWork unitOfWork, ITransactionService transactionService)
         {
             _projectService = projectService;
             _photoService = photoService;
             _videoService = videoService;
             _unitOfWork = unitOfWork;
+            _transactionService = transactionService;
         }
 
         [HttpGet]
@@ -71,12 +76,6 @@ namespace FPTU_Starter.API.Controllers
             return Ok(result.Url);
         }
 
-        [HttpPost("add-test")]
-        public async Task<IActionResult> AddProjectTest(Project prj)
-        {
-            await _unitOfWork.ProjectRepository.AddAsync(prj);
-            return Ok("Add Successfully");
-        }
 
         [HttpPost("add-story")]
         public async Task<IActionResult> UploadStory(List<IFormFile> storyFiles)
@@ -117,5 +116,86 @@ namespace FPTU_Starter.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateProject(ProjectUpdateRequest prjRequet)
+        {
+            try
+            {
+                var result = _projectService.UpdateProject(prjRequet);
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(Roles = Role.Backer)]
+        [HttpPost("free-backer-donate")]
+        public async Task<IActionResult> DonateProject([FromBody] ProjectDonateRequest projectDonate)
+        {
+            try
+            {
+                var result = await _projectService.DonateProject(projectDonate);
+                if (!result._isSuccess)
+                {
+                    return BadRequest();
+                }
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [Authorize(Roles = Role.Backer)]
+        [HttpPost("package-backer-donate")]
+        public async Task<IActionResult> packageDonateProject([FromBody] PackageDonateRequest projectDonate)
+        {
+            try
+            {
+                var result = await _projectService.PackageDonateProject(projectDonate);
+                if (!result._isSuccess)
+                {
+                    return BadRequest(result._message);
+                }
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        [HttpPut("update-packages")]
+        public async Task<IActionResult> UpdatePackages([FromQuery] Guid id, List<PackageViewResponse> req)
+        {
+            try
+            {
+                var result = _projectService.UpdatePackages(id, req);
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("get-trans")]
+        public async Task<IActionResult> GetAllTrans()
+        {
+            try
+            {
+                var result = _transactionService.GetAllTrans();
+                return Ok(result);
+            }catch(ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

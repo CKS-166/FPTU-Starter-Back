@@ -261,7 +261,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ProjectId")
+                    b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Url")
@@ -418,15 +418,14 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.Property<Guid>("PackageId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("SystemWalletId")
+                    b.Property<Guid?>("SystemWalletId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("TransactionType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("TransactionType")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("WalletId")
                         .HasColumnType("uniqueidentifier");
@@ -483,9 +482,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("WalletId")
                         .HasColumnType("uniqueidentifier");
@@ -728,7 +726,9 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 {
                     b.HasOne("FPTU_Starter.Domain.Entity.Project", "Project")
                         .WithMany("Images")
-                        .HasForeignKey("ProjectId");
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Project");
                 });
@@ -770,9 +770,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 {
                     b.HasOne("FPTU_Starter.Domain.Entity.SystemWallet", "SystemWallet")
                         .WithMany("Transactions")
-                        .HasForeignKey("SystemWalletId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SystemWalletId");
 
                     b.HasOne("FPTU_Starter.Domain.Entity.Wallet", "Wallet")
                         .WithMany("Transactions")

@@ -1,12 +1,17 @@
-﻿using FPTU_Starter.Application.ViewModel.CategoryDTO;
-using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
+﻿using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.SubCategoryPrj;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using static FPTU_Starter.Domain.Enum.ProjectEnum;
 
 namespace FPTU_Starter.Application.ViewModel.ProjectDTO
 {
-    public class ProjectViewResponse
+    public class ProjectUpdateRequest
     {
         public Guid Id { get; set; }
         public string ProjectName { get; set; } = string.Empty;
@@ -23,12 +28,8 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
         public string ProjectOwnerName { get; set; } = string.Empty;
 
         public ProjectStatus ProjectStatus { get; set; }
-        public List<PackageViewResponse> PackageViewResponses { get; set; }
-        public List<ProjectImageViewResponse> StoryImages { get; set; }
-        public List<ProjectImageViewResponse>? Images { get; set; }
-        public List<SubCategoryViewResponse>? SubCategories { get; set; }
-        public List<CategoryViewResponse>? Categories { get; set; }
-
-
+        //public List<PackageViewResponse> Packages { get; set; }
+        public List<ProjectImageViewResponse> Images { get; set; }
+        //public List<SubCategoryViewResponse>? SubCategories { get; set; }
     }
 }

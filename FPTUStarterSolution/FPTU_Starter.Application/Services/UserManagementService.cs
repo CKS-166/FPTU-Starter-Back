@@ -77,6 +77,26 @@ namespace FPTU_Starter.Application.Services
                 throw new Exception(ex.Message, ex);
             }
         }
+
+        public async Task<ResultDTO<UserInfoResponse>> GetUserInfoById(Guid id)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id.ToString());
+                if(user is null)
+                {
+                    return ResultDTO<UserInfoResponse>.Fail("User not found.");
+                }
+                var userRes = _mapper.Map<UserInfoResponse>(user);
+                return ResultDTO<UserInfoResponse>.Success(userRes);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
         public async Task<ResultDTO<string>> UpdateUser(UserUpdateRequest userUpdateRequest)
         {
             try

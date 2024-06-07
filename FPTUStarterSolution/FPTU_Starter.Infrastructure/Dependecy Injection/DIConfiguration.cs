@@ -97,9 +97,12 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<IPhotoService, UploadPhotoService>();
             service.AddScoped<IVideoService, UploadVideoService>();
             service.AddScoped<IWalletRepository, WalletRepository>();
+            service.AddScoped<IWalletService, WalletService>();
+            service.AddScoped<ITransactionRepository, TransactionRepository>();
             /*--User dependency Injection--*/
             service.AddScoped<IUserManagementService, UserManagementService>();
             service.AddScoped<IUserRepository, UserRepository>();
+            service.AddScoped<ITransactionService,TransactionService>();
             return service;
         }
     }

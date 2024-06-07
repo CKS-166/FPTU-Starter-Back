@@ -198,6 +198,16 @@ namespace FPTU_Starter.Application.Services
                     }
                     await _userManager.AddToRoleAsync(newUser, role);
                 }
+                //Create new Wallet for every User sign in
+                var wallet = new Wallet
+                {
+                    Id = Guid.NewGuid(),
+                    Balance = 0,
+                    Backer = newUser,
+                    BackerId = newUser.Id,
+
+                };
+                await _unitOfWork.WalletRepository.AddAsync(wallet);
 
                 // Optionally commit the changes if using a unit of work pattern
                 await _unitOfWork.CommitAsync();

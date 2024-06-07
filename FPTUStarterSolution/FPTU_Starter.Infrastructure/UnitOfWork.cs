@@ -20,14 +20,17 @@ namespace FPTU_Starter.Infrastructure
         private ICategoryRepository _categoryRepository;
         private ISubCategoryRepository _subCategoryRepository;
         private IWalletRepository _walletRepository;
+        private IRewardItemRepository _rewardItemRepository;
+        private ITransactionRepository _transactionRepository;
 
-        public UnitOfWork(MyDbContext dbContext, 
-            IUserRepository UserRepository, 
-            IProjectRepository projectRepository, 
+        public UnitOfWork(MyDbContext dbContext,
+            IUserRepository UserRepository,
+            IProjectRepository projectRepository,
             IPackageRepository packageRepository,
             ICategoryRepository categoryRepository,
             ISubCategoryRepository subCategoryRepository,
-            IWalletRepository walletRepository)
+            IWalletRepository walletRepository,
+            ITransactionRepository transactionRepository)
         {
             _dbContext = dbContext;
             _userRepository = UserRepository;
@@ -36,6 +39,7 @@ namespace FPTU_Starter.Infrastructure
             _categoryRepository = categoryRepository;
             _subCategoryRepository = subCategoryRepository;
             _walletRepository = walletRepository;
+            _transactionRepository = transactionRepository;
         }
 
         public IUserRepository UserRepository
@@ -82,6 +86,21 @@ namespace FPTU_Starter.Infrastructure
             get
             {
                 return _walletRepository = _walletRepository ?? new WalletRepository(_dbContext);
+            }
+        }
+
+        public IRewardItemRepository RewardItemRepository
+        {
+            get
+            {
+                return _rewardItemRepository = _rewardItemRepository ?? new RewardItemRepository(_dbContext);
+            }
+        }
+        public ITransactionRepository TransactionRepository
+        {
+            get
+            {
+                return _transactionRepository = _transactionRepository ?? new TransactionRepository(_dbContext);
             }
         }
 
