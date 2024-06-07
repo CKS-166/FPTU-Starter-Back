@@ -10,6 +10,6 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectDonate
     {
         public Guid? ProjectId { get; set; }
         public Guid? PackageId { get; set; }   
-        public decimal AmountDonate { get; set; }
+        //public decimal AmountDonate { get; set; }
     }
 }
