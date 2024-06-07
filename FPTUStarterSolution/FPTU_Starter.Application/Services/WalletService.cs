@@ -4,8 +4,10 @@ using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Application.ViewModel.WalletDTO;
 using FPTU_Starter.Domain.Entity;
+using FPTU_Starter.Domain.Enum;
 using Google.Apis.Util;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,13 +91,49 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<WalletResponse>.Fail("User not found.");
                 }
-                var wallet = await _unitOfWork.WalletRepository.GetAsync(x => x.BackerId.Equals(userIdClaim.Value));
+                var walletList = await _unitOfWork.WalletRepository.GetQueryable().Include(w => w.Transactions).ToListAsync();
+                var wallet = walletList.FirstOrDefault(x => x.BackerId.Equals(userIdClaim.Value));
                 var walletDTO = _mapper.Map<WalletResponse>(wallet);
                 return ResultDTO<WalletResponse>.Success(walletDTO);
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
+            }
+        }
+
+
+        public async Task<ResultDTO<bool>> AddLoadedMoneyToWallet(Guid walletId, int amount, DateTime createdDate)
+        {
+            try
+            {
+                var wallet = await _unitOfWork.WalletRepository.GetByIdAsync(walletId);
+                if (wallet == null)
+                {
+                    return ResultDTO<bool>.Fail("Cannot find wallet");
+                }
+                wallet.Balance += amount;
+                _unitOfWork.WalletRepository.Update(wallet);
+
+                // create transaction
+                var transaction = new Transaction
+                {
+                    Id = Guid.NewGuid(),
+                    WalletId = walletId,
+                    Description = "Nap tien vao vi",
+                    TotalAmount = amount,
+                    TransactionType = TransactionTypes.AddMoney,
+                    CreateDate = createdDate,
+                };
+                
+                await _unitOfWork.TransactionRepository.AddAsync(transaction);
+
+                await _unitOfWork.CommitAsync();
+                return ResultDTO<bool>.Success(true);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message, e);
             }
         }
     }

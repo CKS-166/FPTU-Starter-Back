@@ -105,6 +105,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
         public void MappingTransaction()
         {
             CreateMap<Transaction, TransactionInfoResponse>().ReverseMap();
+            CreateMap<Transaction, TransactionRequest>().ReverseMap();
         }
     }
 }

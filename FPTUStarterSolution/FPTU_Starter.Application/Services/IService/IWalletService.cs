@@ -13,5 +13,6 @@ namespace FPTU_Starter.Application.Services.IService
     {
         public Task<ResultDTO<bool>> CheckAccoutBallance(decimal amount);
         public Task<ResultDTO<WalletResponse>> GetUserWallet();
+        public Task<ResultDTO<bool>> AddLoadedMoneyToWallet(Guid walletId, int amount, DateTime createdDate);
     }
 }

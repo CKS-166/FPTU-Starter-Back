@@ -1,4 +1,5 @@
 ﻿using FPTU_Starter.Application.Services.IService;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FPTU_Starter.API.Controllers
@@ -14,12 +15,27 @@ namespace FPTU_Starter.API.Controllers
             _walletService = walletService;
         }
 
-        [HttpGet]
+        [HttpGet("user-wallet")]
         public async Task<IActionResult> GetUserWallet()
         {
             var wallet = await _walletService.GetUserWallet();
             return Ok(wallet);
 
+        }
+        [HttpPost("webhook-get-data-payment")]
+        public async Task<IActionResult> GetPaymentDataWebHook()
+        {
+            var wallet = await _walletService.GetUserWallet();
+            return Ok(wallet);
+
+        }
+
+        [HttpPost("add-loaded-money")]
+        public async Task<IActionResult> UpdateWalletBalance(Guid walletId, int amount, string createdDate)
+        {
+            DateTime parsedDate = DateTime.Parse(createdDate);
+            var updateResult = await _walletService.AddLoadedMoneyToWallet(walletId, amount, parsedDate);
+            return Ok(updateResult);
         }
     }
 }
