@@ -288,5 +288,39 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
+        public async Task<ResultDTO<string>> sendResetPasswordLink(string userEmail)
+        {
+            try
+            {
+                var getUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == userEmail);
+                if (getUser == null)
+                {
+                    return ResultDTO<string>.Fail("User not found.");
+                }
+                else
+                {
+                    string baseUrl = "http://localhost:5173"; // Adjust the port as necessary
+                    string resetPasswordUrl = $"{baseUrl}/change-password?email={getUser.Email}";
+                    string subject = "Reset Password";
+                    string body = 
+$@"Chào {getUser.AccountName},
+
+Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu của bạn. Vui lòng nhấp vào liên kết bên dưới để đặt lại mật khẩu:
+
+{resetPasswordUrl}
+
+Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.
+
+Trân trọng,
+FPTU Starter";
+                    var mess = new Message(new string[] { getUser.Email! }, subject, body);
+                    _emailService.SendEmail(mess);
+                    return ResultDTO<string>.Success($"Reset Password link have been send to your email {getUser.Email}");
+                }
+            }catch (Exception ex)
+            {
+                return ResultDTO<string>.Fail($"An error occurred: {ex.Message}");
+            }
+        }
     }
 }
