@@ -15,6 +15,7 @@ namespace FPTU_Starter.Application.Services.IService
         Task<ResultDTO<ResponseToken>> LoginWithOTPAsync(string code, string username);
         public Task<ResultDTO<LoginResponseDTO>> GoogleLogin(string token);
         Task<ResultDTO<ResponseToken>> RegisterGoogleIdentity(RegisterModel registerModel, string role, string avatarUrl);
+        public Task<ResultDTO<string>> sendResetPasswordLink(string userEmail);
 
     }
 }

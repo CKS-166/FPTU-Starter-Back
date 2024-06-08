@@ -56,5 +56,12 @@ namespace FPTU_Starter.API.Controllers
             var result = await _photoService.UploadPhotoAsync(imgFile);
             return Ok(result.Url);
         }
+
+        [HttpPost("update-password")]
+        public async Task<IActionResult> UpdatePassword(string newPassword, string confirmPassword, string userEmail)
+        {
+            var result = await _userManagementService.UpdatePassword(newPassword, confirmPassword, userEmail);
+            return Ok(result);
+        }
     }
 }

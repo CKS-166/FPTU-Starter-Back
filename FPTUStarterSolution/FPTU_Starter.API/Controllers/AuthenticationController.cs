@@ -110,5 +110,12 @@ namespace FPTU_Starter.API.Controllers
             var result = await _authenticationService.RegisterGoogleIdentity(registerModel, Role.Backer, avatarUrl);
             return Ok(result);
         }
+
+        [HttpGet("send-reset-password-link")]
+        public async Task<ActionResult<ResponseToken>> sendResetPasswordLink(string userEmail)
+        {
+            var result = await _authenticationService.sendResetPasswordLink(userEmail);
+            return Ok(result);
+        }
     }
 }

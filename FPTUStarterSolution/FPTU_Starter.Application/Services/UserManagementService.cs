@@ -97,6 +97,38 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
+        public async Task<ResultDTO<string>> UpdatePassword(string newPassword, string confirmPassword, string userEmail)
+        {
+            try
+            {
+                ApplicationUser applicationUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == userEmail);
+                if (applicationUser == null)
+                {
+                    return ResultDTO<string>.Fail("User not found.");
+                }
+                if (newPassword != confirmPassword)
+                {
+                    return ResultDTO<string>.Fail("Passwords do not match.");
+                }
+                var token = await _userManager.GeneratePasswordResetTokenAsync(applicationUser);
+                var result = await _userManager.ResetPasswordAsync(applicationUser, token, newPassword);
+                if (result.Succeeded)
+                {
+                    await _unitOfWork.CommitAsync();
+                    return ResultDTO<string>.Success("Password updated successfully.");
+                }
+                else
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    return ResultDTO<string>.Fail($"Failed to update password: {errors}");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
         public async Task<ResultDTO<string>> UpdateUser(UserUpdateRequest userUpdateRequest)
         {
             try

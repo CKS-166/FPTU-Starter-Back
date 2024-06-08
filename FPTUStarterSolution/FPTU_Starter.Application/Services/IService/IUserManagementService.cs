@@ -14,5 +14,7 @@ namespace FPTU_Starter.Application.Services.IService
         Task<ResultDTO<string>> UpdateUser(UserUpdateRequest userUpdateRequest);
         Task<bool> CheckIfUserExistByEmail(string email);
         Task<ResultDTO<UserInfoResponse>> GetUserInfoById(Guid id);
+
+        Task<ResultDTO<string>> UpdatePassword(string newPassword, string confirmPassword, string userEmail);
     }
 }
