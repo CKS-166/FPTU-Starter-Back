@@ -299,20 +299,20 @@ namespace FPTU_Starter.Application.Services
                 }
                 else
                 {
-                    string baseUrl = "http://localhost:5173"; // Adjust the port as necessary
+                    string baseUrl = "http://localhost:5173";
                     string resetPasswordUrl = $"{baseUrl}/change-password?email={getUser.Email}";
                     string subject = "Reset Password";
                     string body = 
-$@"Chào {getUser.AccountName},
+                        $@"Chào {getUser.AccountName},
 
-Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu của bạn. Vui lòng nhấp vào liên kết bên dưới để đặt lại mật khẩu:
+                        Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu của bạn. Vui lòng nhấp vào liên kết bên dưới để đặt lại mật khẩu:
 
-{resetPasswordUrl}
+                        {resetPasswordUrl}
 
-Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.
+                        Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.
 
-Trân trọng,
-FPTU Starter";
+                        Trân trọng,
+                        FPTU Starter";
                     var mess = new Message(new string[] { getUser.Email! }, subject, body);
                     _emailService.SendEmail(mess);
                     return ResultDTO<string>.Success($"Reset Password link have been send to your email {getUser.Email}");
