@@ -30,7 +30,8 @@ namespace FPTU_Starter.Infrastructure
             ICategoryRepository categoryRepository,
             ISubCategoryRepository subCategoryRepository,
             IWalletRepository walletRepository,
-            ITransactionRepository transactionRepository)
+            ITransactionRepository transactionRepository,
+            IRewardItemRepository rewardItemRepository)
         {
             _dbContext = dbContext;
             _userRepository = UserRepository;
@@ -40,6 +41,7 @@ namespace FPTU_Starter.Infrastructure
             _subCategoryRepository = subCategoryRepository;
             _walletRepository = walletRepository;
             _transactionRepository = transactionRepository;
+            _rewardItemRepository = rewardItemRepository;
         }
 
         public IUserRepository UserRepository

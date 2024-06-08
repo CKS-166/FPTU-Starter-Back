@@ -10,6 +10,7 @@ using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Infrastructure.Authentication;
 using FPTU_Starter.Infrastructure.CloudinaryClassSettings;
 using FPTU_Starter.Infrastructure.Database;
+using FPTU_Starter.Infrastructure.Database.Interface;
 using FPTU_Starter.Infrastructure.EmailService;
 using FPTU_Starter.Infrastructure.MapperConfigs;
 using FPTU_Starter.Infrastructure.OuterService.Implementation;
@@ -34,6 +35,8 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddDbContext<MyDbContext>(option =>
             option.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
             b => b.MigrationsAssembly(typeof(DIConfiguration).Assembly.FullName)), ServiceLifetime.Scoped);
+            //MongoDB 
+            service.AddSingleton<IMongoDbContext, MongoDBContext>();
             //BaseRepository          
             service.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 
@@ -103,6 +106,10 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<IUserManagementService, UserManagementService>();
             service.AddScoped<IUserRepository, UserRepository>();
             service.AddScoped<ITransactionService,TransactionService>();
+            service.AddScoped<IRewardItemRepository,RewardItemRepository>(); 
+            service.AddScoped<ILikeRepository,LikeRepository>();
+            service.AddScoped<ICommentRepository,CommentRepository>();
+              
             return service;
         }
     }
