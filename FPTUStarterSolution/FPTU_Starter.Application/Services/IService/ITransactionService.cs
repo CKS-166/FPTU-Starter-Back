@@ -11,5 +11,6 @@ namespace FPTU_Starter.Application.Services.IService
     public interface ITransactionService
     {
         public Task<ResultDTO<List<TransactionInfoResponse>>> GetAllTrans();
+        public Task<ResultDTO<string>> RefundToBackers(Guid projectId);
     }
 }
