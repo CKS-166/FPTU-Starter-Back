@@ -85,7 +85,6 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<ITokenGenerator, TokenGenerator>();
             service.AddScoped<IEmailService, EmailService.EmailService>();
             service.AddScoped<IGoogleService, GoogleService>();
-
             service.AddScoped<IProjectRepository, ProjectRepository>();
             service.AddScoped<IProjectManagementService, ProjectManagementService>();
             service.AddScoped<IPackageManagementService, PackageManagementService>();
@@ -99,11 +98,12 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<IWalletRepository, WalletRepository>();
             service.AddScoped<IWalletService, WalletService>();
             service.AddScoped<ITransactionRepository, TransactionRepository>();
-            /*--User dependency Injection--*/
             service.AddScoped<IUserManagementService, UserManagementService>();
             service.AddScoped<IUserRepository, UserRepository>();
             service.AddScoped<ITransactionService,TransactionService>();
-            //Worker Service
+            service.AddScoped<IAboutUsManagementService, AboutUsManagementService>();
+            service.AddScoped<IAboutUsRepository, AboutUsRepository>();
+            service.AddScoped<IRewardItemRepository, RewardItemRepository>();
             service.AddHostedService<WorkerService>();
             return service;
         }
