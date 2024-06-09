@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Security.Claims;
+using FPTU_Starter.Application.IRepository;
+using FPTU_Starter.Application.Services.IService;
+using FPTU_Starter.Application.Services;
+using FPTU_Starter.Infrastructure.Repository;
 
 namespace FPTU_Starter.API
 {

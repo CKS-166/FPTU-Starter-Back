@@ -8,6 +8,7 @@ using FPTU_Starter.Domain;
 using FPTU_Starter.Domain.EmailModel;
 using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Infrastructure.Authentication;
+using FPTU_Starter.Infrastructure.BackgroundWorkerService;
 using FPTU_Starter.Infrastructure.CloudinaryClassSettings;
 using FPTU_Starter.Infrastructure.Database;
 using FPTU_Starter.Infrastructure.EmailService;
@@ -22,7 +23,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
 
 namespace FPTU_Starter.Infrastructure.Dependecy_Injection
 {
@@ -103,6 +103,8 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<IUserManagementService, UserManagementService>();
             service.AddScoped<IUserRepository, UserRepository>();
             service.AddScoped<ITransactionService,TransactionService>();
+            //Worker Service
+            service.AddHostedService<WorkerService>();
             return service;
         }
     }
