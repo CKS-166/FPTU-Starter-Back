@@ -99,10 +99,12 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<IWalletRepository, WalletRepository>();
             service.AddScoped<IWalletService, WalletService>();
             service.AddScoped<ITransactionRepository, TransactionRepository>();
-            /*--User dependency Injection--*/
             service.AddScoped<IUserManagementService, UserManagementService>();
             service.AddScoped<IUserRepository, UserRepository>();
             service.AddScoped<ITransactionService,TransactionService>();
+            service.AddScoped<IAboutUsManagementService, AboutUsManagementService>();
+            service.AddScoped<IAboutUsRepository, AboutUsRepository>();
+            service.AddScoped<IRewardItemRepository, RewardItemRepository>();
             return service;
         }
     }

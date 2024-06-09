@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using FPTU_Starter.Application.ViewModel.AboutUsDTO;
 using FPTU_Starter.Application.ViewModel.CategoryDTO;
 using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
@@ -30,6 +31,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
             MappingUserUpdateRequest();
             MappingWalletRequest();
             MappingTransaction();
+            MappingAboutUs();
         }
 
         public void MappingProject()
@@ -107,6 +109,15 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
         {
             CreateMap<Transaction, TransactionInfoResponse>().ReverseMap();
             CreateMap<Transaction, TransactionRequest>().ReverseMap();
+        }
+        public void MappingAboutUs()
+        {
+            CreateMap<AboutUs, AboutUsResponse>()
+                .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id))
+                .ReverseMap();
+            CreateMap<AboutUs, AboutUsRequest>()
+                .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id))
+                .ReverseMap();
         }
     }
 }
