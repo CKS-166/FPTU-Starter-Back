@@ -3,6 +3,7 @@ using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.TransactionDTO;
 using FPTU_Starter.Domain.Entity;
+using FPTU_Starter.Domain.Enum;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,47 @@ namespace FPTU_Starter.Application.Services
             }catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<ResultDTO<string>> RefundToBackers(Guid projectId)
+        {
+            try
+            {
+                Project project = _unitOfWork.ProjectRepository.GetQueryable().Include(p => p.Packages).FirstOrDefault(p => p.Id == projectId);
+                if(project.ProjectStatus != ProjectEnum.ProjectStatus.Failed) {
+                    return ResultDTO<string>.Fail("Project has not been failed yet");
+                }
+                List<ProjectPackage> packages = project.Packages.ToList();
+                foreach(ProjectPackage projectPackage in packages)
+                {
+                    List<Transaction> trans = _unitOfWork.TransactionRepository.GetQueryable().Where(t => t.PackageId == projectPackage.Id).ToList();
+                    if (trans.Count > 0)
+                    {
+                        foreach (Transaction tran in trans)
+                        {
+                            Wallet backerWallet = _unitOfWork.WalletRepository.GetQueryable().Include(w => w.Backer).FirstOrDefault(w => w.Id == tran.WalletId);
+                            backerWallet.Balance += tran.TotalAmount;
+                            var refundTran = new Transaction
+                            {
+                                Id = Guid.NewGuid(),
+                                TransactionType = TransactionTypes.Refund,
+                                Description = "Refund to" + backerWallet.Backer.Name,
+                                TotalAmount = tran.TotalAmount,
+                                WalletId = tran.WalletId,
+                                CreateDate = DateTime.Now,
+                                PackageId = tran.PackageId,
+                            };
+                            _unitOfWork.TransactionRepository.Add(refundTran);
+                        }
+                    }
+                }
+                await _unitOfWork.CommitAsync();
+                return ResultDTO<string>.Success("Refund successfully", "");
+            }catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+
             }
         }
     }
