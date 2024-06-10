@@ -319,6 +319,10 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PackageImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PackageName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

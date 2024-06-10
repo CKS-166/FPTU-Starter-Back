@@ -65,6 +65,7 @@ namespace FPTU_Starter.Application.Services
                 Project project = _mapper.Map<Project>(projectAddRequest);
                 project.SubCategories = subCates;
                 project.ProjectOwner = owner;
+                project.CreatedDate = DateTime.Now;
                 await _unitOfWork.ProjectRepository.AddAsync(project);
                 await _unitOfWork.CommitAsync();
                 return ResultDTO<string>.Success("Add Sucessfully", "");
