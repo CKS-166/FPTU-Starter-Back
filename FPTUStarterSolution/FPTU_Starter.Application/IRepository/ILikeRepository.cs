@@ -12,6 +12,7 @@ namespace FPTU_Starter.Application.IRepository
     {
         List<Like> GetAll();
         Like GetAsync(Expression<Func<Like, bool>> filter);
+        List<Like> GetListAsync(Expression<Func<Like, bool>> filter);
         void Create(Like like);
         void Update(Expression<Func<Like, bool>> filter, Like like);
         void Remove(Expression<Func<Like, bool>> filter);

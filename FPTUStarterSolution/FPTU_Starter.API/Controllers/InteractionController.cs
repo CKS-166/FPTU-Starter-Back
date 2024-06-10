@@ -1,4 +1,6 @@
 ﻿using FPTU_Starter.Application.IRepository;
+using FPTU_Starter.Application.Services.IService;
+using FPTU_Starter.Application.ViewModel.InteractionDTO;
 using FPTU_Starter.Domain.Entity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,41 +12,46 @@ namespace FPTU_Starter.API.Controllers
     [ApiController]
     public class InteractionController : ControllerBase
     {
-        private readonly ILikeRepository _likeRepository;
-        private readonly ICommentRepository _commentRepository;
+        private readonly IInteractionService _interactionService;
 
-        public InteractionController(ILikeRepository likeRepository, ICommentRepository commentRepository)
+        public InteractionController(IInteractionService interactionService)
         {
-            _likeRepository = likeRepository;
-            _commentRepository = commentRepository;
+            _interactionService = interactionService;
         }
-        // GET: api/<InteractionController>
-        [HttpGet]
-        public IEnumerable<Like> Get()
+        [HttpGet("get-all-liked-projects")]
+        public async Task<IActionResult> GetAll()
         {
-            var result = _likeRepository.GetAll();
-            return result.ToList();
+            var result = await _interactionService.GetAll();
+            return Ok(result);
         }
-
-        // GET api/<InteractionController>/5
-        [HttpGet("{id}")]
-        public Like Get(Guid id)
+        [HttpGet("get-all-comment-projects")]
+        public async Task<IActionResult> AllCommentProjects()
         {
-            return _likeRepository.GetAsync(x=>x.Id.Equals(id));
+            var result = await _interactionService.GetAllComment();
+            return Ok(result);
         }
 
-        // POST api/<InteractionController>
-        [HttpPost]
-        public void Post([FromBody] Like value)
+        [HttpPost("like-project")]
+        public async Task<IActionResult> likeProject([FromBody] LikeRequest likeRequest)
         {
-            _likeRepository.Create(value);
+            var result = await _interactionService.LikeProject(likeRequest);
+            if (!result._isSuccess)
+            {
+                return BadRequest(result._message);
+            }
+            return Ok(result);
         }
-       
-        // DELETE api/<InteractionController>/5
-        [HttpDelete("{id}")]
-        public void Delete(Guid id)
+
+        [HttpPost("comment-project")]
+        public async Task<IActionResult> commentProject([FromBody] CommentRequest request)
         {
-            _likeRepository.Remove(x=>x.Id == id);
+            var result = await _interactionService.CommentProject(request);
+            if (!result._isSuccess)
+            {
+                return BadRequest(result._message);
+            }
+            return Ok(result);
         }
+
     }
 }

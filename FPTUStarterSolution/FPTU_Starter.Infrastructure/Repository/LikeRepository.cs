@@ -37,6 +37,11 @@ namespace FPTU_Starter.Infrastructure.Repository
             return _collection.Find(filter).FirstOrDefault();
         }
 
+        public List<Like> GetListAsync(Expression<Func<Like, bool>> filter)
+        {
+            return _collection.Find(filter).ToList();
+        }
+
         public void Remove(Expression<Func<Like, bool>> filter)
         {
             _collection.DeleteOne(filter);

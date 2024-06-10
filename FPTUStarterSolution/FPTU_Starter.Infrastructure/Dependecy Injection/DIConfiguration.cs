@@ -109,6 +109,7 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<IRewardItemRepository,RewardItemRepository>(); 
             service.AddScoped<ILikeRepository,LikeRepository>();
             service.AddScoped<ICommentRepository,CommentRepository>();
+            service.AddScoped<IInteractionService,InteractionService>();
               
             return service;
         }
