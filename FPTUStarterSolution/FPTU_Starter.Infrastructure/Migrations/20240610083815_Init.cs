@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace FPTU_Starter.Infrastructure.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -351,6 +351,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     LimitQuantity = table.Column<int>(type: "int", nullable: false),
                     PackageDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PackageType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PackageImage = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>

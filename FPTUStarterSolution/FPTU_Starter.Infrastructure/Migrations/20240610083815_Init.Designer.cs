@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FPTU_Starter.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240608051918_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240610083815_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -318,6 +318,10 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("PackageDescription")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PackageImage")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
