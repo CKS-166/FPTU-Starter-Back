@@ -13,6 +13,7 @@ using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.RewardItemDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.SubCategoryPrj;
+using FPTU_Starter.Application.ViewModel.StageDTO;
 using FPTU_Starter.Application.ViewModel.TransactionDTO;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Application.ViewModel.WalletDTO;
@@ -32,6 +33,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
             MappingWalletRequest();
             MappingTransaction();
             MappingAboutUs();
+            MappingStage();
         }
 
         public void MappingProject()
@@ -116,6 +118,15 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id))
                 .ReverseMap();
             CreateMap<AboutUs, AboutUsRequest>()
+                .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id))
+                .ReverseMap();
+        }
+        public void MappingStage()
+        {
+            CreateMap<Stage, StageResponse>()
+                .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id))
+                .ReverseMap();
+            CreateMap<Stage, StageRequest>()
                 .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id))
                 .ReverseMap();
         }
