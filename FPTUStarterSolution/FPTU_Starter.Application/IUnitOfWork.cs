@@ -18,6 +18,7 @@ namespace FPTU_Starter.Application
         IRewardItemRepository RewardItemRepository { get; }
         ITransactionRepository TransactionRepository { get; }
         IAboutUsRepository AboutUsRepository { get; }
+        IStageRepository StageRepository { get; }
         void Commit();
         void Rollback();
         Task CommitAsync();
