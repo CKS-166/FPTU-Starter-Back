@@ -65,6 +65,7 @@ namespace FPTU_Starter.Application.Services
                 Project project = _mapper.Map<Project>(projectAddRequest);
                 project.SubCategories = subCates;
                 project.ProjectOwner = owner;
+                project.CreatedDate = DateTime.Now;
                 await _unitOfWork.ProjectRepository.AddAsync(project);
                 await _unitOfWork.CommitAsync();
                 return ResultDTO<string>.Success("Add Sucessfully", "");
@@ -396,6 +397,31 @@ namespace FPTU_Starter.Application.Services
             catch (Exception e)
             {
                 throw new Exception(e.Message, e);
+            }
+        }
+
+        public async Task<ResultDTO<string>> FailedProject()
+        {
+            try
+            {
+                List<Project> projects = _unitOfWork.ProjectRepository.GetAll().ToList();
+                foreach (Project project in projects)
+                {
+                    DateTime today = DateTime.Today;
+                    if (project.StartDate >= today)
+                    {
+                        if (project.ProjectStatus == ProjectStatus.Pending)
+                        {
+                            project.ProjectStatus = ProjectStatus.Failed;
+                        }                    }
+                    await _unitOfWork.CommitAsync();
+                }
+                return ResultDTO<string>.Success("Project has been expired");
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message, e);
+
             }
         }
     }

@@ -32,7 +32,6 @@ namespace FPTU_Starter.Infrastructure.Authentication
                 new Claim(ClaimTypes.Email,user.Email!),
                 new Claim("jti", "JcmF8uj2ISveL5FvvNk4pnp8xrhINz8-1614225624"),
                 new Claim("api_key" , "JcmF8uj2ISveL5FvvNk4pnp8xrhINz8")
-
             };
 
             if (userRole != null) // case: register dont need to claim role

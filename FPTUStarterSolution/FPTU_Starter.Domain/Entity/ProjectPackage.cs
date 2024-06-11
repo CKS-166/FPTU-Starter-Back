@@ -23,6 +23,8 @@ namespace FPTU_Starter.Domain.Entity
         public string PackageDescription { get; set; } = string.Empty;
         [Required]
         public string PackageType { get; set; } = string.Empty;
+
+        public string PackageImage {  get; set; } = string.Empty;   
         [Required]
         [ForeignKey(nameof(Project))]
         public Guid ProjectId { get; set; }

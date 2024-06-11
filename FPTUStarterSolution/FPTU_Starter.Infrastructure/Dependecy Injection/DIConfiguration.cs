@@ -8,6 +8,7 @@ using FPTU_Starter.Domain;
 using FPTU_Starter.Domain.EmailModel;
 using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Infrastructure.Authentication;
+using FPTU_Starter.Infrastructure.BackgroundWorkerService;
 using FPTU_Starter.Infrastructure.CloudinaryClassSettings;
 using FPTU_Starter.Infrastructure.Database;
 using FPTU_Starter.Infrastructure.Database.Interface;
@@ -23,7 +24,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
 
 namespace FPTU_Starter.Infrastructure.Dependecy_Injection
 {
@@ -88,7 +88,6 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<ITokenGenerator, TokenGenerator>();
             service.AddScoped<IEmailService, EmailService.EmailService>();
             service.AddScoped<IGoogleService, GoogleService>();
-
             service.AddScoped<IProjectRepository, ProjectRepository>();
             service.AddScoped<IProjectManagementService, ProjectManagementService>();
             service.AddScoped<IPackageManagementService, PackageManagementService>();
@@ -102,15 +101,16 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<IWalletRepository, WalletRepository>();
             service.AddScoped<IWalletService, WalletService>();
             service.AddScoped<ITransactionRepository, TransactionRepository>();
-            /*--User dependency Injection--*/
             service.AddScoped<IUserManagementService, UserManagementService>();
             service.AddScoped<IUserRepository, UserRepository>();
             service.AddScoped<ITransactionService,TransactionService>();
-            service.AddScoped<IRewardItemRepository,RewardItemRepository>(); 
             service.AddScoped<ILikeRepository,LikeRepository>();
             service.AddScoped<ICommentRepository,CommentRepository>();
             service.AddScoped<IInteractionService,InteractionService>();
-              
+            service.AddScoped<IAboutUsManagementService, AboutUsManagementService>();
+            service.AddScoped<IAboutUsRepository, AboutUsRepository>();
+            service.AddScoped<IRewardItemRepository, RewardItemRepository>();
+            service.AddHostedService<WorkerService>();
             return service;
         }
     }

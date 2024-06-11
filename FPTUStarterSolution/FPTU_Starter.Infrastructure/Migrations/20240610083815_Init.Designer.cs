@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FPTU_Starter.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240607141745_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240610083815_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,38 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("FPTU_Starter.Domain.Entity.AboutUs", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VideoUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("AboutUs");
+                });
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.ApplicationUser", b =>
                 {
@@ -286,6 +318,10 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("PackageDescription")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PackageImage")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -662,6 +698,17 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.ToTable("ProjectSubCategory");
                 });
 
+            modelBuilder.Entity("FPTU_Starter.Domain.Entity.AboutUs", b =>
+                {
+                    b.HasOne("FPTU_Starter.Domain.Entity.Project", "Project")
+                        .WithMany("AboutUs")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Comment", b =>
                 {
                     b.HasOne("FPTU_Starter.Domain.Entity.Project", "Project")
@@ -910,6 +957,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Project", b =>
                 {
+                    b.Navigation("AboutUs");
+
                     b.Navigation("Comments");
 
                     b.Navigation("Images");
