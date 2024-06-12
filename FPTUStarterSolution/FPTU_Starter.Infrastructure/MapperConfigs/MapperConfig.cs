@@ -106,7 +106,6 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ForMember(dest => dest.WithdrawRequests, opt => opt.MapFrom(src => src.WithdrawRequests))
                 .ReverseMap();
         }
-
         public void MappingTransaction()
         {
             CreateMap<Transaction, TransactionInfoResponse>().ReverseMap();
@@ -115,10 +114,8 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
         public void MappingAboutUs()
         {
             CreateMap<AboutUs, AboutUsResponse>()
-                .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id))
                 .ReverseMap();
             CreateMap<AboutUs, AboutUsRequest>()
-                .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id))
                 .ReverseMap();
         }
         public void MappingStage()
