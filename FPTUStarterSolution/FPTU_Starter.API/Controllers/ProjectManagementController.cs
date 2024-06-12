@@ -40,6 +40,13 @@ namespace FPTU_Starter.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("get-process-project")]
+        public async Task<ActionResult> GetProcessingProjects([FromQuery] int itemPerPage = 3, int currentPage = 1)
+        {
+            var result = await _projectService.GetProjectHomePage(itemPerPage,currentPage);
+            return Ok(result);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetAllProjects(Guid id)
         {
@@ -195,6 +202,22 @@ namespace FPTU_Starter.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpGet("count-donate")]
+        public async Task<IActionResult> CountDoantes([FromQuery] DateTime time)
+        {
+            try
+            {
+                var result = _projectService.CountProjectDonate();
+                return Ok(result);  
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+
+            }
+
         }
 
     }

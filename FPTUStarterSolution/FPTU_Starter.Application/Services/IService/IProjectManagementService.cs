@@ -20,5 +20,8 @@ namespace FPTU_Starter.Application.Services.IService
         Task<ResultDTO<ProjectDonateResponse>> DonateProject(ProjectDonateRequest request);
         Task<ResultDTO<ProjectDonateResponse>> PackageDonateProject(PackageDonateRequest request);
         Task<ResultDTO<string>> FailedProject();
+
+        Task<ResultDTO<List<ProjectDonateResponse>>> CountProjectDonate();
+        Task<ResultDTO<List<ProjectViewResponse>>> GetProjectHomePage(int itemPerPage, int currentPage);
     }
 }
