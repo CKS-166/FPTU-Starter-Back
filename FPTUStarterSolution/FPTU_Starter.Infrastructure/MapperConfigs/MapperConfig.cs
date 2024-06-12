@@ -44,7 +44,9 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
             CreateMap<ProjectPackage, PackageAddRequest>().ReverseMap();
             CreateMap<ProjectAddRequest, Project>()
                 .ForMember(des => des.Packages, src => src.MapFrom(x => x.Packages)).ReverseMap();
-            CreateMap<ProjectPackage, PackageViewResponse>().ReverseMap();
+            CreateMap<ProjectPackage, PackageViewResponse>()
+                .ForMember(des => des.RewardItems, src => src.MapFrom(x => x.RewardItems))
+                .ReverseMap();
             CreateMap<Project, ProjectViewResponse>()
                 .ForMember(des => des.PackageViewResponses, src => src.MapFrom(x => x.Packages))
                 .ForMember(des => des.ProjectOwnerName, src => src.MapFrom(x => x.ProjectOwner.AccountName))
