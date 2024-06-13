@@ -12,12 +12,11 @@ namespace FPTU_Starter.Domain.Entity
     {
         [Required]
         public Guid Id { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public string? StageName { get; set; }
-        public bool IsFinish { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public string? Title { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? VideoUrl { get; set; }
         public string? StageDescription { get; set;}
-        public Project? Projects { get; set; }
-        public Guid ProjectID { get; set; }
+        public Project Project { get; set; }
     }
 }

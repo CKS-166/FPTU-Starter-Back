@@ -436,5 +436,101 @@ namespace FPTU_Starter.Application.Services
 
             }
         }
+
+        public async Task<ResultDTO<List<ProjectDonateResponse>>> CountProjectDonate()
+        {
+            try
+            {
+                List<Transaction> trans = _unitOfWork.TransactionRepository.GetQueryable()
+                    .Where(t => (t.TransactionType == TransactionTypes.FreeDonation 
+                    || t.TransactionType == TransactionTypes.PackageDonation)).ToList();
+                
+                Dictionary<Guid, int> count = new Dictionary<Guid, int>();
+                foreach (Transaction transaction in trans) {
+                    ProjectPackage package = _unitOfWork.PackageRepository.GetQueryable().Include(pa => pa.Project).FirstOrDefault(pa => pa.Id == transaction.PackageId);
+                    Project project = _unitOfWork.ProjectRepository.GetById(package.ProjectId);
+                    if (project != null)
+                    {
+                        if (count.ContainsKey(project.Id))
+                        {
+                            count[project.Id]++;
+                        }
+                        else
+                        {
+                            count[project.Id] = 1;
+                        }
+                    }
+                }
+                List<ProjectDonateResponse> result = count.Select(c => new ProjectDonateResponse
+                {
+                    ProjectName = _unitOfWork.ProjectRepository.GetQueryable().FirstOrDefault(p => p.Id == c.Key).ProjectName,
+                    Count = c.Value
+                }).ToList();
+                return ResultDTO<List<ProjectDonateResponse>>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message,ex);
+            }
+        }
+
+        public async Task<ResultDTO<List<ProjectViewResponse>>> GetProjectHomePage(int itemPerPage, int currentPage)
+        {
+            try
+            {
+                List<Project> allProjects = _unitOfWork.ProjectRepository.GetQueryable()
+                    .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
+                    .Include(p => p.ProjectOwner)
+                    //.Include(p => p.Category)
+                    .Include(p => p.Images)
+                    .Include(p => p.SubCategories)
+                    .ToList();
+                List<Transaction> trans = _unitOfWork.TransactionRepository.GetQueryable()
+                    .Where(t => (t.TransactionType == TransactionTypes.FreeDonation
+                    || t.TransactionType == TransactionTypes.PackageDonation)).ToList();
+                Dictionary<Guid, int> count = new Dictionary<Guid, int>();
+                foreach (Transaction transaction in trans)
+                {
+                    ProjectPackage package = _unitOfWork.PackageRepository.GetQueryable().Include(pa => pa.Project).FirstOrDefault(pa => pa.Id == transaction.PackageId);
+                    Project project = _unitOfWork.ProjectRepository.GetById(package.ProjectId);
+                    if (project != null)
+                    {
+                        if (count.ContainsKey(project.Id))
+                        {
+                            count[project.Id]++;
+                        }
+                        else
+                        {
+                            count[project.Id] = 1;
+                        }
+                    }
+                }
+                List<Project> homeProjects = new List<Project>();
+                IEnumerable<Project> projects = count.Select(c =>
+                _unitOfWork.ProjectRepository.GetQueryable().Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
+                    .Include(p => p.ProjectOwner)
+                    //.Include(p => p.Category)
+                    .Include(p => p.Images)
+                    .Include(p => p.SubCategories)
+                    .Where(p => p.ProjectStatus == ProjectStatus.Processing).FirstOrDefault(p => p.Id == c.Key));
+                homeProjects.AddRange(projects);
+                foreach(Project project in allProjects)
+                {
+                    if (!projects.Contains(project))
+                    {
+                        homeProjects.Add(project);
+                    }
+                }
+                homeProjects = homeProjects.Skip((currentPage - 1) * itemPerPage).Take(itemPerPage).ToList();
+
+                IEnumerable<ProjectViewResponse> responses = _mapper.Map<List<Project>, List<ProjectViewResponse>>(homeProjects);
+
+                return ResultDTO<List<ProjectViewResponse>>.Success(responses.ToList(), "");
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
     }
 }

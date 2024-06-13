@@ -11,7 +11,7 @@ namespace FPTU_Starter.Application.Services.IService
 {
     public interface IAboutUsManagementService
     {
-        Task<ResultDTO<List<AboutUsResponse>>> getProjectAboutUs(Guid id);
+        Task<ResultDTO<AboutUsResponse>> getProjectAboutUs(Guid id);
         Task<ResultDTO<string>> addProjectAboutUs(AboutUsRequest aboutUsRequest);
         Task<ResultDTO<AboutUsResponse>> getAboutUsById(Guid id);
         Task<ResultDTO<string>> updateProjectAboutUs(AboutUsRequest aboutUsRequest);

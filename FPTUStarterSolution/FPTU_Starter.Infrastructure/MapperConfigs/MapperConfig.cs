@@ -13,6 +13,7 @@ using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.RewardItemDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.SubCategoryPrj;
+using FPTU_Starter.Application.ViewModel.StageDTO;
 using FPTU_Starter.Application.ViewModel.TransactionDTO;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Application.ViewModel.WalletDTO;
@@ -34,6 +35,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
             MappingTransaction();
             MappingAboutUs();
             MappingWithdraw();
+            MappingStage();
         }
 
         public void MappingProject()
@@ -44,7 +46,9 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
             CreateMap<ProjectPackage, PackageAddRequest>().ReverseMap();
             CreateMap<ProjectAddRequest, Project>()
                 .ForMember(des => des.Packages, src => src.MapFrom(x => x.Packages)).ReverseMap();
-            CreateMap<ProjectPackage, PackageViewResponse>().ReverseMap();
+            CreateMap<ProjectPackage, PackageViewResponse>()
+                .ForMember(des => des.RewardItems, src => src.MapFrom(x => x.RewardItems))
+                .ReverseMap();
             CreateMap<Project, ProjectViewResponse>()
                 .ForMember(des => des.PackageViewResponses, src => src.MapFrom(x => x.Packages))
                 .ForMember(des => des.ProjectOwnerName, src => src.MapFrom(x => x.ProjectOwner.AccountName))
@@ -106,7 +110,6 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ForMember(dest => dest.WithdrawRequests, opt => opt.MapFrom(src => src.WithdrawRequests))
                 .ReverseMap();
         }
-
         public void MappingTransaction()
         {
             CreateMap<Transaction, TransactionInfoResponse>().ReverseMap();
@@ -115,9 +118,16 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
         public void MappingAboutUs()
         {
             CreateMap<AboutUs, AboutUsResponse>()
-                .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id))
                 .ReverseMap();
             CreateMap<AboutUs, AboutUsRequest>()
+                .ReverseMap();
+        }
+        public void MappingStage()
+        {
+            CreateMap<Stage, StageResponse>()
+                .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id))
+                .ReverseMap();
+            CreateMap<Stage, StageRequest>()
                 .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id))
                 .ReverseMap();
         }

@@ -28,28 +28,17 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("VideoUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("ProjectId")
+                        .IsUnique();
 
                     b.ToTable("AboutUs");
                 });
@@ -372,27 +361,27 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsFinish")
-                        .HasColumnType("bit");
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ProjectID")
+                    b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("StageDescription")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StageName")
+                    b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("VideoUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectID");
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("Stage");
                 });
@@ -697,8 +686,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.AboutUs", b =>
                 {
                     b.HasOne("FPTU_Starter.Domain.Entity.Project", "Project")
-                        .WithMany("AboutUs")
-                        .HasForeignKey("ProjectId")
+                        .WithOne("AboutUs")
+                        .HasForeignKey("FPTU_Starter.Domain.Entity.AboutUs", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -775,13 +764,13 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Stage", b =>
                 {
-                    b.HasOne("FPTU_Starter.Domain.Entity.Project", "Projects")
+                    b.HasOne("FPTU_Starter.Domain.Entity.Project", "Project")
                         .WithMany("Stages")
-                        .HasForeignKey("ProjectID")
+                        .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Projects");
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.SubCategory", b =>
@@ -937,7 +926,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Project", b =>
                 {
-                    b.Navigation("AboutUs");
+                    b.Navigation("AboutUs")
+                        .IsRequired();
 
                     b.Navigation("Comments");
 

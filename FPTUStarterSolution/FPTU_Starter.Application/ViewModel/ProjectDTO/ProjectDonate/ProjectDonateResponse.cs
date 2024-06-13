@@ -11,6 +11,7 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectDonate
     {
         public string? ProjectName { get; set; }
         public decimal DonateAmount { get; set; }
+        public int Count { get; set; }
         public bool status { get; set; }
     }
 }
