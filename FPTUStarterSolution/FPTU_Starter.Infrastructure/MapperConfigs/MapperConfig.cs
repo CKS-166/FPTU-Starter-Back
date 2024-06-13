@@ -17,6 +17,7 @@ using FPTU_Starter.Application.ViewModel.StageDTO;
 using FPTU_Starter.Application.ViewModel.TransactionDTO;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Application.ViewModel.WalletDTO;
+using FPTU_Starter.Application.ViewModel.WithdrawReqDTO;
 using FPTU_Starter.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,6 +34,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
             MappingWalletRequest();
             MappingTransaction();
             MappingAboutUs();
+            MappingWithdraw();
             MappingStage();
         }
 
@@ -128,6 +130,11 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
             CreateMap<Stage, StageRequest>()
                 .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id))
                 .ReverseMap();
+        }
+        public void MappingWithdraw()
+        {
+            CreateMap<WithdrawRequest, WithdrawReqResponse>().ReverseMap();
+            CreateMap<WithdrawRequest, WithdrawRequest>().ReverseMap();
         }
     }
 }

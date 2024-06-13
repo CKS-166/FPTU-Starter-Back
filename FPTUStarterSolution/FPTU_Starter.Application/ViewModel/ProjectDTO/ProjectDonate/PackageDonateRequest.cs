@@ -8,8 +8,8 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectDonate
 {
     public class PackageDonateRequest
     {
-        public Guid? ProjectId { get; set; }
+        //public Guid? ProjectId { get; set; }
         public Guid? PackageId { get; set; }   
-        //public decimal AmountDonate { get; set; }
+       
     }
 }
