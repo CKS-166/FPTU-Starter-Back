@@ -36,7 +36,7 @@ namespace FPTU_Starter.Infrastructure
             ITransactionRepository transactionRepository,
             IRewardItemRepository rewardItemRepository,
             IAboutUsRepository aboutUsRepository,
-            IWithdrawRepository withdrawRepository)
+            IWithdrawRepository withdrawRepository,
             IStageRepository stageRepository)
         {
             _dbContext = dbContext;
