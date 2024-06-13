@@ -220,5 +220,20 @@ namespace FPTU_Starter.API.Controllers
 
         }
 
+        [HttpGet("check-owner")]
+        [Authorize]
+        public async Task<IActionResult> CheckHaveProjects([FromQuery] Guid projectId)
+        {
+            try
+            {
+                var result = _projectService.CheckHaveProject(projectId);
+                return Ok(result);
+            }catch(ExceptionError e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        
+
     }
 }
