@@ -110,6 +110,8 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<IAboutUsManagementService, AboutUsManagementService>();
             service.AddScoped<IAboutUsRepository, AboutUsRepository>();
             service.AddScoped<IRewardItemRepository, RewardItemRepository>();
+            service.AddScoped<IWithdrawRepository, WithdrawRepository>();
+            service.AddScoped<IWithdrawService, WithdrawService>();
             service.AddHostedService<WorkerService>();
             return service;
         }

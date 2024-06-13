@@ -50,7 +50,7 @@ namespace FPTU_Starter.Domain.Entity
         public DateTime CreatedDate { get; set; }
 
         public virtual ApplicationUser? ProjectOwner { get; set; }
-
+       
         public ICollection<ProjectPackage> Packages { get; set; }
 
         public virtual ICollection<SubCategory> SubCategories { get; set; }

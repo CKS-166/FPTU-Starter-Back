@@ -18,9 +18,10 @@ namespace FPTU_Starter.Domain.Entity
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Amount { get; set; }
         public bool IsFinished { get; set; }
-        public string RequestType { get; set; }
+        public TransactionTypes RequestType { get; set; }
         public WithdrawRequestStatus Status { get; set; }
         public DateTime CreatedDate { get; set; }
+        public DateTime ExpiredDate { get; set; } 
 
         public Guid WalletId { get; set; }
         public Wallet Wallet { get; set; }

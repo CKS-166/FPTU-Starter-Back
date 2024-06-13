@@ -12,9 +12,10 @@ namespace FPTU_Starter.Application.ViewModel.WithdrawReqDTO
         public Guid Id { get; set; }
         public decimal Amount { get; set; }
         public bool IsFinished { get; set; }
-        public string RequestType { get; set; }
+        public TransactionTypes RequestType { get; set; }
         public WithdrawRequestStatus Status { get; set; }
         public DateTime CreatedDate { get; set; }
+        public DateTime ExpiredDate { get; set; }
         public Guid WalletId { get; set; }
         public Guid ProjectId { get; set; }
     }
