@@ -62,14 +62,23 @@ namespace FPTU_Starter.Application.Services
                     SubCategory sub = _unitOfWork.SubCategoryRepository.Get(sc => sc.Id == sa.Id);
                     subCates.Add(sub);
                 }
-
                 Project project = _mapper.Map<Project>(projectAddRequest);
                 project.SubCategories = subCates;
                 project.ProjectOwner = owner;
                 project.CreatedDate = DateTime.Now;
+                //create free package
+                ProjectPackage freePackage = new ProjectPackage
+                {
+                    Id = Guid.NewGuid(),
+                    PackageImage = "",
+                    PackageDescription = "",
+                    LimitQuantity = 0,
+                    PackageType = "Free"
+                };
+                project.Packages.Add(freePackage);
                 await _unitOfWork.ProjectRepository.AddAsync(project);
                 await _unitOfWork.CommitAsync();
-                return ResultDTO<string>.Success("Add Sucessfully", "");
+                return ResultDTO<string>.Success("Add Sucessfully");
             }
             catch (Exception ex)
             {
@@ -289,14 +298,16 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<ProjectDonateResponse>.Fail("Project cannot be donated to");
                 }
-                var userWallet = await _unitOfWork.WalletRepository.GetAsync(x => x.BackerId!.Equals(exitUser.Id));
-
+                var userWallet = await _unitOfWork.WalletRepository.GetAsync(x => x.BackerId!.Equals(exitUser.Id));                
+                
                 var IsEnoughMoney = await _walletService.CheckAccoutBallance(request.AmountDonate);
                 if (IsEnoughMoney._isSuccess)
                 {
                     // check enough money then allow to donate (minus the amount donation)
                     userWallet.Balance -= request.AmountDonate;
                     project.ProjectBalance += request.AmountDonate;
+                    //check free package
+                    var FreeDonate = await _unitOfWork.PackageRepository.GetAsync(x=>x.ProjectId.Equals(project.Id) && x.PackageType.Equals("Free"));
                     //create a transaction
                     var transaction = new Transaction
                     {
@@ -307,6 +318,7 @@ namespace FPTU_Starter.Application.Services
                         Description = $"{exitUser.Name} has just donated project {project.ProjectName}",
                         TotalAmount = request.AmountDonate,
                         TransactionType = TransactionTypes.FreeDonation,
+                        PackageId = FreeDonate.Id
                     };
                     await _unitOfWork.TransactionRepository.AddAsync(transaction);
 
@@ -338,9 +350,14 @@ namespace FPTU_Starter.Application.Services
             {
                 var user = _userManagement.GetUserInfo().Result;
                 ApplicationUser exitUser = _mapper.Map<ApplicationUser>(user._data);
-                var project = await _unitOfWork.ProjectRepository.GetAsync(x => x.Id.Equals(request.ProjectId));
+                var package = await _unitOfWork.PackageRepository.GetAsync(x => x.Id.Equals(request.PackageId));
+                var project = await _unitOfWork.ProjectRepository.GetAsync(x => x.Id.Equals(package.ProjectId));
                 var userWallet = await _unitOfWork.WalletRepository.GetAsync(x => x.BackerId!.Equals(exitUser.Id));
-                var package = await _packageManagement.FindPackagesByProjectId(request.ProjectId);
+
+                if (package is null)
+                {
+                    return ResultDTO<ProjectDonateResponse>.Fail("Package can not free");
+                }
 
                 //Check Project Status
                 if (!project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Processing) &&
@@ -348,22 +365,15 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<ProjectDonateResponse>.Fail("Project cannot be donated to");
                 }
+  
 
-                //check package exits in the project
-                var IsFoundPackage = package._data.FirstOrDefault(x => x.Id.Equals(request.PackageId));
-                if (IsFoundPackage is null)
-                {
-                    return ResultDTO<ProjectDonateResponse>.Fail("Project Packages cannot be found");
-                }
-
-
-                var IsEnoughMoney = await _walletService.CheckAccoutBallance(IsFoundPackage.RequiredAmount);
+                var IsEnoughMoney = await _walletService.CheckAccoutBallance(package.RequiredAmount);
                 if (IsEnoughMoney._isSuccess)
                 {
                     // check enough money then allow to donate (minus the amount donation)
-                    userWallet.Balance -= IsFoundPackage.RequiredAmount;
-                    project.ProjectBalance += IsFoundPackage.RequiredAmount;
-                    IsFoundPackage.LimitQuantity -= 1;
+                    userWallet.Balance -= package.RequiredAmount;
+                    project.ProjectBalance += package.RequiredAmount;
+                    package.LimitQuantity -= 1;
                     //create a transaction
                     var transaction = new Transaction
                     {
@@ -372,9 +382,9 @@ namespace FPTU_Starter.Application.Services
                         Wallet = exitUser.Wallet,
                         CreateDate = DateTime.Now,
                         Description = $"{exitUser.Name} has just donated project {project.ProjectName} with package",
-                        TotalAmount = IsFoundPackage.RequiredAmount,
+                        TotalAmount = package.RequiredAmount,
                         TransactionType = TransactionTypes.PackageDonation,
-                        PackageId = IsFoundPackage.Id
+                        PackageId = package.Id
                     };
                     await _unitOfWork.TransactionRepository.AddAsync(transaction);
 
@@ -385,7 +395,7 @@ namespace FPTU_Starter.Application.Services
                     var response = new ProjectDonateResponse
                     {
                         ProjectName = project.ProjectName,
-                        DonateAmount = IsFoundPackage.RequiredAmount,
+                        DonateAmount = package.RequiredAmount,
                         status = true
 
                     };

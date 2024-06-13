@@ -23,18 +23,18 @@ namespace FPTU_Starter.Application.Services
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
-        public async Task<ResultDTO<List<AboutUsResponse>>> getProjectAboutUs(Guid id)
+        public async Task<ResultDTO<AboutUsResponse>> getProjectAboutUs(Guid id)
         {
             try
             {
                 var project = await _unitOfWork.ProjectRepository.GetByIdAsync(id);
                 if(project == null)
                 {
-                    return ResultDTO<List<AboutUsResponse>>.Fail("Project Not Found");
+                    return ResultDTO<AboutUsResponse>.Fail("Project Not Found");
                 }
-                IEnumerable<AboutUs> list = await _unitOfWork.AboutUsRepository.GetAllAsync(x => x.Project.Id.Equals(project.Id));
-                IEnumerable<AboutUsResponse> responses = _mapper.Map<IEnumerable<AboutUs>, IEnumerable<AboutUsResponse>>(list);
-                return ResultDTO<List<AboutUsResponse>>.Success(responses.ToList(), "");
+                AboutUs aboutUs = await _unitOfWork.AboutUsRepository.GetAsync(x => x.Project.Id.Equals(project.Id));
+                AboutUsResponse responses = _mapper.Map<AboutUsResponse>(aboutUs);
+                return ResultDTO<AboutUsResponse>.Success(responses, "");
             }
             catch (Exception ex)
             {
@@ -45,7 +45,7 @@ namespace FPTU_Starter.Application.Services
         {
             try
             {
-                var aboutUs = await _unitOfWork.AboutUsRepository.GetQueryable().Include(p => p.Project).SingleOrDefaultAsync(a => a.Id == id);
+                var aboutUs = await _unitOfWork.AboutUsRepository.GetByIdAsync(id);
                 if (aboutUs == null)
                 {
                     return ResultDTO<AboutUsResponse>.Fail("About Us Not Found");
@@ -68,7 +68,6 @@ namespace FPTU_Starter.Application.Services
                     return ResultDTO<string>.Fail("Project Not Found");
                 }
                 AboutUs aboutUs = _mapper.Map<AboutUs>(aboutUsRequest);
-                aboutUs.Project = project;
                 await _unitOfWork.AboutUsRepository.AddAsync(aboutUs);
                 await _unitOfWork.CommitAsync();
                 return ResultDTO<string>.Success("Add Sucessfully", "");
@@ -82,7 +81,7 @@ namespace FPTU_Starter.Application.Services
         {
             try
             {
-                var aboutUs = await _unitOfWork.AboutUsRepository.GetQueryable().Include(p => p.Project).SingleOrDefaultAsync(a => a.Id == aboutUsRequest.Id);
+                var aboutUs = await _unitOfWork.AboutUsRepository.GetByIdAsync(aboutUsRequest.Id);
                 if (aboutUs == null)
                 {
                     return ResultDTO<string>.Fail("About Us Not Found");

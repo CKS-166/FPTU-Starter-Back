@@ -23,6 +23,7 @@ namespace FPTU_Starter.Infrastructure
         private IRewardItemRepository _rewardItemRepository;
         private ITransactionRepository _transactionRepository;
         private IAboutUsRepository _aboutUsRepository;
+        private IWithdrawRepository _withdrawRepository;
         private IStageRepository _stageRepository;
 
         public UnitOfWork(MyDbContext dbContext,
@@ -35,6 +36,7 @@ namespace FPTU_Starter.Infrastructure
             ITransactionRepository transactionRepository,
             IRewardItemRepository rewardItemRepository,
             IAboutUsRepository aboutUsRepository,
+            IWithdrawRepository withdrawRepository,
             IStageRepository stageRepository)
         {
             _dbContext = dbContext;
@@ -47,6 +49,7 @@ namespace FPTU_Starter.Infrastructure
             _transactionRepository = transactionRepository;
             _rewardItemRepository = rewardItemRepository;
             _aboutUsRepository = aboutUsRepository;
+            _withdrawRepository = withdrawRepository;
             _stageRepository = stageRepository;
         }
 
@@ -124,6 +127,14 @@ namespace FPTU_Starter.Infrastructure
             get
             {
                 return _stageRepository = _stageRepository ?? new StageRepository(_dbContext);
+            }
+        }
+
+        public IWithdrawRepository WithdrawRepository
+        {
+            get
+            {
+                return _withdrawRepository = _withdrawRepository ?? new WithdrawRepository(_dbContext);
             }
         }
 

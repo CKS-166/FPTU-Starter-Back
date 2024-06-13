@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
+using FPTU_Starter.Application.ViewModel.TransferDTO;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Application.ViewModel.WalletDTO;
 using FPTU_Starter.Domain.Entity;
@@ -51,7 +52,7 @@ namespace FPTU_Starter.Application.Services
                 }
 
                 //check amount divided 1000
-                if (amount % 1000 != 0 )
+                if (amount % 1000 != 0)
                 {
                     return ResultDTO<bool>.Fail("You can only donate amount divided to 1000");
                 }
@@ -62,7 +63,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<bool>.Fail("Not found any wallet match with this user");
                 }
-               
+
                 //check balance
                 if (userWallet.Balance > amount)
                 {
@@ -125,11 +126,98 @@ namespace FPTU_Starter.Application.Services
                     TransactionType = TransactionTypes.AddMoney,
                     CreateDate = createdDate,
                 };
-                
+
                 await _unitOfWork.TransactionRepository.AddAsync(transaction);
 
                 await _unitOfWork.CommitAsync();
                 return ResultDTO<bool>.Success(true);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message, e);
+            }
+        }
+
+        public async Task<ResultDTO<TransferResponse>> TransferMoney(TransferRequest request)
+        {
+            try
+            {
+                // check amount
+                if (request.Amount < MINIMUM_AMOUNT)
+                {
+                    return ResultDTO<TransferResponse>.Fail("The minium amount is 5000vnd ");
+                }
+
+                //check amount divided 1000
+                if (request.Amount % 1000 != 0)
+                {
+                    return ResultDTO<TransferResponse>.Fail("You can only donate amount divided to 1000");
+                }
+                //check wallet valid
+                var exitedSourceWallet = _unitOfWork.WalletRepository.GetById(request.SourceWalletID);
+                if (exitedSourceWallet == null)
+                {
+                    return ResultDTO<TransferResponse>.Fail("Source Wallet not found");
+                }
+                var exitedDestinationWallet = _unitOfWork.WalletRepository.GetById(request.DestinationWalletID);
+                if (exitedDestinationWallet == null)
+                {
+                    return ResultDTO<TransferResponse>.Fail("Destination Wallet not found");
+                }
+                //check amount of source
+                if (exitedSourceWallet.Balance < request.Amount)
+                {
+                    return ResultDTO<TransferResponse>.Fail("Source Wallet do not have enough money");
+                }
+
+                //transfer money
+                exitedDestinationWallet.Balance += request.Amount;
+                exitedSourceWallet.Balance -= request.Amount;
+                await _unitOfWork.CommitAsync();
+                return ResultDTO<TransferResponse>.Success(new TransferResponse { Amount = request.Amount, DestinationWalletID = request.DestinationWalletID, SourceWalletID = request.SourceWalletID }, "successfull transfer");
+                //transaction modify in service related
+
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message, e);
+            }
+        }
+
+        public async Task<ResultDTO<TransferResponse>> TransferProjectMoney(TransferProjectMoneyRequest request)
+        {
+            try
+            {
+                //get project 
+                var exitProject =  _unitOfWork.ProjectRepository.GetById(request.ProjectID);
+                // check amount
+                if (exitProject.ProjectBalance < MINIMUM_AMOUNT)
+                {
+                    return ResultDTO<TransferResponse>.Fail("The minium amount is 5000vnd ");
+                }
+
+                //check amount divided 1000
+                if (exitProject.ProjectBalance % 1000 != 0)
+                {
+                    return ResultDTO<TransferResponse>.Fail("You can only donate amount divided to 1000");
+                }
+                //check wallet valid               
+                var exitedDestinationWallet = _unitOfWork.WalletRepository.GetById(request.DestinationWalletID);
+                if (exitedDestinationWallet == null)
+                {
+                    return ResultDTO<TransferResponse>.Fail("Destination Wallet not found");
+                }                
+
+                //transfer money
+                var temp = exitProject.ProjectBalance;
+                exitedDestinationWallet.Balance += exitProject.ProjectBalance;
+                exitProject.ProjectBalance = 0;
+                await _unitOfWork.CommitAsync();
+                return ResultDTO<TransferResponse>.Success(new TransferResponse { Amount = temp, DestinationWalletID = request.DestinationWalletID, SourceWalletID = exitProject.Id }, "successfull transfer");
+                 //transaction modify in service related
+
+
             }
             catch (Exception e)
             {
