@@ -31,7 +31,7 @@ namespace FPTU_Starter.Infrastructure.BackgroundWorkerService
                 foreach (var project in projects)
                 {
                     DateTime today = DateTime.Today;
-                    if (project.StartDate >= today)
+                    if (project.StartDate == today)
                     {
                         if (project.ProjectStatus == ProjectStatus.Pending)
                         {

@@ -62,6 +62,7 @@ namespace FPTU_Starter.Application.Services
                     SubCategory sub = _unitOfWork.SubCategoryRepository.Get(sc => sc.Id == sa.Id);
                     subCates.Add(sub);
                 }
+
                 Project project = _mapper.Map<Project>(projectAddRequest);
                 project.SubCategories = subCates;
                 project.ProjectOwner = owner;
@@ -296,7 +297,6 @@ namespace FPTU_Starter.Application.Services
                     // check enough money then allow to donate (minus the amount donation)
                     userWallet.Balance -= request.AmountDonate;
                     project.ProjectBalance += request.AmountDonate;
-
                     //create a transaction
                     var transaction = new Transaction
                     {
@@ -518,6 +518,43 @@ namespace FPTU_Starter.Application.Services
             catch (Exception e)
             {
                 throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<ResultDTO<bool>> CheckHaveProject(Guid projectId)
+        {
+            try
+            {
+                if (_claimsPrincipal == null || !_claimsPrincipal.Identity.IsAuthenticated)
+                {
+                    return ResultDTO<bool>.Success(false);
+                }
+                var userEmailClaims = _claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+                if (userEmailClaims == null)
+                {
+                    return ResultDTO<bool>.Success(false);
+                }
+                var userEmail = userEmailClaims.Value;
+                var applicationUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == userEmail);
+                if (applicationUser == null)
+                {
+                    return ResultDTO<bool>.Success(false);
+                }
+                List<Project> projects = _unitOfWork.ProjectRepository.GetQueryable().Where(p => p.ProjectOwner.Email.Equals(applicationUser.Email)).ToList();
+                
+                if (projects.Count == 0)
+                {
+                    return ResultDTO<bool>.Success(false);
+                }
+                if (!projects.Contains(_unitOfWork.ProjectRepository.GetById(projectId)))
+                {
+                    return ResultDTO<bool>.Success(false);
+                }
+                return ResultDTO<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
             }
         }
     }

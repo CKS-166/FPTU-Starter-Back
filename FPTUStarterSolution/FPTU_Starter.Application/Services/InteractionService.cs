@@ -2,6 +2,7 @@
 using FPTU_Starter.Application.IRepository;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
+using FPTU_Starter.Application.ViewModel.CommentDTO;
 using FPTU_Starter.Application.ViewModel.InteractionDTO;
 using FPTU_Starter.Domain.Entity;
 using System;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace FPTU_Starter.Application.Services
 {
@@ -32,6 +34,21 @@ namespace FPTU_Starter.Application.Services
             _userManagementService = userManagementService;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+        }
+
+        public async Task<List<Like>> CheckUserLike(Guid id)
+        {
+            try
+            {
+                var user = _userManagementService.GetUserInfo().Result;
+                ApplicationUser exitUser = _mapper.Map<ApplicationUser>(user._data);
+                var list = _likeRepository.GetAll().Where(l => l.ProjectId == id && l.UserId.ToString() == exitUser.Id);
+                return list.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
         }
 
         public async Task<ResultDTO<Comment>> CommentProject(CommentRequest request)
@@ -96,18 +113,79 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
-        public async Task<List<Comment>> GetAllComment()
+        public async Task<List<CommentViewResponse>> GetAllComment()
         {
             try
             {
                 var list = _commentRepository.GetAll();
-                return list.ToList();
+
+                List<CommentViewResponse> comments = new List<CommentViewResponse>();
+
+                foreach (var comment in list)
+                {
+                    var user = _unitOfWork.UserRepository.GetById(comment.UserID.ToString());
+
+                    comments.Add(new CommentViewResponse
+                    {
+                        Content = comment.Content,
+                        CreateDate = comment.CreateDate,
+                        UserName = user?.AccountName,
+                        AvatarUrl = user?.Avatar
+                    });
+                }
+
+                return comments;
 
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
                 
+            }
+        }
+
+        public async Task<List<CommentViewResponse>> GetCommentsByProject(Guid id)
+        {
+            try
+            {
+                var list = _commentRepository.GetAll().Where(c => c.ProjectId == id);
+                List<CommentViewResponse> comments = new List<CommentViewResponse>();
+                foreach (var comment in list)
+                {
+                    var user = _unitOfWork.UserRepository.GetById(comment.UserID.ToString());
+
+                    comments.Add(new CommentViewResponse
+                    {
+                        Content = comment.Content,
+                        CreateDate = comment.CreateDate,
+                        UserName = user?.AccountName,
+                        AvatarUrl = user?.Avatar
+                    });
+                }
+
+                return comments;
+                return comments;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+
+            }
+        }
+
+        public async Task<List<Like>> GetLikesByProject(Guid id)
+        {
+            try
+            {
+                var list = _likeRepository.GetAll().Where(l => l.ProjectId == id);
+                return list.ToList();
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+
             }
         }
 

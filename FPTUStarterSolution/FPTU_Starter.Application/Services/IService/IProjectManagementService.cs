@@ -23,5 +23,6 @@ namespace FPTU_Starter.Application.Services.IService
 
         Task<ResultDTO<List<ProjectDonateResponse>>> CountProjectDonate();
         Task<ResultDTO<List<ProjectViewResponse>>> GetProjectHomePage(int itemPerPage, int currentPage);
+        Task<ResultDTO<bool>> CheckHaveProject(Guid projectId);
     }
 }
