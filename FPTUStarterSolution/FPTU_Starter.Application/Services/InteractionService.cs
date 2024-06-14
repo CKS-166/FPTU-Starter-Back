@@ -66,10 +66,6 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<Comment>.Fail("Project can not found");
                 }
-
-                var exitComment =  _commentRepository.GetAsync(x => x.ProjectId.Equals(project.Id) && x.UserID.Equals(Guid.Parse(exitUser.Id)));
-                if (exitComment is null)
-                {
                     // add new comment
                     Comment newComment = new Comment
                     {
@@ -81,16 +77,6 @@ namespace FPTU_Starter.Application.Services
                     };
                     _commentRepository.Create(newComment);
                     return ResultDTO<Comment>.Success(newComment, "Successfully Add Comment");
-                }
-                else
-                {
-                    //update comment
-                    exitComment.Content = request.Content;
-                    _commentRepository.Update(x => x.Id == exitComment.Id, exitComment);
-                    return ResultDTO<Comment>.Success(exitComment, "Successfully Update Comment");
-                }
-                
-
             }
             catch (Exception ex)
             {

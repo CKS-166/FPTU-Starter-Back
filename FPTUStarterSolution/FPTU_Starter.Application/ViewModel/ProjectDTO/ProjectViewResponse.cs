@@ -21,7 +21,8 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
         public string ProjectLiveDemo { get; set; } = string.Empty;
         public Guid OwnerId { get; set; }
         public string ProjectOwnerName { get; set; } = string.Empty;
-
+        public int Likes { get; set; }
+        public int Backers { get; set; }
         public ProjectStatus ProjectStatus { get; set; }
         public List<PackageViewResponse> PackageViewResponses { get; set; }
         public List<ProjectImageViewResponse> StoryImages { get; set; }
