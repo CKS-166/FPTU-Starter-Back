@@ -14,7 +14,7 @@ namespace FPTU_Starter.Application.Services.IService
         Task<ResultDTO<string>> UpdateProjectStatus(Guid id, ProjectStatus projectStatus);
         Task<ResultDTO<ProjectViewResponse>> GetProjectById(Guid id);
 
-        Task<ResultDTO<string>> UpdateProject(ProjectUpdateRequest request); 
+        Task<ResultDTO<string>> UpdateProject(ProjectUpdateRequest request);
         Task<ResultDTO<List<ProjectViewResponse>>> GetUserProjects(string? searchType, string? searchName, ProjectStatus? projectStatus, int? moneyTarget, string? categoryName);
         Task<ResultDTO<string>> UpdatePackages(Guid id, List<PackageViewResponse> req);
         Task<ResultDTO<ProjectDonateResponse>> DonateProject(ProjectDonateRequest request);
@@ -24,5 +24,8 @@ namespace FPTU_Starter.Application.Services.IService
         Task<ResultDTO<List<ProjectDonateResponse>>> CountProjectDonate();
         Task<ResultDTO<List<ProjectViewResponse>>> GetProjectHomePage(int itemPerPage, int currentPage);
         Task<ResultDTO<bool>> CheckHaveProject(Guid projectId);
+        Task<ResultDTO<int>> GetAllProject();
+        Task<ResultDTO<decimal>> GetTotalMoney();
+        Task<ResultDTO<int>> GetAllPackages();
     }
 }

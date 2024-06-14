@@ -10,6 +10,7 @@ using FPTU_Starter.Infrastructure.OuterService.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static FPTU_Starter.Domain.Enum.ProjectEnum;
+using CloudinaryDotNet;
 
 namespace FPTU_Starter.API.Controllers
 {
@@ -33,6 +34,28 @@ namespace FPTU_Starter.API.Controllers
             _transactionService = transactionService;
         }
 
+        [HttpGet("admin-count-projects")]
+        public async Task<ActionResult> CountAllProjects()
+        {
+            var result = await _projectService.GetAllProject();
+            return Ok(result);
+        }
+
+
+        [HttpGet("admin-count-money-project")]
+        public async Task<ActionResult> TotalProjectMoney()
+        {
+            var result = await _projectService.GetTotalMoney();
+            return Ok(result);
+        }
+
+
+        [HttpGet("admin-count-package")]
+        public async Task<ActionResult> CountAllPackages()
+        {
+            var result = await _projectService.GetAllPackages();
+            return Ok(result);
+        }
         [HttpGet]
         public async Task<ActionResult> GetAllProjects()
         {
@@ -43,7 +66,7 @@ namespace FPTU_Starter.API.Controllers
         [HttpGet("get-process-project")]
         public async Task<ActionResult> GetProcessingProjects([FromQuery] int itemPerPage = 3, int currentPage = 1)
         {
-            var result = await _projectService.GetProjectHomePage(itemPerPage,currentPage);
+            var result = await _projectService.GetProjectHomePage(itemPerPage, currentPage);
             return Ok(result);
         }
 
@@ -198,7 +221,8 @@ namespace FPTU_Starter.API.Controllers
             {
                 var result = _transactionService.GetAllTrans();
                 return Ok(result);
-            }catch(ExceptionError ex)
+            }
+            catch (ExceptionError ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -210,7 +234,7 @@ namespace FPTU_Starter.API.Controllers
             try
             {
                 var result = _projectService.CountProjectDonate();
-                return Ok(result);  
+                return Ok(result);
             }
             catch (ExceptionError ex)
             {
@@ -228,12 +252,13 @@ namespace FPTU_Starter.API.Controllers
             {
                 var result = _projectService.CheckHaveProject(projectId);
                 return Ok(result);
-            }catch(ExceptionError e)
+            }
+            catch (ExceptionError e)
             {
                 return BadRequest(e.Message);
             }
         }
-        
+
 
     }
 }

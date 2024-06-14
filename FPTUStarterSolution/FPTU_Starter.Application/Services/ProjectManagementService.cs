@@ -35,7 +35,7 @@ namespace FPTU_Starter.Application.Services
         private readonly IPackageManagementService _packageManagement;
         private ClaimsPrincipal _claimsPrincipal;
         private UserManager<ApplicationUser> _userManager;
-       
+
         public ProjectManagementService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor,
             IWalletService walletService,
             IUserManagementService userManagement,
@@ -152,7 +152,7 @@ namespace FPTU_Starter.Application.Services
 
                 if (_claimsPrincipal == null || !_claimsPrincipal.Identity.IsAuthenticated)
                 {
-                    
+
                 }
                 else
                 {
@@ -243,7 +243,7 @@ namespace FPTU_Starter.Application.Services
                     return ResultDTO<string>.Fail("Project Not Found", 404);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return ResultDTO<string>.Fail(e.Message, 500);
 
@@ -255,17 +255,17 @@ namespace FPTU_Starter.Application.Services
             try
             {
                 List<ProjectPackage> nPack = new List<ProjectPackage>();
-                foreach(PackageViewResponse response in req)
+                foreach (PackageViewResponse response in req)
                 {
                     ProjectPackage pack = _unitOfWork.PackageRepository.GetQueryable().Include(p => p.RewardItems).FirstOrDefault(p => p.Id == response.Id);
                     List<RewardItem> rewardItems = new List<RewardItem>();
                     nPack.Add(pack);
                     _mapper.Map(response, pack);
-                    foreach(RewardItemViewResponse item in response.RewardItems)
+                    foreach (RewardItemViewResponse item in response.RewardItems)
                     {
                         RewardItem reward = _unitOfWork.RewardItemRepository.GetById(item.Id);
-                        reward.Name  =item.Name;
-                        reward.Description =item.Description;
+                        reward.Name = item.Name;
+                        reward.Description = item.Description;
                         reward.Quantity = item.Quantity;
                         reward.ImageUrl = item.ImageUrl;
                         rewardItems.Add(reward);
@@ -273,7 +273,7 @@ namespace FPTU_Starter.Application.Services
                     pack.RewardItems = rewardItems;
                     _unitOfWork.PackageRepository.Update(pack);
                 }
-                _mapper.Map(req,nPack);
+                _mapper.Map(req, nPack);
                 //_unitOfWork.PackageRepository.UpdateRange(nPack);
                 await _unitOfWork.CommitAsync();
                 return ResultDTO<string>.Success("Update Sucessfully");
@@ -292,7 +292,7 @@ namespace FPTU_Starter.Application.Services
                 var user = _userManagement.GetUserInfo().Result;
                 ApplicationUser exitUser = _mapper.Map<ApplicationUser>(user._data);
                 var project = await _unitOfWork.ProjectRepository.GetAsync(x => x.Id.Equals(request.ProjectId));
-                if(project is null)
+                if (project is null)
                 {
                     return ResultDTO<ProjectDonateResponse>.Fail("Project null");
                 }
@@ -302,8 +302,8 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<ProjectDonateResponse>.Fail("Project cannot be donated to");
                 }
-                var userWallet = await _unitOfWork.WalletRepository.GetAsync(x => x.BackerId!.Equals(exitUser.Id));                
-                
+                var userWallet = await _unitOfWork.WalletRepository.GetAsync(x => x.BackerId!.Equals(exitUser.Id));
+
                 var IsEnoughMoney = await _walletService.CheckAccoutBallance(request.AmountDonate);
                 if (IsEnoughMoney._isSuccess)
                 {
@@ -311,7 +311,7 @@ namespace FPTU_Starter.Application.Services
                     userWallet.Balance -= request.AmountDonate;
                     project.ProjectBalance += request.AmountDonate;
                     //check free package
-                    var FreeDonate = await _unitOfWork.PackageRepository.GetAsync(x=>x.ProjectId.Equals(project.Id) && x.PackageType.Equals("Free"));
+                    var FreeDonate = await _unitOfWork.PackageRepository.GetAsync(x => x.ProjectId.Equals(project.Id) && x.PackageType.Equals("Free"));
                     //create a transaction
                     var transaction = new Transaction
                     {
@@ -369,7 +369,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<ProjectDonateResponse>.Fail("Project cannot be donated to");
                 }
-  
+
 
                 var IsEnoughMoney = await _walletService.CheckAccoutBallance(package.RequiredAmount);
                 if (IsEnoughMoney._isSuccess)
@@ -427,7 +427,8 @@ namespace FPTU_Starter.Application.Services
                         if (project.ProjectStatus == ProjectStatus.Pending)
                         {
                             project.ProjectStatus = ProjectStatus.Failed;
-                        }                    }
+                        }
+                    }
                     await _unitOfWork.CommitAsync();
                 }
                 return ResultDTO<string>.Success("Project has been expired");
@@ -444,11 +445,12 @@ namespace FPTU_Starter.Application.Services
             try
             {
                 List<Transaction> trans = _unitOfWork.TransactionRepository.GetQueryable()
-                    .Where(t => (t.TransactionType == TransactionTypes.FreeDonation 
+                    .Where(t => (t.TransactionType == TransactionTypes.FreeDonation
                     || t.TransactionType == TransactionTypes.PackageDonation)).ToList();
-                
+
                 Dictionary<Guid, int> count = new Dictionary<Guid, int>();
-                foreach (Transaction transaction in trans) {
+                foreach (Transaction transaction in trans)
+                {
                     ProjectPackage package = _unitOfWork.PackageRepository.GetQueryable().Include(pa => pa.Project).FirstOrDefault(pa => pa.Id == transaction.PackageId);
                     Project project = _unitOfWork.ProjectRepository.GetById(package.ProjectId);
                     if (project != null)
@@ -472,7 +474,7 @@ namespace FPTU_Starter.Application.Services
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message,ex);
+                throw new Exception(ex.Message, ex);
             }
         }
 
@@ -516,7 +518,7 @@ namespace FPTU_Starter.Application.Services
                     .Include(p => p.SubCategories)
                     .Where(p => p.ProjectStatus == ProjectStatus.Processing).FirstOrDefault(p => p.Id == c.Key));
                 homeProjects.AddRange(projects);
-                foreach(Project project in allProjects)
+                foreach (Project project in allProjects)
                 {
                     if (!projects.Contains(project))
                     {
@@ -555,7 +557,7 @@ namespace FPTU_Starter.Application.Services
                     return ResultDTO<bool>.Success(false);
                 }
                 List<Project> projects = _unitOfWork.ProjectRepository.GetQueryable().Where(p => p.ProjectOwner.Email.Equals(applicationUser.Email)).ToList();
-                
+
                 if (projects.Count == 0)
                 {
                     return ResultDTO<bool>.Success(false);
@@ -565,6 +567,59 @@ namespace FPTU_Starter.Application.Services
                     return ResultDTO<bool>.Success(false);
                 }
                 return ResultDTO<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<ResultDTO<int>> GetAllProject()
+        {
+            try
+            {
+                var numOfProject = await _unitOfWork.ProjectRepository.GetAllAsync();
+                return ResultDTO<int>.Success(numOfProject.Count(), "total of project is");
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<ResultDTO<decimal>> GetTotalMoney()
+        {
+            try
+            {
+                //total of project pending
+                var listProject = _unitOfWork.ProjectRepository.GetQueryable();
+                var totalSuccessfullMoney = listProject.Select(x => x.ProjectBalance).Sum(); // successfull nhung ma chua withdraw    
+
+                //var list project successfull but withdraw. take from transaction
+                var totalProjectCashOut = _unitOfWork.WithdrawRepository.GetQueryable()
+                    .Where(x => x.RequestType == TransactionTypes.CashOut).Select(x => x.Amount).Sum();
+
+
+                return ResultDTO<decimal>.Success(totalProjectCashOut + totalSuccessfullMoney, "total of money is");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<ResultDTO<int>> GetAllPackages()
+        {
+            try
+            {
+                var listPackage = _unitOfWork.TransactionRepository.GetQueryable()
+                    .Where(x => x.TransactionType == TransactionTypes.PackageDonation)
+                    .Select(x=>x.PackageId)
+                    .Distinct()
+                    .Count();
+                
+                return ResultDTO<int>.Success(listPackage, "total of packages is");
             }
             catch (Exception ex)
             {
