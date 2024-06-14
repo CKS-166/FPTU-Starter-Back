@@ -502,9 +502,8 @@ namespace FPTU_Starter.Application.Services
                 List<Project> allProjects = _unitOfWork.ProjectRepository.GetQueryable()
                     .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
                     .Include(p => p.ProjectOwner)
-                    //.Include(p => p.Category)
+                    .Include(p => p.SubCategories).ThenInclude(s => s.Category)
                     .Include(p => p.Images)
-                    .Include(p => p.SubCategories)
                     .ToList();
 
                 List<Transaction> trans = _unitOfWork.TransactionRepository.GetQueryable()
@@ -531,9 +530,8 @@ namespace FPTU_Starter.Application.Services
                 IEnumerable<Project> projects = count.Select(c =>
                 _unitOfWork.ProjectRepository.GetQueryable().Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
                     .Include(p => p.ProjectOwner)
-                    //.Include(p => p.Category)
+                    .Include(p => p.SubCategories).ThenInclude(s => s.Category)
                     .Include(p => p.Images)
-                    .Include(p => p.SubCategories)
                     .Where(p => p.ProjectStatus == ProjectStatus.Processing).FirstOrDefault(p => p.Id == c.Key));
                 homeProjects.AddRange(projects);
                 foreach (Project project in allProjects)
