@@ -62,6 +62,13 @@ namespace FPTU_Starter.Application.Services
                     SubCategory sub = _unitOfWork.SubCategoryRepository.Get(sc => sc.Id == sa.Id);
                     subCates.Add(sub);
                 }
+                foreach (PackageAddRequest pack in projectAddRequest.Packages)
+                {
+                    if(pack.RequiredAmount < 5000)
+                    {
+                        return ResultDTO<string>.Fail("Price for package must be at least 5000");
+                    }
+                }
                 Project project = _mapper.Map<Project>(projectAddRequest);
                 project.SubCategories = subCates;
                 project.ProjectOwner = owner;
