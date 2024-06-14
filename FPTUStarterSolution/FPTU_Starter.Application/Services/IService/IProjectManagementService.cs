@@ -4,6 +4,7 @@ using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectDonate;
 using FPTU_Starter.Domain.Entity;
 using static FPTU_Starter.Domain.Enum.ProjectEnum;
+using FPTU_Starter.Application.ViewModel.TransactionDTO;
 
 namespace FPTU_Starter.Application.Services.IService
 {
@@ -27,5 +28,8 @@ namespace FPTU_Starter.Application.Services.IService
         Task<ResultDTO<int>> GetAllProject();
         Task<ResultDTO<decimal>> GetTotalMoney();
         Task<ResultDTO<int>> GetAllPackages();
+        Task<ResultDTO<bool>> CheckBackerProject(Guid projectId);
+        Task<ResultDTO<List<TransactionBacker>>> GetProjectBackers(Guid projectId); 
+
     }
 }

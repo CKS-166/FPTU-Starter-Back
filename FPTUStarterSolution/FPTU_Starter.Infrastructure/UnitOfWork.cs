@@ -3,11 +3,6 @@ using FPTU_Starter.Application;
 using FPTU_Starter.Application.IRepository;
 using FPTU_Starter.Infrastructure.Database;
 using FPTU_Starter.Infrastructure.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FPTU_Starter.Infrastructure
 {

@@ -259,6 +259,33 @@ namespace FPTU_Starter.API.Controllers
             }
         }
 
+        [HttpGet("check-backer")]
+        [Authorize]
+        public async Task<IActionResult> CheckBackerProject([FromQuery] Guid projectId)
+        {
+            try
+            {
+                var result = _projectService.CheckBackerProject(projectId);
+                return Ok(result);
+            }catch(ExceptionError ex)
+            {
+                return BadRequest(ex.Message) ;
+            }
+        }
+
+        [HttpGet("get-project-backer")]
+        public async Task<IActionResult> GetProjectBackers([FromQuery] Guid projectId)
+        {
+            try
+            {
+                var result = _projectService.GetProjectBackers(projectId);
+                return Ok(result);
+            }catch(ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        
 
     }
 }

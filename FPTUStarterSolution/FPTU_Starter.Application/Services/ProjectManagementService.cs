@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
@@ -22,7 +22,8 @@ using System.Linq.Expressions;
 using FPTU_Starter.Domain.Enum;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System.CodeDom;
-
+using FPTU_Starter.Application.ViewModel.TransactionDTO;
+using FPTU_Starter.Application.IRepository;
 
 namespace FPTU_Starter.Application.Services
 {
@@ -34,13 +35,16 @@ namespace FPTU_Starter.Application.Services
         private readonly IUserManagementService _userManagement;
         private readonly IPackageManagementService _packageManagement;
         private ClaimsPrincipal _claimsPrincipal;
+        private IInteractionService _interactionService;
         private UserManager<ApplicationUser> _userManager;
+        private readonly ILikeRepository _likeRepository;
 
         public ProjectManagementService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor,
             IWalletService walletService,
             IUserManagementService userManagement,
             IPackageManagementService packageManagement,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager, IInteractionService interactionService,
+            ILikeRepository likeRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -49,6 +53,8 @@ namespace FPTU_Starter.Application.Services
             _packageManagement = packageManagement;
             _claimsPrincipal = httpContextAccessor.HttpContext.User;
             _userManager = userManager;
+            _interactionService = interactionService;
+            _likeRepository = likeRepository;
         }
 
         public async Task<ResultDTO<string>> CreateProject(ProjectAddRequest projectAddRequest)
@@ -61,6 +67,13 @@ namespace FPTU_Starter.Application.Services
                 {
                     SubCategory sub = _unitOfWork.SubCategoryRepository.Get(sc => sc.Id == sa.Id);
                     subCates.Add(sub);
+                }
+                foreach (PackageAddRequest pack in projectAddRequest.Packages)
+                {
+                    if (pack.RequiredAmount < 5000)
+                    {
+                        return ResultDTO<string>.Fail("Price for package must be at least 5000");
+                    }
                 }
                 Project project = _mapper.Map<Project>(projectAddRequest);
                 project.SubCategories = subCates;
@@ -355,6 +368,10 @@ namespace FPTU_Starter.Application.Services
                 var user = _userManagement.GetUserInfo().Result;
                 ApplicationUser exitUser = _mapper.Map<ApplicationUser>(user._data);
                 var package = await _unitOfWork.PackageRepository.GetAsync(x => x.Id.Equals(request.PackageId));
+                if(package.LimitQuantity == 0)
+                {
+                    return ResultDTO<ProjectDonateResponse>.Fail("This package is out of quanity");
+                }
                 var project = await _unitOfWork.ProjectRepository.GetAsync(x => x.Id.Equals(package.ProjectId));
                 var userWallet = await _unitOfWork.WalletRepository.GetAsync(x => x.BackerId!.Equals(exitUser.Id));
 
@@ -489,6 +506,7 @@ namespace FPTU_Starter.Application.Services
                     .Include(p => p.Images)
                     .Include(p => p.SubCategories)
                     .ToList();
+
                 List<Transaction> trans = _unitOfWork.TransactionRepository.GetQueryable()
                     .Where(t => (t.TransactionType == TransactionTypes.FreeDonation
                     || t.TransactionType == TransactionTypes.PackageDonation)).ToList();
@@ -528,7 +546,17 @@ namespace FPTU_Starter.Application.Services
                 homeProjects = homeProjects.Skip((currentPage - 1) * itemPerPage).Take(itemPerPage).ToList();
 
                 IEnumerable<ProjectViewResponse> responses = _mapper.Map<List<Project>, List<ProjectViewResponse>>(homeProjects);
-
+                foreach (ProjectViewResponse projectView in responses)
+                {
+                    if(projectView != null)
+                    {
+                        List<TransactionBacker> backers = GetBackers(projectView.Id);
+                        projectView.Backers = backers.Count;
+                        var likes = _likeRepository.GetAll().Where(l => l.ProjectId == projectView.Id);
+                        projectView.Likes = likes.ToList().Count;
+                    }
+                   
+                }
                 return ResultDTO<List<ProjectViewResponse>>.Success(responses.ToList(), "");
             }
             catch (Exception e)
@@ -574,57 +602,157 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
+        public async Task<ResultDTO<bool>> CheckBackerProject(Guid projectId)
+        {
+            try
+            {
+                if (_claimsPrincipal == null || !_claimsPrincipal.Identity.IsAuthenticated)
+                {
+                    return ResultDTO<bool>.Success(false);
+                }
+                var userEmailClaims = _claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+                if (userEmailClaims == null)
+                {
+                    return ResultDTO<bool>.Success(false);
+                }
+                var userEmail = userEmailClaims.Value;
+                var applicationUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == userEmail);
+                if (applicationUser == null)
+                {
+                    return ResultDTO<bool>.Success(false);
+                }
+                Wallet backerWallet = _unitOfWork.WalletRepository.GetQueryable().FirstOrDefault(w => w.Backer.Id == applicationUser.Id);
+                Project project = _unitOfWork.ProjectRepository.GetQueryable().Include(p => p.Packages).FirstOrDefault(p => p.Id == projectId);
+                foreach (ProjectPackage pack in project.Packages)
+                {
+                    if (_unitOfWork.TransactionRepository.GetQueryable().FirstOrDefault(t => t.WalletId == backerWallet.Id
+                    && t.PackageId == pack.Id && (t.TransactionType == TransactionTypes.FreeDonation
+                    || t.TransactionType == TransactionTypes.PackageDonation)) != null)
+                    {
+                        return ResultDTO<bool>.Success(true);
+                    }
+                }
+                return ResultDTO<bool>.Success(false);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<ResultDTO<List<TransactionBacker>>> GetProjectBackers(Guid projectId)
+        {
+            try
+            {
+                Project project = _unitOfWork.ProjectRepository.GetQueryable().Include(p => p.Packages).FirstOrDefault(p => p.Id == projectId);
+                List<TransactionBacker> trans = new List<TransactionBacker>();
+                foreach (ProjectPackage pack in project.Packages)
+                {
+                    Transaction transaction = _unitOfWork.TransactionRepository.GetQueryable().FirstOrDefault(t => t.PackageId == pack.Id 
+                    && (t.TransactionType == TransactionTypes.FreeDonation || t.TransactionType == TransactionTypes.PackageDonation));
+                    if (transaction != null)
+                    {
+                        Wallet backerWallet = _unitOfWork.WalletRepository.GetQueryable().Include(w => w.Backer).FirstOrDefault(w => w.Id == transaction.WalletId);
+                        TransactionBacker transactionBacker = new TransactionBacker
+                        {
+                            Id = transaction.Id,
+                            PackageId = transaction.PackageId,
+                            TotalAmount = transaction.TotalAmount,
+                            TransactionTypes = transaction.TransactionType == 0 ? "Package" : "Free" ,
+                            CreateDate = transaction.CreateDate,
+                            BackerName = backerWallet.Backer.AccountName,
+                            BackerUrl = backerWallet.Backer.Avatar
+                        };
+                        trans.Add(transactionBacker);
+                    }
+
+                }
+                return ResultDTO<List<TransactionBacker>>.Success(trans);  
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+        public List<TransactionBacker> GetBackers(Guid projectId)
+        {
+            Project project = _unitOfWork.ProjectRepository.GetQueryable().Include(p => p.Packages).FirstOrDefault(p => p.Id == projectId);
+            List<TransactionBacker> trans = new List<TransactionBacker>();
+            foreach (ProjectPackage pack in project.Packages)
+            {
+                Transaction transaction = _unitOfWork.TransactionRepository.GetQueryable().FirstOrDefault(t => t.PackageId == pack.Id
+                && (t.TransactionType == TransactionTypes.FreeDonation || t.TransactionType == TransactionTypes.PackageDonation));
+                if (transaction != null)
+                {
+                    Wallet backerWallet = _unitOfWork.WalletRepository.GetQueryable().Include(w => w.Backer).FirstOrDefault(w => w.Id == transaction.WalletId);
+                    TransactionBacker transactionBacker = new TransactionBacker
+                    {
+                        Id = transaction.Id,
+                        PackageId = transaction.PackageId,
+                        TotalAmount = transaction.TotalAmount,
+                        TransactionTypes = transaction.TransactionType == 0 ? "Package" : "Free",
+                        CreateDate = transaction.CreateDate,
+                        BackerName = backerWallet.Backer.AccountName,
+                        BackerUrl = backerWallet.Backer.Avatar
+                    };
+                    trans.Add(transactionBacker);
+                }
+
+            }
+            return trans;
+        }
         public async Task<ResultDTO<int>> GetAllProject()
-        {
-            try
-            {
-                var numOfProject = await _unitOfWork.ProjectRepository.GetAllAsync();
-                return ResultDTO<int>.Success(numOfProject.Count(), "total of project is");
+{
+    try
+    {
+        var numOfProject = await _unitOfWork.ProjectRepository.GetAllAsync();
+        return ResultDTO<int>.Success(numOfProject.Count(), "total of project is");
 
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex);
-            }
-        }
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message, ex);
+    }
+}
 
-        public async Task<ResultDTO<decimal>> GetTotalMoney()
-        {
-            try
-            {
-                //total of project pending
-                var listProject = _unitOfWork.ProjectRepository.GetQueryable();
-                var totalSuccessfullMoney = listProject.Select(x => x.ProjectBalance).Sum(); // successfull nhung ma chua withdraw    
+public async Task<ResultDTO<decimal>> GetTotalMoney()
+{
+    try
+    {
+        //total of project pending
+        var listProject = _unitOfWork.ProjectRepository.GetQueryable();
+        var totalSuccessfullMoney = listProject.Select(x => x.ProjectBalance).Sum(); // successfull nhung ma chua withdraw    
 
-                //var list project successfull but withdraw. take from transaction
-                var totalProjectCashOut = _unitOfWork.WithdrawRepository.GetQueryable()
-                    .Where(x => x.RequestType == TransactionTypes.CashOut).Select(x => x.Amount).Sum();
+        //var list project successfull but withdraw. take from transaction
+        var totalProjectCashOut = _unitOfWork.WithdrawRepository.GetQueryable()
+            .Where(x => x.RequestType == TransactionTypes.CashOut).Select(x => x.Amount).Sum();
 
 
-                return ResultDTO<decimal>.Success(totalProjectCashOut + totalSuccessfullMoney, "total of money is");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex);
-            }
-        }
+        return ResultDTO<decimal>.Success(totalProjectCashOut + totalSuccessfullMoney, "total of money is");
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message, ex);
+    }
+}
 
-        public async Task<ResultDTO<int>> GetAllPackages()
-        {
-            try
-            {
-                var listPackage = _unitOfWork.TransactionRepository.GetQueryable()
-                    .Where(x => x.TransactionType == TransactionTypes.PackageDonation)
-                    .Select(x=>x.PackageId)
-                    .Distinct()
-                    .Count();
-                
-                return ResultDTO<int>.Success(listPackage, "total of packages is");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex);
-            }
-        }
+public async Task<ResultDTO<int>> GetAllPackages()
+{
+    try
+    {
+        var listPackage = _unitOfWork.TransactionRepository.GetQueryable()
+            .Where(x => x.TransactionType == TransactionTypes.PackageDonation)
+            .Select(x=>x.PackageId)
+            .Distinct()
+            .Count();
+        
+        return ResultDTO<int>.Success(listPackage, "total of packages is");
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message, ex);
+    }
+}
     }
 }
