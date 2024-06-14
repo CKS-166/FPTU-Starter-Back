@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FPTU_Starter.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240611040607_add-new-migration")]
-    partial class addnewmigration
+    [Migration("20240614100506_initalcreate")]
+    partial class initalcreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -30,28 +30,17 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("VideoUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("ProjectId")
+                        .IsUnique();
 
                     b.ToTable("AboutUs");
                 });
@@ -374,27 +363,27 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsFinish")
-                        .HasColumnType("bit");
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ProjectID")
+                    b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("StageDescription")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StageName")
+                    b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("VideoUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectID");
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("Stage");
                 });
@@ -506,10 +495,13 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("ExpiredDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsFinished")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("ProjectId")
+                    b.Property<Guid?>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("RequestType")
@@ -696,8 +688,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.AboutUs", b =>
                 {
                     b.HasOne("FPTU_Starter.Domain.Entity.Project", "Project")
-                        .WithMany("AboutUs")
-                        .HasForeignKey("ProjectId")
+                        .WithOne("AboutUs")
+                        .HasForeignKey("FPTU_Starter.Domain.Entity.AboutUs", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -774,13 +766,13 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Stage", b =>
                 {
-                    b.HasOne("FPTU_Starter.Domain.Entity.Project", "Projects")
+                    b.HasOne("FPTU_Starter.Domain.Entity.Project", "Project")
                         .WithMany("Stages")
-                        .HasForeignKey("ProjectID")
+                        .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Projects");
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.SubCategory", b =>
@@ -826,9 +818,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 {
                     b.HasOne("FPTU_Starter.Domain.Entity.Project", "Project")
                         .WithMany("WithdrawRequests")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProjectId");
 
                     b.HasOne("FPTU_Starter.Domain.Entity.Wallet", "Wallet")
                         .WithMany("WithdrawRequests")
@@ -936,7 +926,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Project", b =>
                 {
-                    b.Navigation("AboutUs");
+                    b.Navigation("AboutUs")
+                        .IsRequired();
 
                     b.Navigation("Comments");
 

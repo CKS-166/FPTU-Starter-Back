@@ -499,7 +499,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.Property<bool>("IsFinished")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("ProjectId")
+                    b.Property<Guid?>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("RequestType")
@@ -816,9 +816,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 {
                     b.HasOne("FPTU_Starter.Domain.Entity.Project", "Project")
                         .WithMany("WithdrawRequests")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProjectId");
 
                     b.HasOne("FPTU_Starter.Domain.Entity.Wallet", "Wallet")
                         .WithMany("WithdrawRequests")
