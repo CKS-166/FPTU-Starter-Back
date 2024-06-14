@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
@@ -702,5 +702,57 @@ namespace FPTU_Starter.Application.Services
             }
             return trans;
         }
+        public async Task<ResultDTO<int>> GetAllProject()
+{
+    try
+    {
+        var numOfProject = await _unitOfWork.ProjectRepository.GetAllAsync();
+        return ResultDTO<int>.Success(numOfProject.Count(), "total of project is");
+
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message, ex);
+    }
+}
+
+public async Task<ResultDTO<decimal>> GetTotalMoney()
+{
+    try
+    {
+        //total of project pending
+        var listProject = _unitOfWork.ProjectRepository.GetQueryable();
+        var totalSuccessfullMoney = listProject.Select(x => x.ProjectBalance).Sum(); // successfull nhung ma chua withdraw    
+
+        //var list project successfull but withdraw. take from transaction
+        var totalProjectCashOut = _unitOfWork.WithdrawRepository.GetQueryable()
+            .Where(x => x.RequestType == TransactionTypes.CashOut).Select(x => x.Amount).Sum();
+
+
+        return ResultDTO<decimal>.Success(totalProjectCashOut + totalSuccessfullMoney, "total of money is");
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message, ex);
+    }
+}
+
+public async Task<ResultDTO<int>> GetAllPackages()
+{
+    try
+    {
+        var listPackage = _unitOfWork.TransactionRepository.GetQueryable()
+            .Where(x => x.TransactionType == TransactionTypes.PackageDonation)
+            .Select(x=>x.PackageId)
+            .Distinct()
+            .Count();
+        
+        return ResultDTO<int>.Success(listPackage, "total of packages is");
+    }
+    catch (Exception ex)
+    {
+        throw new Exception(ex.Message, ex);
+    }
+}
     }
 }

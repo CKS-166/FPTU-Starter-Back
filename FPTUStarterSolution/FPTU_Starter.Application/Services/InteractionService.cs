@@ -97,7 +97,7 @@ namespace FPTU_Starter.Application.Services
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
-                
+
             }
         }
 
@@ -128,7 +128,7 @@ namespace FPTU_Starter.Application.Services
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
-                
+
             }
         }
 
