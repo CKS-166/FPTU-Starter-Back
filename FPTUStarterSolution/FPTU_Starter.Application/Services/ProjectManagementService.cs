@@ -292,6 +292,10 @@ namespace FPTU_Starter.Application.Services
                 var user = _userManagement.GetUserInfo().Result;
                 ApplicationUser exitUser = _mapper.Map<ApplicationUser>(user._data);
                 var project = await _unitOfWork.ProjectRepository.GetAsync(x => x.Id.Equals(request.ProjectId));
+                if(project is null)
+                {
+                    return ResultDTO<ProjectDonateResponse>.Fail("Project null");
+                }
                 //Check Project Status
                 if (!project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Processing) &&
                     !project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Successful))
