@@ -22,11 +22,11 @@ namespace FPTU_Starter.Domain.Entity
         public WithdrawRequestStatus Status { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ExpiredDate { get; set; } 
-
+        
         public Guid WalletId { get; set; }
         public Wallet Wallet { get; set; }
 
-        public Guid ProjectId { get; set; }
-        public Project Project { get; set; }
+        public Guid? ProjectId { get; set; }
+        public Project? Project { get; set; }
     }
 }

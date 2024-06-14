@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace FPTU_Starter.Infrastructure.Migrations
 {
-    public partial class addnewmigration : Migration
+    public partial class initalcreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -272,10 +272,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    VideoUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -379,19 +376,19 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StageName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsFinish = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VideoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StageDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProjectID = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Stage", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Stage_Projects_ProjectID",
-                        column: x => x.ProjectID,
+                        name: "FK_Stage_Projects_ProjectId",
+                        column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -436,8 +433,9 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     RequestType = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExpiredDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -446,8 +444,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         name: "FK_WithdrawRequests_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_WithdrawRequests_Wallets_WalletId",
                         column: x => x.WalletId,
@@ -534,7 +531,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_AboutUs_ProjectId",
                 table: "AboutUs",
-                column: "ProjectId");
+                column: "ProjectId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -616,9 +614,9 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 column: "SubCategoriesId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Stage_ProjectID",
+                name: "IX_Stage_ProjectId",
                 table: "Stage",
-                column: "ProjectID");
+                column: "ProjectId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SubCategories_CategoryId",
