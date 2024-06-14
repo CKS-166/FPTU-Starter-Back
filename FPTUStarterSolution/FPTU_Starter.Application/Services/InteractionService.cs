@@ -77,7 +77,6 @@ namespace FPTU_Starter.Application.Services
                         UserID = Guid.Parse(exitUser.Id),
                     };
                     _commentRepository.Create(newComment);
-                    parseComment = newComment;
                     return ResultDTO<Comment>.Success(newComment, "Successfully Add Comment");
             }
             catch (Exception ex)
