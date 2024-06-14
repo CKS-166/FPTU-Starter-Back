@@ -51,10 +51,16 @@ namespace FPTU_Starter.Application.Services
                 if(project.ProjectStatus != ProjectEnum.ProjectStatus.Failed) {
                     return ResultDTO<string>.Fail("Project has not been failed yet");
                 }
+                if (project.ProjectStatus == ProjectEnum.ProjectStatus.Failed && project.ProjectBalance == 0)
+                {
+                    return ResultDTO<string>.Fail("Project cannot refund anymore");
+                }
                 List<ProjectPackage> packages = project.Packages.ToList();
                 foreach(ProjectPackage projectPackage in packages)
                 {
-                    List<Transaction> trans = _unitOfWork.TransactionRepository.GetQueryable().Where(t => t.PackageId == projectPackage.Id).ToList();
+                    List<Transaction> trans = _unitOfWork.TransactionRepository.GetQueryable()
+                        .Where(t => t.PackageId == projectPackage.Id 
+                        && (t.TransactionType == TransactionTypes.FreeDonation || t.TransactionType ==  TransactionTypes.PackageDonation)).ToList();
                     if (trans.Count > 0)
                     {
                         foreach (Transaction tran in trans)
@@ -75,8 +81,9 @@ namespace FPTU_Starter.Application.Services
                         }
                     }
                 }
+                project.ProjectBalance = 0;
                 await _unitOfWork.CommitAsync();
-                return ResultDTO<string>.Success("Refund successfully", "");
+                return ResultDTO<string>.Success("Refund successfully");
             }catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
