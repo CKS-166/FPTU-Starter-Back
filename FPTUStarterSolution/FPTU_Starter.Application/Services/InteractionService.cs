@@ -68,6 +68,7 @@ namespace FPTU_Starter.Application.Services
                 }
 
                 var exitComment =  _commentRepository.GetAsync(x => x.ProjectId.Equals(project.Id) && x.UserID.Equals(Guid.Parse(exitUser.Id)));
+                Comment parseComment= new Comment();
                 if (exitComment is null)
                 {
                     // add new comment
@@ -80,16 +81,11 @@ namespace FPTU_Starter.Application.Services
                         UserID = Guid.Parse(exitUser.Id),
                     };
                     _commentRepository.Create(newComment);
+                    parseComment = newComment;
                     return ResultDTO<Comment>.Success(newComment, "Successfully Add Comment");
                 }
-                else
-                {
-                    //update comment
-                    exitComment.Content = request.Content;
-                    _commentRepository.Update(x => x.Id == exitComment.Id, exitComment);
-                    return ResultDTO<Comment>.Success(exitComment, "Successfully Update Comment");
-                }
                 
+                return ResultDTO<Comment>.Success(parseComment, "Successfully Add Comment");
 
             }
             catch (Exception ex)

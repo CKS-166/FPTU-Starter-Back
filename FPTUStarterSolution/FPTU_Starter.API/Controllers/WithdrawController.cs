@@ -60,7 +60,28 @@ namespace FPTU_Starter.API.Controllers
             }
             return Ok(result);
         }
-
+        [Authorize(Roles = Role.Backer)]
+        [HttpPost("withdraw-wallet-request")]
+        public async Task<IActionResult> WithdrawWalletRequest([FromBody] WithdrawWalletRequest request)
+        {
+            var result = await _withdrawService.WithdrawWalletRequest(request);
+            if (!result._isSuccess)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+        [Authorize(Roles = Role.Admin)]
+        [HttpPost("admin-withdraw-wallet-request")]
+        public async Task<IActionResult> WithdrawWalletRequest([FromForm] Guid requestId)
+        {
+            var result = await _withdrawService.AdminApprovedWithdrawWalletRequest(requestId);
+            if (!result._isSuccess)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
 
     }
 }
