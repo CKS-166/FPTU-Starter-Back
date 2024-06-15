@@ -37,7 +37,7 @@ namespace FPTU_Starter.Domain.Entity
         [Required] public decimal ProjectBalance { get; set; }
 
         [Required]
-        public string ProjectBankAccount { get; set; } = string.Empty;
+        public BankAccount BankAccount { get; set; }
 
         [Required]
         public string ProjectThumbnail { get; set; } = string.Empty;

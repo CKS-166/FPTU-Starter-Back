@@ -129,6 +129,23 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("FPTU_Starter.Domain.Entity.BankAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("BankAccountNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OwnerName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BankAccount");
+                });
+
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -224,6 +241,9 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("BankAccountId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -232,10 +252,6 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
                     b.Property<decimal>("ProjectBalance")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("ProjectBankAccount")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProjectDescription")
                         .IsRequired()
@@ -266,6 +282,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BankAccountId");
 
                     b.HasIndex("ProjectOwnerId");
 
@@ -733,9 +751,17 @@ namespace FPTU_Starter.Infrastructure.Migrations
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.Project", b =>
                 {
+                    b.HasOne("FPTU_Starter.Domain.Entity.BankAccount", "BankAccount")
+                        .WithMany()
+                        .HasForeignKey("BankAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FPTU_Starter.Domain.Entity.ApplicationUser", "ProjectOwner")
                         .WithMany()
                         .HasForeignKey("ProjectOwnerId");
+
+                    b.Navigation("BankAccount");
 
                     b.Navigation("ProjectOwner");
                 });

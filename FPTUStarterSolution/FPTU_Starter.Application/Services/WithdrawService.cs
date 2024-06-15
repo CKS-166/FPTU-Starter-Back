@@ -105,9 +105,11 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<ProcessingWithdrawRequest>.Fail("expired!!!");
                 }
+                //store bankaccount
+
                 request.Status = WithdrawRequestStatus.Processing;
                 await _unitOfWork.CommitAsync();
-                return ResultDTO<ProcessingWithdrawRequest>.Success(new ProcessingWithdrawRequest { projectBankAccount = project.ProjectBankAccount }, "please transfer money into this bank account");
+                return ResultDTO<ProcessingWithdrawRequest>.Success(new ProcessingWithdrawRequest { projectBankAccount = project.BankAccount }, "please transfer money into this bank account");
 
             }
             catch (Exception ex)
