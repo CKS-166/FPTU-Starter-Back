@@ -31,6 +31,15 @@ namespace FPTU_Starter.Infrastructure.BackgroundWorkerService
                             project.ProjectStatus = ProjectStatus.Failed;
                         }
                     }
+                    if (project.ProjectStatus == ProjectStatus.Approved)
+                    {
+                        if (project.StartDate >= today)
+                        {
+                            project.ProjectStatus = ProjectStatus.Processing;
+                        }
+
+                    }
+
                 }
                 _myDb.SaveChanges();
                 _logger.LogInformation("Hello World at: {time}", DateTimeOffset.Now);

@@ -504,7 +504,7 @@ namespace FPTU_Starter.Application.Services
                     .Include(p => p.ProjectOwner)
                     .Include(p => p.SubCategories).ThenInclude(s => s.Category)
                     .Include(p => p.Images)
-                    .Where(p => p.ProjectStatus == ProjectStatus.Processing)
+                    .Where(p => p.ProjectStatus == ProjectStatus.Processing || p.ProjectStatus == ProjectStatus.Successful)
                     .ToList();
 
                 List<Transaction> trans = _unitOfWork.TransactionRepository.GetQueryable()
@@ -514,7 +514,8 @@ namespace FPTU_Starter.Application.Services
                 foreach (Transaction transaction in trans)
                 {
                     ProjectPackage package = _unitOfWork.PackageRepository.GetQueryable().Include(pa => pa.Project).FirstOrDefault(pa => pa.Id == transaction.PackageId);
-                    Project project = _unitOfWork.ProjectRepository.GetById(package.ProjectId);
+                    Project project = _unitOfWork.ProjectRepository.GetQueryable().FirstOrDefault(p => p.Id == package.ProjectId 
+                    && (p.ProjectStatus == ProjectStatus.Processing || p.ProjectStatus == ProjectStatus.Successful));
                     if (project != null)
                     {
                         if (count.ContainsKey(project.Id))
@@ -655,23 +656,26 @@ namespace FPTU_Starter.Application.Services
                 List<TransactionBacker> trans = new List<TransactionBacker>();
                 foreach (ProjectPackage pack in project.Packages)
                 {
-                    Transaction transaction = _unitOfWork.TransactionRepository.GetQueryable().FirstOrDefault(t => t.PackageId == pack.Id 
-                    && (t.TransactionType == TransactionTypes.FreeDonation || t.TransactionType == TransactionTypes.PackageDonation));
-                    if (transaction != null)
+                    List<Transaction> transactions = _unitOfWork.TransactionRepository.GetQueryable().Where(t => t.PackageId == pack.Id 
+                    && (t.TransactionType == TransactionTypes.FreeDonation || t.TransactionType == TransactionTypes.PackageDonation)).ToList();
+                    foreach(Transaction transaction in transactions)
                     {
-                        Wallet backerWallet = _unitOfWork.WalletRepository.GetQueryable().Include(w => w.Backer).FirstOrDefault(w => w.Id == transaction.WalletId);
-                        TransactionBacker transactionBacker = new TransactionBacker
+                        if (transaction != null)
                         {
-                            Id = transaction.Id,
-                            PackageId = transaction.PackageId,
-                            TotalAmount = transaction.TotalAmount,
-                            TransactionTypes = transaction.TransactionType == 0 ? "Package" : "Free" ,
-                            CreateDate = transaction.CreateDate,
-                            BackerName = backerWallet.Backer.AccountName,
-                            BackerUrl = backerWallet.Backer.Avatar
-                        };
-                        trans.Add(transactionBacker);
-                    }
+                            Wallet backerWallet = _unitOfWork.WalletRepository.GetQueryable().Include(w => w.Backer).FirstOrDefault(w => w.Id == transaction.WalletId);
+                            TransactionBacker transactionBacker = new TransactionBacker
+                            {
+                                Id = transaction.Id,
+                                PackageId = transaction.PackageId,
+                                TotalAmount = transaction.TotalAmount,
+                                TransactionTypes = transaction.TransactionType == 0 ? "Package" : "Free",
+                                CreateDate = transaction.CreateDate,
+                                BackerName = backerWallet.Backer.AccountName,
+                                BackerUrl = backerWallet.Backer.Avatar
+                            };
+                            trans.Add(transactionBacker);
+                        }
+                    }     
 
                 }
                 return ResultDTO<List<TransactionBacker>>.Success(trans);  
