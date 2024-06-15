@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace FPTU_Starter.Infrastructure.Migrations
 {
-    public partial class initalcreate : Migration
+    public partial class deployDatabase : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

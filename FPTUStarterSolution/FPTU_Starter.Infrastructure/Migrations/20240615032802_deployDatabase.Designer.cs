@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FPTU_Starter.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240614100506_initalcreate")]
-    partial class initalcreate
+    [Migration("20240615032802_deployDatabase")]
+    partial class deployDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
