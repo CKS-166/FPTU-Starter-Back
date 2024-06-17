@@ -49,7 +49,7 @@ namespace FPTU_Starter.Application.Services
         {
             try
             {
-                var usersList = new List<ApplicationUser>();
+                const string excludeRoleName = "Administrator";
 
                 IQueryable<ApplicationUser> usersQuery = _unitOfWork.UserRepository.GetQueryable()
                     .AsNoTracking()
@@ -61,7 +61,15 @@ namespace FPTU_Starter.Application.Services
                     || u.Email.ToLower().Contains(search.ToLower()));
                 }
 
-                usersList = await usersQuery.ToListAsync();
+                var excludeRole = await _roleManager.FindByNameAsync(excludeRoleName);
+                if (excludeRole != null)
+                {
+                    var userIdsInExcludeRole = await _userManager.GetUsersInRoleAsync(excludeRoleName);
+                    var excludeUserIds = userIdsInExcludeRole.Select(u => u.Id).ToList();
+                    usersQuery = usersQuery.Where(u => !excludeUserIds.Contains(u.Id));
+                }
+
+                var usersList = await usersQuery.ToListAsync();
 
                 if (!string.IsNullOrEmpty(roleName))
                 {
@@ -78,7 +86,7 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
-        public async Task<List<ApplicationUser>> GetUsersByRoleAsync(string roleName)
+        private async Task<List<ApplicationUser>> GetUsersByRoleAsync(string roleName)
         {
             try
             {
@@ -102,6 +110,11 @@ namespace FPTU_Starter.Application.Services
             {
                 throw new Exception(ex.Message, ex);
             }
+        }
+
+        private async Task<bool> IsUserInRoleAsync(ApplicationUser user, string roleName)
+        {
+            return await _userManager.IsInRoleAsync(user, roleName);
         }
 
         public async Task<ResultDTO<UserInfoResponse>> GetUserInfo()
