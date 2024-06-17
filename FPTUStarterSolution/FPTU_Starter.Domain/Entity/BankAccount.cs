@@ -11,7 +11,7 @@ namespace FPTU_Starter.Domain.Entity
         public Guid Id { get; set; }
         public string? OwnerName { get; set; }
         public int BankAccountNumber { get; set; }
-        public string? BankAccountName { get;}
+        public string? BankAccountName { get; set; }
 
     }
 }

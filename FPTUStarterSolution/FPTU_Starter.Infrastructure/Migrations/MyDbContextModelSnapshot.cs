@@ -135,6 +135,9 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("BankAccountName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("BankAccountNumber")
                         .HasColumnType("int");
 

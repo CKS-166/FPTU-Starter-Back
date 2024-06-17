@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using FPTU_Starter.Application.ViewModel.AboutUsDTO;
+using FPTU_Starter.Application.ViewModel.BankAccountDTO;
 using FPTU_Starter.Application.ViewModel.CategoryDTO;
 using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
@@ -36,6 +37,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
             MappingAboutUs();
             MappingWithdraw();
             MappingStage();
+            MappingBankAccount();
         }
 
         public void MappingProject()
@@ -45,7 +47,10 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
             CreateMap<RewardItem, RewardItemViewResponse>().ReverseMap();
             CreateMap<ProjectPackage, PackageAddRequest>().ReverseMap();
             CreateMap<ProjectAddRequest, Project>()
-                .ForMember(des => des.Packages, src => src.MapFrom(x => x.Packages)).ReverseMap();
+                .ForMember(des => des.Packages, src => src.MapFrom(x => x.Packages))
+                .ForMember(des => des.AboutUs, src => src.MapFrom(x => x.AboutUs))
+                .ForMember(des => des.BankAccount, src => src.MapFrom(x => x.BankAccount))
+                .ReverseMap();
             CreateMap<ProjectPackage, PackageViewResponse>()
                 .ForMember(des => des.RewardItems, src => src.MapFrom(x => x.RewardItems))
                 .ReverseMap();
@@ -121,6 +126,8 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ReverseMap();
             CreateMap<AboutUs, AboutUsRequest>()
                 .ReverseMap();
+            CreateMap<AboutUs, AboutUsRequestDTO>()
+                .ReverseMap();
         }
         public void MappingStage()
         {
@@ -135,6 +142,11 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
         {
             CreateMap<WithdrawRequest, WithdrawReqResponse>().ReverseMap();
             CreateMap<WithdrawRequest, WithdrawRequest>().ReverseMap();
+        }
+
+        public void MappingBankAccount()
+        {
+            CreateMap<BankAccount, BankAccountRequest>().ReverseMap();
         }
     }
 }

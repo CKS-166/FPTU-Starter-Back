@@ -11,6 +11,8 @@ using static FPTU_Starter.Domain.Enum.ProjectEnum;
 using Microsoft.AspNetCore.Http;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.SubCategoryPrj;
+using FPTU_Starter.Application.ViewModel.AboutUsDTO;
+using FPTU_Starter.Application.ViewModel.BankAccountDTO;
 
 namespace FPTU_Starter.Application.ViewModel.ProjectDTO
 {
@@ -27,10 +29,6 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
 
          public decimal ProjectBalance { get; set; }
 
-
-        public string ProjectBankAccount { get; set; } = string.Empty;
-
-
         public ProjectStatus ProjectStatus { get; set; }
 
 
@@ -39,6 +37,10 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
         public string ProjectLiveDemo { get; set; } = string.Empty;
 
         public string ProjectOwnerEmail { get; set; }
+
+        public BankAccountRequest BankAccount { get; set; }
+
+        public AboutUsRequestDTO AboutUs { get; set; }
 
         public List<SubCatePrjAddRequest> SubCategories { get; set; }
 
