@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using FPTU_Starter.Application.ViewModel.AboutUsDTO;
 using FPTU_Starter.Application.ViewModel.BankAccountDTO;
 using FPTU_Starter.Application.ViewModel.CategoryDTO;
 using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
-using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectDonate;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.RewardItemDTO;
@@ -20,7 +14,6 @@ using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Application.ViewModel.WalletDTO;
 using FPTU_Starter.Application.ViewModel.WithdrawReqDTO;
 using FPTU_Starter.Domain.Entity;
-using Microsoft.EntityFrameworkCore;
 
 namespace FPTU_Starter.Infrastructure.MapperConfigs
 {
@@ -62,10 +55,13 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ForMember(des => des.Categories, src => src.MapFrom(x => x.SubCategories
                     .Select(sub => sub.Category)
                     .Distinct()))
+                .ForMember(des => des.BankOwnerName, src => src.MapFrom(x => x.BankAccount.OwnerName))
+                .ForMember(des => des.BankAccountNumber, src => src.MapFrom(x => x.BankAccount.BankAccountNumber))
+                .ForMember(des => des.BankAccountName, src => src.MapFrom(x => x.BankAccount.BankAccountName))
                 .ReverseMap();
             CreateMap<ProjectImage, ProjectImageAddRequest>().ReverseMap();
             CreateMap<ProjectImage, ProjectImageViewResponse>().ReverseMap();
-            CreateMap<Project,ProjectUpdateRequest>().ReverseMap(); 
+            CreateMap<Project, ProjectUpdateRequest>().ReverseMap();
         }
 
         public void MappingUserProfile()

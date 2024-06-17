@@ -1,29 +1,20 @@
 using AutoMapper;
+using FPTU_Starter.Application.IRepository;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.ProjectDTO;
-using FPTU_Starter.Domain.Entity;
-using Microsoft.EntityFrameworkCore;
-using FPTU_Starter.Application.ViewModel.ProjectDTO.SubCategoryPrj;
-using static FPTU_Starter.Domain.Enum.ProjectEnum;
-using FPTU_Starter.Application.ViewModel.UserDTO;
-using System.Security.Claims;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
-
-using Microsoft.AspNetCore.Identity;
-using FPTU_Starter.Domain.Constrain;
-using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
-using Org.BouncyCastle.Asn1.Ocsp;
-using FPTU_Starter.Application.ViewModel.ProjectDTO.RewardItemDTO;
-
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectDonate;
-using System.Linq.Expressions;
-using FPTU_Starter.Domain.Enum;
-using Org.BouncyCastle.Asn1.Ocsp;
-using System.CodeDom;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.RewardItemDTO;
+using FPTU_Starter.Application.ViewModel.ProjectDTO.SubCategoryPrj;
 using FPTU_Starter.Application.ViewModel.TransactionDTO;
-using FPTU_Starter.Application.IRepository;
+using FPTU_Starter.Domain.Entity;
+using FPTU_Starter.Domain.Enum;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using static FPTU_Starter.Domain.Enum.ProjectEnum;
 
 namespace FPTU_Starter.Application.Services
 {
@@ -110,6 +101,7 @@ namespace FPTU_Starter.Application.Services
                     //.Include(p => p.Category)
                     .Include(p => p.Images)
                     .Include(p => p.SubCategories)
+                    .Include(p => p.BankAccount)
                     .ToListAsync();
                 IEnumerable<ProjectViewResponse> responses = _mapper.Map<IEnumerable<Project>, IEnumerable<ProjectViewResponse>>(projects);
 
@@ -368,7 +360,7 @@ namespace FPTU_Starter.Application.Services
                 var user = _userManagement.GetUserInfo().Result;
                 ApplicationUser exitUser = _mapper.Map<ApplicationUser>(user._data);
                 var package = await _unitOfWork.PackageRepository.GetAsync(x => x.Id.Equals(request.PackageId));
-                if(package.LimitQuantity == 0)
+                if (package.LimitQuantity == 0)
                 {
                     return ResultDTO<ProjectDonateResponse>.Fail("This package is out of quanity");
                 }
@@ -514,7 +506,7 @@ namespace FPTU_Starter.Application.Services
                 foreach (Transaction transaction in trans)
                 {
                     ProjectPackage package = _unitOfWork.PackageRepository.GetQueryable().Include(pa => pa.Project).FirstOrDefault(pa => pa.Id == transaction.PackageId);
-                    Project project = _unitOfWork.ProjectRepository.GetQueryable().FirstOrDefault(p => p.Id == package.ProjectId 
+                    Project project = _unitOfWork.ProjectRepository.GetQueryable().FirstOrDefault(p => p.Id == package.ProjectId
                     && (p.ProjectStatus == ProjectStatus.Processing || p.ProjectStatus == ProjectStatus.Successful));
                     if (project != null)
                     {
@@ -539,7 +531,7 @@ namespace FPTU_Starter.Application.Services
                     .FirstOrDefault(p => p.Id == item.Key);
                     projects.Add(project);
                 }
-                foreach(Project prj in projects)
+                foreach (Project prj in projects)
                 {
                     homeProjects.Add(prj);
                 }
@@ -555,14 +547,14 @@ namespace FPTU_Starter.Application.Services
                 IEnumerable<ProjectViewResponse> responses = _mapper.Map<List<Project>, List<ProjectViewResponse>>(homeProjects);
                 foreach (ProjectViewResponse projectView in responses)
                 {
-                    if(projectView != null)
+                    if (projectView != null)
                     {
                         List<TransactionBacker> backers = GetBackers(projectView.Id);
                         projectView.Backers = backers.Count;
                         var likes = _likeRepository.GetAll().Where(l => l.ProjectId == projectView.Id);
                         projectView.Likes = likes.ToList().Count;
                     }
-                   
+
                 }
                 return ResultDTO<List<ProjectViewResponse>>.Success(responses.ToList(), "");
             }
@@ -656,9 +648,9 @@ namespace FPTU_Starter.Application.Services
                 List<TransactionBacker> trans = new List<TransactionBacker>();
                 foreach (ProjectPackage pack in project.Packages)
                 {
-                    List<Transaction> transactions = _unitOfWork.TransactionRepository.GetQueryable().Where(t => t.PackageId == pack.Id 
+                    List<Transaction> transactions = _unitOfWork.TransactionRepository.GetQueryable().Where(t => t.PackageId == pack.Id
                     && (t.TransactionType == TransactionTypes.FreeDonation || t.TransactionType == TransactionTypes.PackageDonation)).ToList();
-                    foreach(Transaction transaction in transactions)
+                    foreach (Transaction transaction in transactions)
                     {
                         if (transaction != null)
                         {
@@ -675,10 +667,10 @@ namespace FPTU_Starter.Application.Services
                             };
                             trans.Add(transactionBacker);
                         }
-                    }     
+                    }
 
                 }
-                return ResultDTO<List<TransactionBacker>>.Success(trans);  
+                return ResultDTO<List<TransactionBacker>>.Success(trans);
             }
             catch (Exception ex)
             {
@@ -713,56 +705,56 @@ namespace FPTU_Starter.Application.Services
             return trans;
         }
         public async Task<ResultDTO<int>> GetAllProject()
-{
-    try
-    {
-        var numOfProject = await _unitOfWork.ProjectRepository.GetAllAsync();
-        return ResultDTO<int>.Success(numOfProject.Count(), "total of project is");
+        {
+            try
+            {
+                var numOfProject = await _unitOfWork.ProjectRepository.GetAllAsync();
+                return ResultDTO<int>.Success(numOfProject.Count(), "total of project is");
 
-    }
-    catch (Exception ex)
-    {
-        throw new Exception(ex.Message, ex);
-    }
-}
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
 
-public async Task<ResultDTO<decimal>> GetTotalMoney()
-{
-    try
-    {
-        //total of project pending
-        var listProject = _unitOfWork.ProjectRepository.GetQueryable();
-        var totalSuccessfullMoney = listProject.Select(x => x.ProjectBalance).Sum(); // successfull nhung ma chua withdraw    
+        public async Task<ResultDTO<decimal>> GetTotalMoney()
+        {
+            try
+            {
+                //total of project pending
+                var listProject = _unitOfWork.ProjectRepository.GetQueryable();
+                var totalSuccessfullMoney = listProject.Select(x => x.ProjectBalance).Sum(); // successfull nhung ma chua withdraw    
 
-        //var list project successfull but withdraw. take from transaction
-        var totalProjectCashOut = _unitOfWork.WithdrawRepository.GetQueryable()
-            .Where(x => x.RequestType == TransactionTypes.CashOut).Select(x => x.Amount).Sum();
+                //var list project successfull but withdraw. take from transaction
+                var totalProjectCashOut = _unitOfWork.WithdrawRepository.GetQueryable()
+                    .Where(x => x.RequestType == TransactionTypes.CashOut).Select(x => x.Amount).Sum();
 
 
-        return ResultDTO<decimal>.Success(totalProjectCashOut + totalSuccessfullMoney, "total of money is");
-    }
-    catch (Exception ex)
-    {
-        throw new Exception(ex.Message, ex);
-    }
-}
+                return ResultDTO<decimal>.Success(totalProjectCashOut + totalSuccessfullMoney, "total of money is");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
 
-public async Task<ResultDTO<int>> GetAllPackages()
-{
-    try
-    {
-        var listPackage = _unitOfWork.TransactionRepository.GetQueryable()
-            .Where(x => x.TransactionType == TransactionTypes.PackageDonation)
-            .Select(x=>x.PackageId)
-            .Distinct()
-            .Count();
-        
-        return ResultDTO<int>.Success(listPackage, "total of packages is");
-    }
-    catch (Exception ex)
-    {
-        throw new Exception(ex.Message, ex);
-    }
-}
+        public async Task<ResultDTO<int>> GetAllPackages()
+        {
+            try
+            {
+                var listPackage = _unitOfWork.TransactionRepository.GetQueryable()
+                    .Where(x => x.TransactionType == TransactionTypes.PackageDonation)
+                    .Select(x => x.PackageId)
+                    .Distinct()
+                    .Count();
+
+                return ResultDTO<int>.Success(listPackage, "total of packages is");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
     }
 }
