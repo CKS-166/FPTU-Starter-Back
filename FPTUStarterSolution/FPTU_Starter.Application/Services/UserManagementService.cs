@@ -1,19 +1,12 @@
 ﻿using AutoMapper;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
-using FPTU_Starter.Application.ViewModel.AuthenticationDTO;
-using FPTU_Starter.Application.ViewModel.ProjectDTO;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Domain.Entity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Org.BouncyCastle.Bcpg;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FPTU_Starter.Application.Services
 {
@@ -23,15 +16,18 @@ namespace FPTU_Starter.Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ClaimsPrincipal _claimsPrincipal;
         private readonly IMapper _mapper;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public UserManagementService(
             IUnitOfWork unitOfWork,
             UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
             IHttpContextAccessor httpContextAccessor,
             IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _roleManager = roleManager;
             _claimsPrincipal = httpContextAccessor.HttpContext.User;
             _mapper = mapper;
         }
@@ -42,6 +38,65 @@ namespace FPTU_Starter.Application.Services
             {
                 var user = await _unitOfWork.UserRepository.GetAsync(x => x.Email == email);
                 return user != null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<ResultDTO<List<UserInfoResponse>>> GetAllUsers(string? search, string? roleName)
+        {
+            try
+            {
+                var usersList = new List<ApplicationUser>();
+
+                IQueryable<ApplicationUser> usersQuery = _unitOfWork.UserRepository.GetQueryable()
+                    .AsNoTracking()
+                    .Include(u => u.Wallet);
+
+                if (!string.IsNullOrEmpty(search))
+                {
+                    usersQuery = usersQuery.Where(u => u.Name.ToLower().Contains(search.ToLower())
+                    || u.Email.ToLower().Contains(search.ToLower()));
+                }
+
+                usersList = await usersQuery.ToListAsync();
+
+                if (!string.IsNullOrEmpty(roleName))
+                {
+                    usersList = await GetUsersByRoleAsync(roleName);
+                }
+
+                var response = _mapper.Map<List<UserInfoResponse>>(usersList);
+
+                return ResultDTO<List<UserInfoResponse>>.Success(response, "");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<List<ApplicationUser>> GetUsersByRoleAsync(string roleName)
+        {
+            try
+            {
+                var usersInRole = new List<ApplicationUser>();
+
+                if (await _roleManager.RoleExistsAsync(roleName))
+                {
+                    var users = _userManager.Users.ToList();
+                    foreach (var user in users)
+                    {
+                        if (await _userManager.IsInRoleAsync(user, roleName))
+                        {
+                            usersInRole.Add(user);
+                        }
+                    }
+                }
+
+                return usersInRole;
             }
             catch (Exception ex)
             {
@@ -83,7 +138,7 @@ namespace FPTU_Starter.Application.Services
             try
             {
                 var user = await _userManager.FindByIdAsync(id.ToString());
-                if(user is null)
+                if (user is null)
                 {
                     return ResultDTO<UserInfoResponse>.Fail("User not found.");
                 }

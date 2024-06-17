@@ -1,13 +1,9 @@
-﻿using FPTU_Starter.Application;
-using FPTU_Starter.Application.Services.IService;
-using FPTU_Starter.Domain.Constrain;
+﻿using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel.UserDTO;
-using FPTU_Starter.Domain.Entity;
+using FPTU_Starter.Domain.Constrain;
 using FPTU_Starter.Infrastructure.OuterService.Interface;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace FPTU_Starter.API.Controllers
 {
@@ -35,7 +31,7 @@ namespace FPTU_Starter.API.Controllers
         public async Task<ActionResult> GetUserInformation(Guid id)
         {
             var result = await _userManagementService.GetUserInfoById(id);
-            if(result._isSuccess is false)
+            if (result._isSuccess is false)
             {
                 return StatusCode(result._statusCode, result);
             }
@@ -62,6 +58,21 @@ namespace FPTU_Starter.API.Controllers
         {
             var result = await _userManagementService.UpdatePassword(newPassword, confirmPassword, userEmail);
             return Ok(result);
+        }
+
+        [HttpGet()]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> GetAllUsers([FromQuery] string? search, [FromQuery] string? roleName)
+        {
+            try
+            {
+                var result = await _userManagementService.GetAllUsers(search, roleName);
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
