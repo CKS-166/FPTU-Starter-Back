@@ -116,11 +116,6 @@ namespace FPTU_Starter.API
 
 
             app.MapControllers();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            }
-        );
 
             app.Run();
         }
