@@ -2,7 +2,7 @@ name: Build and deploy .NET Core application to Web App fptustarter-api
 on:
   push:
     branches:
-    - azure-dep
+    - main
 env:
   AZURE_WEBAPP_NAME: fptustarter-api
   AZURE_WEBAPP_PACKAGE_PATH: ./publish
