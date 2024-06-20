@@ -70,6 +70,7 @@ namespace FPTU_Starter.Application.Services
                 project.SubCategories = subCates;
                 project.ProjectOwner = owner;
                 project.CreatedDate = DateTime.Now;
+                project.ProjectStatus = ProjectStatus.Pending;
                 //create free package
                 ProjectPackage freePackage = new ProjectPackage
                 {
