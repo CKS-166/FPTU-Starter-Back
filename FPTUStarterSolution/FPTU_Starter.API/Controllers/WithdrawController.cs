@@ -73,9 +73,9 @@ namespace FPTU_Starter.API.Controllers
         }
         [Authorize(Roles = Role.Admin)]
         [HttpPost("admin-withdraw-wallet-request")]
-        public async Task<IActionResult> WithdrawWalletRequest([FromForm] Guid requestId)
+        public async Task<IActionResult> WithdrawWalletRequest([FromForm] Guid requestId, Guid walletId)
         {
-            var result = await _withdrawService.AdminApprovedWithdrawWalletRequest(requestId);
+            var result = await _withdrawService.AdminApprovedWithdrawWalletRequest(requestId, walletId);
             if (!result._isSuccess)
             {
                 return BadRequest(result);

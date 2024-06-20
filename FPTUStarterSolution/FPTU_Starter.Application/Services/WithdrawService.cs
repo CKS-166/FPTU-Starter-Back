@@ -20,16 +20,19 @@ namespace FPTU_Starter.Application.Services
         private readonly IMapper _mapper;
         private readonly IUserManagementService _userManagementService;
         private readonly IWalletService _walletService;
+        private readonly ISystemWalletService _systemWalletService;
         private const int EXPIRED_DATE = 5;
         public WithdrawService(IUnitOfWork unitOfWork,
             IMapper mapper,
             IUserManagementService userManagementService,
-            IWalletService walletService)
+            IWalletService walletService,
+            ISystemWalletService systemWalletService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userManagementService = userManagementService;
             _walletService = walletService;
+            _systemWalletService = systemWalletService;
         }
 
         public async Task<ResultDTO<WithdrawReqResponse>> createWithdrawRequest(WithdrawRequestDTO requestDTO)
@@ -251,7 +254,7 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
-        public async Task<ResultDTO<WithdrawWalletResponse>> AdminApprovedWithdrawWalletRequest(Guid requestId)
+        public async Task<ResultDTO<WithdrawWalletResponse>> AdminApprovedWithdrawWalletRequest(Guid requestId, Guid walletId)
         {
             try
             {
@@ -266,12 +269,12 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("request has already done !!");
                 }
-                var userWallet = await _walletService.GetUserWallet(); //admin wallet
-                if (userWallet is null)
+                var systemWallet = await _unitOfWork.SystemWalletRepository.GetByIdAsync(walletId); //admin wallet
+                if (systemWallet is null)
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("admin wallet is null");
                 }
-                if (userWallet._data.Balance <= request.Amount)
+                if (systemWallet.TotalAmount <= request.Amount)
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("admin wallet dont have enough money to transfer");
                 }
@@ -284,7 +287,7 @@ namespace FPTU_Starter.Application.Services
                     var transfer = await _walletService.TransferMoney(new ViewModel.TransferDTO.TransferRequest
                     {
                         Amount = request.Amount,
-                        DestinationWalletID = userWallet._data.Id, //admin wallet
+                        DestinationWalletID = systemWallet.Id, //admin wallet
                         SourceWalletID = request.WalletId
                     });
                     //create new Transaction
@@ -303,10 +306,9 @@ namespace FPTU_Starter.Application.Services
                 }
                 request.Status = WithdrawRequestStatus.Successful;
                 request.IsFinished = true;
-                
-                var adminWallet = await _unitOfWork.WalletRepository.GetByIdAsync(userWallet._data.Id);
-                adminWallet.Balance -= request.Amount;
-                _unitOfWork.WalletRepository.Update(adminWallet);
+
+                systemWallet.TotalAmount -= request.Amount;
+                _unitOfWork.SystemWalletRepository.Update(systemWallet);
 
                 //transaction 
                 Transaction transaction = new Transaction
