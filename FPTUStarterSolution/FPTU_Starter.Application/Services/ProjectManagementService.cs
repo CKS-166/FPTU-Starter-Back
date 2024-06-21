@@ -154,7 +154,8 @@ namespace FPTU_Starter.Application.Services
                     .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
                     .Include(p => p.ProjectOwner)
                     .Include(p => p.SubCategories).ThenInclude(s => s.Category)
-                    .Include(p => p.Images);
+                    .Include(p => p.Images)
+                    .Include(p => p.BankAccount);
 
                 if (_claimsPrincipal == null || !_claimsPrincipal.Identity.IsAuthenticated)
                 {
@@ -175,6 +176,66 @@ namespace FPTU_Starter.Application.Services
                         projectQuery = projectQuery.Where(x => x.ProjectOwner.Id == applicationUser.Id);
                     }
                 }
+
+                // Apply filters before executing the query
+                if (!string.IsNullOrEmpty(searchName))
+                {
+                    projectQuery = projectQuery.Where(x => x.ProjectName.ToLower().Contains(searchName.ToLower()));
+                }
+
+                if (moneyTarget.HasValue)
+                {
+                    switch (moneyTarget.Value)
+                    {
+                        case 1:
+                            projectQuery = projectQuery.Where(x => x.ProjectTarget >= 0 && x.ProjectTarget < 1000000);
+                            break;
+                        case 2:
+                            projectQuery = projectQuery.Where(x => x.ProjectTarget >= 1000000 && x.ProjectTarget < 10000000);
+                            break;
+                        case 3:
+                            projectQuery = projectQuery.Where(x => x.ProjectTarget >= 10000000 && x.ProjectTarget < 100000000);
+                            break;
+                        case 4:
+                            projectQuery = projectQuery.Where(x => x.ProjectTarget >= 100000000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(categoryName))
+                {
+                    projectQuery = projectQuery.Where(x => x.SubCategories.Any(s => s.Category.Name.ToLower().Contains(categoryName.ToLower())));
+                }
+
+                if (projectStatus.HasValue)
+                {
+                    projectQuery = projectQuery.Where(x => x.ProjectStatus == projectStatus.Value);
+                }
+
+                var projectList = await projectQuery.ToListAsync();
+
+                var responses = _mapper.Map<List<ProjectViewResponse>>(projectList);
+                return ResultDTO<List<ProjectViewResponse>>.Success(responses, "");
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<ResultDTO<List<ProjectViewResponse>>> GetAllProjects(string? searchName, ProjectStatus? projectStatus, int? moneyTarget, string? categoryName)
+        {
+            try
+            {
+                IQueryable<Project> projectQuery = _unitOfWork.ProjectRepository.GetQueryable()
+                    .AsNoTracking()
+                    .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
+                    .Include(p => p.ProjectOwner)
+                    .Include(p => p.SubCategories).ThenInclude(s => s.Category)
+                    .Include(p => p.Images)
+                    .Where(p => p.ProjectStatus == ProjectStatus.Successful || p.ProjectStatus == ProjectStatus.Processing);
 
                 // Apply filters before executing the query
                 if (!string.IsNullOrEmpty(searchName))
