@@ -17,6 +17,7 @@ namespace FPTU_Starter.Application.Services.IService
 
         Task<ResultDTO<string>> UpdateProject(ProjectUpdateRequest request);
         Task<ResultDTO<List<ProjectViewResponse>>> GetUserProjects(string? searchType, string? searchName, ProjectStatus? projectStatus, int? moneyTarget, string? categoryName);
+        Task<ResultDTO<List<ProjectViewResponse>>> GetAllProjects(string? searchName, ProjectStatus? projectStatus, int? moneyTarget, string? categoryName);
         Task<ResultDTO<string>> UpdatePackages(Guid id, List<PackageViewResponse> req);
         Task<ResultDTO<ProjectDonateResponse>> DonateProject(ProjectDonateRequest request);
         Task<ResultDTO<ProjectDonateResponse>> PackageDonateProject(PackageDonateRequest request);
