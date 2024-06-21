@@ -43,7 +43,7 @@ namespace FPTU_Starter.Infrastructure.BackgroundWorkerService
                 }
                 _myDb.SaveChanges();
                 _logger.LogInformation("Hello World at: {time}", DateTimeOffset.Now);
-                await Task.Delay(10000, stoppingToken); // Chờ 10 giây trước khi thực hiện lại
+                await Task.Delay(12 * 3600 * 1000, stoppingToken); // Chờ 10 giây trước khi thực hiện lại
             }
         }
     }
