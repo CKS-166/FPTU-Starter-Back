@@ -23,6 +23,7 @@ namespace FPTU_Starter.Infrastructure.Repository
         {
             return await _context.Projects
                 .Include(p => p.ProjectOwner)
+                .Include(p => p.AboutUs)
                 .Include(p => p.Packages)
                     .ThenInclude(pk => pk.RewardItems)
                 .Include(p => p.SubCategories)
