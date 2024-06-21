@@ -153,7 +153,8 @@ namespace FPTU_Starter.Application.Services
                     .Include(p => p.Packages).ThenInclude(pa => pa.RewardItems)
                     .Include(p => p.ProjectOwner)
                     .Include(p => p.SubCategories).ThenInclude(s => s.Category)
-                    .Include(p => p.Images);
+                    .Include(p => p.Images)
+                    .Include(p => p.BankAccount);
 
                 if (_claimsPrincipal == null || !_claimsPrincipal.Identity.IsAuthenticated)
                 {
