@@ -12,7 +12,7 @@ namespace FPTU_Starter.Application.Services.IService
     public interface IWithdrawService
     {
         Task<List<WithdrawRequest>> getAllRequest();
-        Task<ResultDTO<WithdrawReqResponse>> createWithdrawRequest(WithdrawRequestDTO requestDTO);
+        Task<ResultDTO<WithdrawReqResponse>> createCashOutRequest(WithdrawRequestDTO requestDTO);
         Task<ResultDTO<ProcessingWithdrawRequest>> processingProjectWithdrawRequest(Guid RequestId);
         Task<ResultDTO<WithdrawRequest>> approvedProjectWithdrawRequest(Guid RequestId);
         Task<ResultDTO<WithdrawWalletResponse>> WithdrawWalletRequest(WithdrawWalletRequest request);

@@ -35,7 +35,7 @@ namespace FPTU_Starter.Application.Services
             _systemWalletService = systemWalletService;
         }
 
-        public async Task<ResultDTO<WithdrawReqResponse>> createWithdrawRequest(WithdrawRequestDTO requestDTO)
+        public async Task<ResultDTO<WithdrawReqResponse>> createCashOutRequest(WithdrawRequestDTO requestDTO)
         {
             try
             {
@@ -108,7 +108,6 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<ProcessingWithdrawRequest>.Fail("expired!!!");
                 }
-                //store bankaccount
 
                 request.Status = WithdrawRequestStatus.Processing;
                 await _unitOfWork.CommitAsync();
@@ -204,13 +203,12 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("Amount not valid");
                 }
-                //transferMoney Backer => Admin
-                var transfer = await _walletService.TransferMoney(new ViewModel.TransferDTO.TransferRequest
-                {
-                    Amount = request.Amount,
-                    DestinationWalletID = Guid.Parse("285EADB4-AF27-4029-AD1E-2958F0EC0878"),
-                    SourceWalletID = userWallet._data.Id
-                });
+                //- tien 
+                userWallet._data.Balance -= request.Amount;
+                Wallet walletParse = _mapper.Map<Wallet>(userWallet._data);
+                
+                _unitOfWork.WalletRepository.Update(walletParse);
+
                 //create new Transaction
                 Transaction transaction = new Transaction
                 {
@@ -234,7 +232,7 @@ namespace FPTU_Starter.Application.Services
                     CreatedDate = DateTime.UtcNow,
                     ExpiredDate = DateTime.UtcNow.AddDays(EXPIRED_DATE),
                     RequestType = TransactionTypes.Withdraw,
-                    
+
                 };
                 await _unitOfWork.WithdrawRepository.AddAsync(newRequest);
                 //commit database
@@ -264,7 +262,7 @@ namespace FPTU_Starter.Application.Services
                 if (request == null)
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("wrong request !!!");
-                }               
+                }
                 if (request.IsFinished)
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("request has already done !!");

@@ -21,6 +21,7 @@ namespace FPTU_Starter.Infrastructure
         private IWithdrawRepository _withdrawRepository;
         private IStageRepository _stageRepository;
         private ISystemWalletRepository _systemWalletRepository;
+        private IBankAccountRepository _bankAccountRepository;
         public UnitOfWork(MyDbContext dbContext,
             IUserRepository UserRepository,
             IProjectRepository projectRepository,
@@ -33,7 +34,8 @@ namespace FPTU_Starter.Infrastructure
             IAboutUsRepository aboutUsRepository,
             IWithdrawRepository withdrawRepository,
             IStageRepository stageRepository,
-            ISystemWalletRepository systemWalletRepository)
+            ISystemWalletRepository systemWalletRepository,
+            IBankAccountRepository bankAccountRepository)
         {
             _dbContext = dbContext;
             _userRepository = UserRepository;
@@ -48,6 +50,7 @@ namespace FPTU_Starter.Infrastructure
             _withdrawRepository = withdrawRepository;
             _stageRepository = stageRepository;
             _systemWalletRepository = systemWalletRepository;
+            _bankAccountRepository = bankAccountRepository;
         }
 
         public IUserRepository UserRepository
@@ -140,6 +143,14 @@ namespace FPTU_Starter.Infrastructure
             get
             {
                 return _systemWalletRepository = _systemWalletRepository ?? new SystemWalletRepository(_dbContext);
+            }
+        }
+
+        public IBankAccountRepository BankAccountRepository
+        {
+            get
+            {
+                return _bankAccountRepository = _bankAccountRepository ?? new BankAccountRepository(_dbContext);
             }
         }
 

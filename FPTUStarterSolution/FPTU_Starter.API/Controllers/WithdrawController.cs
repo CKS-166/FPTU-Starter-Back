@@ -30,7 +30,8 @@ namespace FPTU_Starter.API.Controllers
         [HttpPost("create-project-request")]
         public async Task<IActionResult> CreateProjectRequest([FromBody] WithdrawRequestDTO requestDTO)
         {
-            var result = await _withdrawService.createWithdrawRequest(requestDTO);
+            var result = await _withdrawService.createCashOutRequest(requestDTO);
+
             if (!result._isSuccess)
             {
                 return BadRequest(result);

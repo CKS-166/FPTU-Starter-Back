@@ -10,5 +10,6 @@ namespace FPTU_Starter.Application.ViewModel.WithdrawReqDTO
     public class ProcessingWithdrawRequest
     {
         public BankAccount? projectBankAccount {  get; set; }
+        
     }
 }
