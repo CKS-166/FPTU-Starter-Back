@@ -16,6 +16,6 @@ namespace FPTU_Starter.Application.Services.IService
         Task<ResultDTO<ProcessingWithdrawRequest>> processingProjectWithdrawRequest(Guid RequestId);
         Task<ResultDTO<WithdrawRequest>> approvedProjectWithdrawRequest(Guid RequestId);
         Task<ResultDTO<WithdrawWalletResponse>> WithdrawWalletRequest(WithdrawWalletRequest request);
-        Task<ResultDTO<WithdrawWalletResponse>> AdminApprovedWithdrawWalletRequest(Guid requestId, Guid walletId);
+        Task<ResultDTO<WithdrawWalletResponse>> AdminApprovedWithdrawWalletRequest(Guid requestId);
     }
 }

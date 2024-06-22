@@ -4,6 +4,7 @@ using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.WithdrawReqDTO;
 using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Domain.Enum;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
@@ -183,17 +184,17 @@ namespace FPTU_Starter.Application.Services
         {
             try
             {
-                var user = _userManagementService.GetUserInfo().Result;
+                var user = await _userManagementService.GetUserInfo();
                 ApplicationUser exitUser = _mapper.Map<ApplicationUser>(user._data);
-                var userWallet = await _walletService.GetUserWallet();
+                var userWallet = _unitOfWork.WalletRepository.Get(x => x.BackerId.Equals(exitUser.Id));
 
-                //check user
+                // Check user
                 if (user is null)
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("User is null");
                 }
 
-                //check user wallet
+                // Check user wallet
                 if (userWallet is null)
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("User wallet is null");
@@ -203,48 +204,48 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("Amount not valid");
                 }
-                //- tien 
-                userWallet._data.Balance -= request.Amount;
-                Wallet walletParse = _mapper.Map<Wallet>(userWallet._data);
                 
-                _unitOfWork.WalletRepository.Update(walletParse);
 
-                //create new Transaction
+                // Deduct amount from user wallet
+                userWallet.Balance -= request.Amount;
+                Wallet walletParse = _mapper.Map<Wallet>(userWallet);              
+                 _unitOfWork.WalletRepository.Update(walletParse);
+
+                // Create new Transaction
                 Transaction transaction = new Transaction
                 {
                     Id = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
-                    Description = $"{exitUser.Name} has just transfer {request.Amount} to ADMIN",
+                    Description = $"{exitUser.Name} has just transferred {request.Amount} to ADMIN",
                     TotalAmount = request.Amount,
                     TransactionType = TransactionTypes.Withdraw,
-                    WalletId = userWallet._data.Id,
+                    WalletId = userWallet.Id,
                 };
                 await _unitOfWork.TransactionRepository.AddAsync(transaction);
 
-                // Create new request
+                // Create new withdraw request
                 WithdrawRequest newRequest = new WithdrawRequest
                 {
                     Id = Guid.NewGuid(),
-                    WalletId = userWallet._data.Id,
+                    WalletId = userWallet.Id,
                     IsFinished = false,
                     Amount = request.Amount,
                     Status = Domain.Enum.WithdrawRequestStatus.Pending,
                     CreatedDate = DateTime.UtcNow,
                     ExpiredDate = DateTime.UtcNow.AddDays(EXPIRED_DATE),
                     RequestType = TransactionTypes.Withdraw,
-
                 };
                 await _unitOfWork.WithdrawRepository.AddAsync(newRequest);
-                //commit database
+
+                // Commit database
                 await _unitOfWork.CommitAsync();
 
                 WithdrawWalletResponse response = new WithdrawWalletResponse
                 {
                     Amount = request.Amount,
-                    WalletId = userWallet._data.Id,
+                    WalletId = userWallet.Id,
                 };
-                return ResultDTO<WithdrawWalletResponse>.Success(response, "successfully create withdraw request, please wait for admin to approved");
-
+                return ResultDTO<WithdrawWalletResponse>.Success(response, "Successfully created withdraw request, please wait for admin approval.");
             }
             catch (Exception ex)
             {
@@ -252,7 +253,8 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
-        public async Task<ResultDTO<WithdrawWalletResponse>> AdminApprovedWithdrawWalletRequest(Guid requestId, Guid walletId)
+
+        public async Task<ResultDTO<WithdrawWalletResponse>> AdminApprovedWithdrawWalletRequest(Guid requestId)
         {
             try
             {
@@ -267,27 +269,14 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("request has already done !!");
                 }
-                var systemWallet = await _unitOfWork.SystemWalletRepository.GetByIdAsync(walletId); //admin wallet
-                if (systemWallet is null)
-                {
-                    return ResultDTO<WithdrawWalletResponse>.Fail("admin wallet is null");
-                }
-                if (systemWallet.TotalAmount <= request.Amount)
-                {
-                    return ResultDTO<WithdrawWalletResponse>.Fail("admin wallet dont have enough money to transfer");
-                }
+                
                 if (request.ExpiredDate < DateTime.Now)
                 {
                     if (request.Status.Equals(WithdrawRequestStatus.Rejected))
                     {
                         return ResultDTO<WithdrawWalletResponse>.Fail("This Request is Rejected already!!");
                     }
-                    var transfer = await _walletService.TransferMoney(new ViewModel.TransferDTO.TransferRequest
-                    {
-                        Amount = request.Amount,
-                        DestinationWalletID = systemWallet.Id, //admin wallet
-                        SourceWalletID = request.WalletId
-                    });
+                    
                     //create new Transaction
                     Transaction TerminatedTransaction = new Transaction
                     {
@@ -305,8 +294,7 @@ namespace FPTU_Starter.Application.Services
                 request.Status = WithdrawRequestStatus.Successful;
                 request.IsFinished = true;
 
-                systemWallet.TotalAmount -= request.Amount;
-                _unitOfWork.SystemWalletRepository.Update(systemWallet);
+               
 
                 //transaction 
                 Transaction transaction = new Transaction

@@ -92,7 +92,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<WalletResponse>.Fail("User not found.");
                 }
-                var walletList = await _unitOfWork.WalletRepository.GetQueryable().Include(w => w.Transactions).ToListAsync();
+                var walletList = await _unitOfWork.WalletRepository.GetQueryable().AsNoTracking().Include(w => w.Transactions).ToListAsync();
                 var wallet = walletList.FirstOrDefault(x => x.BackerId.Equals(userIdClaim.Value));
                 var walletDTO = _mapper.Map<WalletResponse>(wallet);
                 return ResultDTO<WalletResponse>.Success(walletDTO);
