@@ -770,8 +770,9 @@ namespace FPTU_Starter.Application.Services
         {
             try
             {
-                var numOfProject = await _unitOfWork.ProjectRepository.GetAllAsync();
-                return ResultDTO<int>.Success(numOfProject.Count(), "total of project is");
+                var numOfProject =  _unitOfWork.ProjectRepository.GetQueryable()
+                        .Where(x=>x.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Successful)).Count();
+                return ResultDTO<int>.Success(numOfProject, "total of project is");
 
             }
             catch (Exception ex)
