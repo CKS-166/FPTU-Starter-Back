@@ -1,4 +1,5 @@
-﻿using FPTU_Starter.Application.ViewModel.CategoryDTO;
+﻿using FPTU_Starter.Application.ViewModel.AboutUsDTO;
+using FPTU_Starter.Application.ViewModel.CategoryDTO;
 using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectImage;
 using FPTU_Starter.Application.ViewModel.ProjectDTO.ProjectPackageDTO;
@@ -26,6 +27,7 @@ namespace FPTU_Starter.Application.ViewModel.ProjectDTO
         public int Likes { get; set; }
         public int Backers { get; set; }
         public ProjectStatus ProjectStatus { get; set; }
+        public AboutUsResponse AboutUs { get; set; }
         public List<PackageViewResponse> PackageViewResponses { get; set; }
         public List<ProjectImageViewResponse> StoryImages { get; set; }
         public List<ProjectImageViewResponse>? Images { get; set; }
