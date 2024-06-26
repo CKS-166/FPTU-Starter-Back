@@ -49,7 +49,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ReverseMap();
             CreateMap<Project, ProjectViewResponse>()
                 .ForMember(des => des.PackageViewResponses, src => src.MapFrom(x => x.Packages))
-                .ForMember(des => des.ProjectOwnerName, src => src.MapFrom(x => x.ProjectOwner.AccountName))
+                .ForMember(des => des.ProjectOwnerName, src => src.MapFrom(x => x.ProjectOwner.Name))
                 .ForMember(des => des.OwnerId, src => src.MapFrom(x => x.ProjectOwner.Id))
                 .ForMember(des => des.StoryImages, src => src.MapFrom(x => x.Images))
                 .ForMember(des => des.AboutUs, src => src.MapFrom(x => x.AboutUs))

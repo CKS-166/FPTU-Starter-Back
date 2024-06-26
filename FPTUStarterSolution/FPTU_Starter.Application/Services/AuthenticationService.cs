@@ -14,11 +14,14 @@ using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
+using System.Text;
 
 namespace FPTU_Starter.Application.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
+        private static Random random = new Random();
+        private readonly IUserManagementService _userManagementService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITokenGenerator _tokenGenerator;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -34,7 +37,8 @@ namespace FPTU_Starter.Application.Services
             RoleManager<IdentityRole> roleManager,
             IEmailService.IEmailService emailService,
             ILogger<AuthenticationService> logger,
-            IGoogleService googleService)
+            IGoogleService googleService ,
+            IUserManagementService userManagementService)
         {
             _unitOfWork = unitOfWork;
             _tokenGenerator = tokenGenerator;
@@ -44,6 +48,7 @@ namespace FPTU_Starter.Application.Services
             _emailService = emailService;
             _logger = logger;
             _googleService = googleService;
+            _userManagementService = userManagementService;
         }
 
         public async Task<ResultDTO<LoginResponseDTO>> GoogleLogin(string token)
@@ -112,7 +117,7 @@ namespace FPTU_Starter.Application.Services
                 var getUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == loginDTO.Email);
 
                 if (getUser is null || !await _userManager.CheckPasswordAsync(getUser, loginDTO.Password))
-                    return ResultDTO<ResponseToken>.Fail("Email or password is wrong");
+                    return ResultDTO<ResponseToken>.Fail("Email hoặc mật khẩu không đúng");
 
                 var userRole = await _userManager.GetRolesAsync(getUser);
                 var token = _tokenGenerator.GenerateToken(getUser, userRole);
@@ -299,28 +304,58 @@ namespace FPTU_Starter.Application.Services
                 }
                 else
                 {
-                    string baseUrl = "http://localhost:5173";
-                    string resetPasswordUrl = $"{baseUrl}/change-password?email={getUser.Email}";
-                    string subject = "Reset Password";
-                    string body = 
-                        $@"Chào {getUser.AccountName},
-
-                        Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu của bạn. Vui lòng nhấp vào liên kết bên dưới để đặt lại mật khẩu:
-
-                        {resetPasswordUrl}
-
-                        Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.
-
-                        Trân trọng,
-                        FPTU Starter";
-                    var mess = new Message(new string[] { getUser.Email! }, subject, body);
-                    _emailService.SendEmail(mess);
-                    return ResultDTO<string>.Success($"Reset Password link have been send to your email {getUser.Email}");
+                    string newPassword = GenerateRandomPassword(7);
+                    var result = await _userManagementService.UpdatePassword(newPassword, newPassword, userEmail);
+                    if (result._isSuccess == true)
+                    {
+                        string subject = "Đặt lại mật khẩu";
+                        string body =
+                        $"Chào {getUser.AccountName},\n\n" +
+                        "Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu của bạn. Vui lòng nhập lại mật khẩu mới để đăng nhập vào hệ thống:\n\n" +
+                        $"{newPassword}\n\n" +
+                        "Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.\n\n" +
+                        "Lưu ý: Nên đổi mật khẩu lại sau khi đăng nhập thành công.\n\n" +
+                        "Trân trọng,\n" +
+                        "FPTU Starter";
+                        var mess = new Message(new string[] { getUser.Email! }, subject, body);
+                        _emailService.SendEmail(mess);
+                        return ResultDTO<string>.Success($"Reset Password link have been send to your email {getUser.Email}");
+                    }
+                    else
+                    {
+                        return ResultDTO<string>.Fail($"Lỗi xảy ra, vui lòng thử lại sau");
+                    }
                 }
             }catch (Exception ex)
             {
                 return ResultDTO<string>.Fail($"An error occurred: {ex.Message}");
             }
+        }
+
+        public static string GenerateRandomPassword(int length = 7)
+        {
+            const string upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string lowerCase = "abcdefghijklmnopqrstuvwxyz";
+            const string numbers = "0123456789";
+            const string specialChars = "!@#$%^&*()_-+=<>?";
+
+            if (length < 7)
+            {
+                throw new ArgumentException("Mật khẩu phải dài tối thiểu 7 kí tự");
+            }
+
+            var passwordChars = new StringBuilder();
+            passwordChars.Append(upperCase[random.Next(upperCase.Length)]);
+            passwordChars.Append(numbers[random.Next(numbers.Length)]);
+            passwordChars.Append(specialChars[random.Next(specialChars.Length)]);
+
+            string allChars = upperCase + lowerCase + numbers + specialChars;
+            for (int i = passwordChars.Length; i < length; i++)
+            {
+                passwordChars.Append(allChars[random.Next(allChars.Length)]);
+            }
+
+            return new string(passwordChars.ToString().OrderBy(c => random.Next()).ToArray());
         }
     }
 }
