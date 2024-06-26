@@ -299,7 +299,5 @@ namespace FPTU_Starter.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        
-
     }
 }
