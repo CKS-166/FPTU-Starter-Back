@@ -60,23 +60,33 @@ namespace FPTU_Starter.Application.Services
                     return ResultDTO<WithdrawReqResponse>.Fail("User wallet is null");
                 }
                 //check project status 
-                if (!project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Successful))
+                if (!project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Successful) 
+                    && !project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Withdrawed))
                 {
                     return ResultDTO<WithdrawReqResponse>.Fail("Project is not avaliable");
                 }
-
                 // Create new request
                 WithdrawRequest request = new WithdrawRequest();
                 request.Id = Guid.NewGuid();
                 request.WalletId = userWallet._data.Id;
                 request.IsFinished = false;
-                request.Amount = project.ProjectBalance;
+                
                 request.ProjectId = project.Id;
                 request.Status = Domain.Enum.WithdrawRequestStatus.Pending;
                 request.CreatedDate = DateTime.UtcNow;
                 request.ExpiredDate = request.CreatedDate.AddDays(EXPIRED_DATE);
                 request.RequestType = Domain.Enum.TransactionTypes.CashOut;
 
+                if (project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Successful))
+                {
+                    request.Amount = project.ProjectBalance;
+                    project.ProjectStatus = ProjectEnum.ProjectStatus.Withdrawed;
+                }
+                else if (project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Withdrawed))
+                {
+                    request.Amount = project.ProjectBalance - project.ProjectTarget;
+                }
+               
                 _unitOfWork.WithdrawRepository.Add(request);
                 //commit database
                 await _unitOfWork.CommitAsync();

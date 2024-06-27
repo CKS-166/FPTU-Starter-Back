@@ -10,7 +10,8 @@
             Successful,
             Failed,
             Rejected,
-            Approved
+            Approved,
+            Withdrawed
         }
     }
 }
