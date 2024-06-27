@@ -24,7 +24,7 @@ namespace FPTU_Starter.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<ResultDTO<List<SubCateCount>>> CountCateProjects()
+        public async Task<ResultDTO<List<SubCateCount>>> CountCateProjects(int top)
         {
             var subCates = _unitOfWork.SubCategoryRepository.GetQueryable().Include(sc => sc.Projects).ToList();
             List<SubCateCount> subCateCounts = new List<SubCateCount>();
@@ -37,6 +37,14 @@ namespace FPTU_Starter.Application.Services
                 };
 
                 subCateCounts.Add(subCount);
+            }
+            if(top ==  0)
+            {
+                subCateCounts = subCateCounts.OrderByDescending(sc => sc.ProjectsCount).ToList();
+
+            }else
+            {
+                subCateCounts = subCateCounts.OrderByDescending(sc => sc.ProjectsCount).Take(top).ToList();
             }
             return ResultDTO<List<SubCateCount>>.Success(subCateCounts, "");
 

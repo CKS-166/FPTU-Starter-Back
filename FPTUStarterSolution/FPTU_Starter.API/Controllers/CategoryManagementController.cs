@@ -41,9 +41,9 @@ namespace FPTU_Starter.API.Controllers
         }
 
         [HttpGet("count-subCates")]
-        public async Task<IActionResult> CountSubCatesProjects()
+        public async Task<IActionResult> CountSubCatesProjects([FromQuery] int top = 0)
         {
-            var result = _categoryService.CountCateProjects();
+            var result = _categoryService.CountCateProjects(top);
             return Ok(result);
         }
 
