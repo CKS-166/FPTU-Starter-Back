@@ -235,7 +235,7 @@ namespace FPTU_Starter.Application.Services
                     .Include(p => p.ProjectOwner)
                     .Include(p => p.SubCategories).ThenInclude(s => s.Category)
                     .Include(p => p.Images)
-                    .Where(p => p.ProjectStatus == ProjectStatus.Successful || p.ProjectStatus == ProjectStatus.Processing);
+                    .Where(p => p.ProjectStatus == ProjectStatus.Successful || p.ProjectStatus == ProjectStatus.Processing || p.ProjectStatus == ProjectStatus.Withdrawed);
 
                 // Apply filters before executing the query
                 if (!string.IsNullOrEmpty(searchName))
@@ -558,7 +558,7 @@ namespace FPTU_Starter.Application.Services
                     .Include(p => p.ProjectOwner)
                     .Include(p => p.SubCategories).ThenInclude(s => s.Category)
                     .Include(p => p.Images)
-                    .Where(p => p.ProjectStatus == ProjectStatus.Processing || p.ProjectStatus == ProjectStatus.Successful)
+                    .Where(p => p.ProjectStatus == ProjectStatus.Processing || p.ProjectStatus == ProjectStatus.Successful || p.ProjectStatus == ProjectStatus.Withdrawed)
                     .ToList();
 
                 List<Transaction> trans = _unitOfWork.TransactionRepository.GetQueryable()
@@ -569,7 +569,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     ProjectPackage package = _unitOfWork.PackageRepository.GetQueryable().Include(pa => pa.Project).FirstOrDefault(pa => pa.Id == transaction.PackageId);
                     Project project = _unitOfWork.ProjectRepository.GetQueryable().FirstOrDefault(p => p.Id == package.ProjectId
-                    && (p.ProjectStatus == ProjectStatus.Processing || p.ProjectStatus == ProjectStatus.Successful));
+                    && (p.ProjectStatus == ProjectStatus.Processing || p.ProjectStatus == ProjectStatus.Successful || p.ProjectStatus == ProjectStatus.Withdrawed));
                     if (project != null)
                     {
                         if (count.ContainsKey(project.Id))
