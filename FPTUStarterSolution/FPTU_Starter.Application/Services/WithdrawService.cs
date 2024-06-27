@@ -121,12 +121,12 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
-        public async Task<List<WithdrawRequest>> getAllRequest()
+        public async Task<ResultDTO<List<WithdrawRequest>>> getAllRequest()
         {
             try
             {
                 var list = await _unitOfWork.WithdrawRepository.GetAllAsync();
-                return list.ToList();
+                return ResultDTO<List<WithdrawRequest>>.Success(list.ToList(), "List Request");
             }
             catch (Exception ex)
             {
