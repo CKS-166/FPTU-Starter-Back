@@ -102,8 +102,10 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<ProcessingWithdrawRequest>.Fail("wrong request !!!");
                 }
+
                 //get project 
                 var project = await _unitOfWork.ProjectRepository.GetAsync(x => x.Id.Equals(request.ProjectId));
+
                 //check date expired
                 if (request.ExpiredDate < DateTime.Now)
                 {
@@ -239,7 +241,6 @@ namespace FPTU_Starter.Application.Services
 
                 // Commit database
                 await _unitOfWork.CommitAsync();
-
                 WithdrawWalletResponse response = new WithdrawWalletResponse
                 {
                     Amount = request.Amount,

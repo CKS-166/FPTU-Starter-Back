@@ -497,9 +497,15 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<Guid>("BankAccountId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BackerId")
+                        .IsUnique();
+
+                    b.HasIndex("BankAccountId")
                         .IsUnique();
 
                     b.ToTable("Wallets");
@@ -841,7 +847,15 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FPTU_Starter.Domain.Entity.BankAccount", "BankAccount")
+                        .WithOne("Wallet")
+                        .HasForeignKey("FPTU_Starter.Domain.Entity.Wallet", "BankAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Backer");
+
+                    b.Navigation("BankAccount");
                 });
 
             modelBuilder.Entity("FPTU_Starter.Domain.Entity.WithdrawRequest", b =>
@@ -946,6 +960,11 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 {
                     b.Navigation("ProjectPackageUsers");
 
+                    b.Navigation("Wallet");
+                });
+
+            modelBuilder.Entity("FPTU_Starter.Domain.Entity.BankAccount", b =>
+                {
                     b.Navigation("Wallet");
                 });
 

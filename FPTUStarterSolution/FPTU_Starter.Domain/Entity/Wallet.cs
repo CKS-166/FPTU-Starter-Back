@@ -24,6 +24,9 @@ namespace FPTU_Starter.Domain.Entity
         public string? BackerId { get; set; }
         [ForeignKey("BackerId")]
         public ApplicationUser Backer { get; set; }
+        [ForeignKey(nameof(BankAccount))]
+        public Guid BankAccountId { get; set; }
+        public BankAccount? BankAccount { get; set; }
     }
 
 
