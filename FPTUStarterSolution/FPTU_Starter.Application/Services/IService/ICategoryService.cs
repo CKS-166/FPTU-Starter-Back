@@ -15,6 +15,6 @@ namespace FPTU_Starter.Application.Services.IService
         Task<ResultDTO<string>> CreateCate(CategoryAddRequest request);
         Task<ResultDTO<List<SubCategoryViewResponse>>> ViewSubCates(Guid cateId);
         Task<ResultDTO<string>> UpdateCategory(CategoryUpdateRequest req); 
-        Task<ResultDTO<List<SubCateCount>>> CountCateProjects();
+        Task<ResultDTO<List<SubCateCount>>> CountCateProjects(int top);
     }
 }

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FPTU_Starter.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/withdraws")]
     [ApiController]
     public class WithdrawController : ControllerBase
     {
