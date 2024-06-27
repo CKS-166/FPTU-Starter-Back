@@ -4,6 +4,7 @@ using FPTU_Starter.Application.ITokenService;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.AuthenticationDTO;
+using FPTU_Starter.Application.ViewModel.GoogleDTO;
 using FPTU_Starter.Domain.Constrain;
 using FPTU_Starter.Domain.EmailModel;
 using FPTU_Starter.Domain.Entity;
@@ -51,63 +52,30 @@ namespace FPTU_Starter.Application.Services
             _userManagementService = userManagementService;
         }
 
-        public async Task<ResultDTO<LoginResponseDTO>> GoogleLogin(string token)
+        public async Task<ResultDTO<ResponseToken>> GoogleLogin(GoogleLoginDTO googleLoginDto)
         {
-            try
-            {
-                var validPayload = await _googleService.VerifyGoogleTokenAsync(token);
+            var (exists, provider) = await _userManagementService.CheckIfUserExistByEmail(googleLoginDto.Email);
 
-                if (validPayload != null)
+            if (!exists)
+            {
+                var result = await RegisterGoogleIdentity(googleLoginDto.Email, googleLoginDto.Name, Role.Backer, googleLoginDto.AvatarUrl);
+                if (!result._isSuccess)
                 {
-                    // Check if the user already exists in your database based on email
-
-                    var existingUser = await _userManager.Users
-                    .FirstOrDefaultAsync(u => u.Email == validPayload.Email);
-                    //check if existingUser is exit in db 
-                    if (existingUser == null)
-                    {
-
-                        var user = new ApplicationUser
-                        {
-                            AccountName = validPayload.Email,
-                            Name = validPayload.GivenName + ' ' + validPayload.FamilyName,
-                            UserName = validPayload.Email,
-                            DayOfBirth = DateTime.Now,
-                            Gender = Gender.Khác,
-                            Email = validPayload.Email,
-                            NormalizedEmail = validPayload.Email!.ToUpper(),
-                            Address = "",
-                            PhoneNumber = "",
-                            TwoFactorEnabled = true, //enable 2FA
-                        };
-
-
-                        var result = await _userManager.CreateAsync(user);
-                        if (!result.Succeeded)
-                        {
-                            return ResultDTO<LoginResponseDTO>.Fail("invalid condition");
-                        }
-                        await _userManager.AddToRoleAsync(user, "User");
-                        existingUser = user;
-
-                    }
-
-                    var jwtToken = _tokenGenerator.GenerateToken(existingUser, null);
-                    var LoginRes = new LoginResponseDTO
-                    {
-                        AccessToken = jwtToken,
-                        Expire = DateTime.Now.AddMinutes(60)
-                    };
-
-                    return ResultDTO<LoginResponseDTO>.Success(LoginRes);
+                    return ResultDTO<ResponseToken>.Fail(result._message);
                 }
-
-                return ResultDTO<LoginResponseDTO>.Fail("Invalid Google token");
             }
-            catch (Exception ex)
+            else if (provider != "Google")
             {
-                return ResultDTO<LoginResponseDTO>.Fail("Server fail");
+                return ResultDTO<ResponseToken>.Fail($"Email {googleLoginDto.Email} đã tồn tại! Hãy đăng nhập bằng mật khẩu của bạn!");
             }
+
+            var user = await _unitOfWork.UserRepository.GetAsync(x => x.Email == googleLoginDto.Email);
+            await _signInManager.ExternalLoginSignInAsync("Google", googleLoginDto.Email, isPersistent: false);
+
+            var userRole = await _userManager.GetRolesAsync(user);
+            var token = _tokenGenerator.GenerateToken(user, userRole);
+
+            return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = token }, "Successfully created token");
         }
 
         public async Task<ResultDTO<ResponseToken>> LoginAsync(LoginDTO loginDTO)
@@ -235,12 +203,12 @@ namespace FPTU_Starter.Application.Services
                 return ResultDTO<ResponseToken>.Fail($"An error occurred: {ex.Message}");
             }
         }
-        public async Task<ResultDTO<ResponseToken>> RegisterGoogleIdentity(RegisterModel registerModel, string role, string avatarUrl)
+        public async Task<ResultDTO<ResponseToken>> RegisterGoogleIdentity(string email, string name, string role, string avatarUrl)
         {
             try
             {
                 // Check if the user already exists
-                var getUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == registerModel.Email);
+                var getUser = await _unitOfWork.UserRepository.GetAsync(x => x.Email == email);
                 if (getUser != null)
                 {
                     return ResultDTO<ResponseToken>.Fail("User already exists");
@@ -250,19 +218,17 @@ namespace FPTU_Starter.Application.Services
                 // Create a new user
                 var newUser = new ApplicationUser
                 {
-                    AccountName = registerModel.AccountName,
-                    Name = registerModel.Name,
-                    UserName = registerModel.Name,
-                    Email = registerModel.Email,
-                    Gender = null,
-                    DayOfBirth = null,
-                    NormalizedEmail = registerModel.Email!.ToUpper(),
+                    AccountName = email,
+                    Name = name,
+                    UserName = email,
+                    Email = email,
                     Avatar = avatarUrl,
                     TwoFactorEnabled = true, //enable 2FA
+                    EmailConfirmed = true
                 };
 
                 // Add the user using UserManager
-                var result = await _userManager.CreateAsync(newUser, registerModel.Password);
+                var result = await _userManager.CreateAsync(newUser);
                 if (!result.Succeeded)
                 {
                     // Handle and log errors if user creation failed
@@ -271,6 +237,8 @@ namespace FPTU_Starter.Application.Services
                 }
                 else
                 {
+                    var loginInfo = new UserLoginInfo("Google", email, "Google");
+                    await _userManager.AddLoginAsync(newUser, loginInfo);
                     //config role BACKER
                     if (!await _roleManager.RoleExistsAsync(role))
                     {
@@ -279,10 +247,28 @@ namespace FPTU_Starter.Application.Services
                     await _userManager.AddToRoleAsync(newUser, role);
                 }
 
+                var newBankAccount = new BankAccount
+                {
+                    Id = Guid.NewGuid(),
+                };
+
+                await _unitOfWork.BankAccountRepository.AddAsync(newBankAccount);
+
+                var wallet = new Wallet
+                {
+                    Id = Guid.NewGuid(),
+                    Balance = 0,
+                    Backer = newUser,
+                    BackerId = newUser.Id,
+                    BankAccountId = newBankAccount.Id
+                };
+                await _unitOfWork.WalletRepository.AddAsync(wallet);
+
                 // Optionally commit the changes if using a unit of work pattern
                 await _unitOfWork.CommitAsync();
                 // Generate a token for the new user
-                var token = _tokenGenerator.GenerateToken(newUser, null);
+                var userRole = await _userManager.GetRolesAsync(newUser);
+                var token = _tokenGenerator.GenerateToken(newUser, userRole);
                 return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = token }, "Successfully created user and token");
             }
             catch (Exception ex)

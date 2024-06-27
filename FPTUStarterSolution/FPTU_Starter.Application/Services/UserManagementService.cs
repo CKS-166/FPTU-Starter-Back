@@ -6,6 +6,7 @@ using FPTU_Starter.Domain.Entity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System.Security.Claims;
 
 namespace FPTU_Starter.Application.Services
@@ -32,12 +33,23 @@ namespace FPTU_Starter.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<bool> CheckIfUserExistByEmail(string email)
+        public async Task<(bool Exists, string Provider)> CheckIfUserExistByEmail(string email)
         {
             try
             {
                 var user = await _unitOfWork.UserRepository.GetAsync(x => x.Email == email);
-                return user != null;
+                if (user == null)
+                {
+                    return (false, string.Empty);
+                }
+                var logins = await _userManager.GetLoginsAsync(user);
+                var googleLogin = logins.FirstOrDefault(l => l.LoginProvider == "Google");
+                if (googleLogin != null)
+                {
+                    return (true, "Google");
+                }
+
+                return (true, "Local");
             }
             catch (Exception ex)
             {
