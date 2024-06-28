@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FPTU_Starter.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/withdraws")]
     [ApiController]
     public class WithdrawController : ControllerBase
     {
@@ -30,7 +30,8 @@ namespace FPTU_Starter.API.Controllers
         [HttpPost("create-project-request")]
         public async Task<IActionResult> CreateProjectRequest([FromBody] WithdrawRequestDTO requestDTO)
         {
-            var result = await _withdrawService.createWithdrawRequest(requestDTO);
+            var result = await _withdrawService.createCashOutRequest(requestDTO);
+
             if (!result._isSuccess)
             {
                 return BadRequest(result);
@@ -39,7 +40,7 @@ namespace FPTU_Starter.API.Controllers
         }
 
         [Authorize(Roles = Role.Admin)]
-        [HttpPost("admin-project-request")]
+        [HttpPost("admin-processing-project-request")]
         public async Task<IActionResult> AdminProjectRequest([FromBody] Guid id)
         {
             var result = await _withdrawService.processingProjectWithdrawRequest(id);
@@ -72,10 +73,44 @@ namespace FPTU_Starter.API.Controllers
             return Ok(result);
         }
         [Authorize(Roles = Role.Admin)]
-        [HttpPost("admin-withdraw-wallet-request")]
+        [HttpPost("admin-approved-withdraw-wallet-request")]
         public async Task<IActionResult> WithdrawWalletRequest([FromForm] Guid requestId)
         {
             var result = await _withdrawService.AdminApprovedWithdrawWalletRequest(requestId);
+            if (!result._isSuccess)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [Authorize(Roles = Role.Admin)]
+        [HttpPost("admin-processing-withdraw-wallet")]
+        public async Task<IActionResult> WithdrawRequestDetail([FromForm] Guid requestId)
+        {
+            var result = await _withdrawService.WithdrawRequestDetail(requestId);
+            if (!result._isSuccess)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+        [Authorize(Roles = Role.Admin)]
+        [HttpPost("admin-rejected-withdraw-wallet")]
+        public async Task<IActionResult> WithdrawRequestRejectWallet([FromForm] Guid requestId)
+        {
+            var result = await _withdrawService.RejectProcessingRequestWallet(requestId);
+            if (!result._isSuccess)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+        [Authorize(Roles = Role.Admin)]
+        [HttpPost("admin-reject-withdraw-project")]
+        public async Task<IActionResult> WithdrawRequestProject([FromForm] Guid requestId)
+        {
+            var result = await _withdrawService.RejectProcessingRequestWallet(requestId);
             if (!result._isSuccess)
             {
                 return BadRequest(result);

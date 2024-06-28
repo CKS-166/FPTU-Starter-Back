@@ -39,11 +39,14 @@ namespace FPTU_Starter.Infrastructure.BackgroundWorkerService
                         }
 
                     }
-
+                    if (project.ProjectBalance >= project.ProjectTarget)
+                    {
+                        project.ProjectStatus = ProjectStatus.Successful;
+                    }
                 }
                 _myDb.SaveChanges();
                 _logger.LogInformation("Hello World at: {time}", DateTimeOffset.Now);
-                await Task.Delay(10000, stoppingToken); // Chờ 10 giây trước khi thực hiện lại
+                await Task.Delay(2 * 3600 * 1000, stoppingToken); // Chờ 10 giây trước khi thực hiện lại
             }
         }
     }

@@ -147,6 +147,20 @@ namespace FPTU_Starter.API.Controllers
             }
         }
 
+        [HttpGet("all-projects")]
+        public async Task<IActionResult> GetAllProjects(string? searchType, string? searchName, ProjectStatus? projectStatus, int? moneyTarget, string? categoryName)
+        {
+            try
+            {
+                var result = await _projectService.GetAllProjects(searchName, projectStatus, moneyTarget, categoryName);
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         [HttpPut]
         public async Task<IActionResult> UpdateProject(ProjectUpdateRequest prjRequet)
@@ -285,7 +299,5 @@ namespace FPTU_Starter.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        
-
     }
 }

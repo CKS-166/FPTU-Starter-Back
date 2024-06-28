@@ -1,4 +1,6 @@
-﻿using FPTU_Starter.Domain.Enum;
+﻿using FPTU_Starter.Application.ViewModel.WalletDTO;
+using FPTU_Starter.Domain.Entity;
+using FPTU_Starter.Domain.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +20,6 @@ namespace FPTU_Starter.Application.ViewModel.WithdrawReqDTO
         public DateTime ExpiredDate { get; set; }
         public Guid WalletId { get; set; }
         public Guid ProjectId { get; set; }
+        public WalletResponse Wallet { get; set; }
     }
 }

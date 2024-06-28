@@ -1,16 +1,11 @@
 ﻿using AutoMapper;
-using FPTU_Starter.Application.IRepository;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.CategoryDTO;
 using FPTU_Starter.Application.ViewModel.CategoryDTO.SubCategoryDTO;
 using FPTU_Starter.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FPTU_Starter.Application.Services
 {
@@ -24,7 +19,7 @@ namespace FPTU_Starter.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<ResultDTO<List<SubCateCount>>> CountCateProjects()
+        public async Task<ResultDTO<List<SubCateCount>>> CountCateProjects(int top)
         {
             var subCates = _unitOfWork.SubCategoryRepository.GetQueryable().Include(sc => sc.Projects).ToList();
             List<SubCateCount> subCateCounts = new List<SubCateCount>();
@@ -37,6 +32,15 @@ namespace FPTU_Starter.Application.Services
                 };
 
                 subCateCounts.Add(subCount);
+            }
+            if (top == 0)
+            {
+                subCateCounts = subCateCounts.OrderByDescending(sc => sc.ProjectsCount).ToList();
+
+            }
+            else
+            {
+                subCateCounts = subCateCounts.OrderByDescending(sc => sc.ProjectsCount).Take(top).ToList();
             }
             return ResultDTO<List<SubCateCount>>.Success(subCateCounts, "");
 
@@ -81,9 +85,15 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
-        public async Task<ResultDTO<List<CategoryViewResponse>>> ViewAllCates()
+        public async Task<ResultDTO<List<CategoryViewResponse>>> ViewAllCates(string? search)
         {
             IEnumerable<Category> cates = _unitOfWork.CategoryRepository.GetQueryable().Include(c => c.SubCategories).ToList();
+
+            if (!search.IsNullOrEmpty())
+            {
+                cates = _unitOfWork.CategoryRepository.GetQueryable().Where(c => c.Name.Contains(search));
+            }
+
             IEnumerable<CategoryViewResponse> categoryViewResponses = _mapper.Map<IEnumerable<CategoryViewResponse>>(cates);
             return ResultDTO<List<CategoryViewResponse>>.Success(categoryViewResponses.ToList(), "");
         }

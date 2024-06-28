@@ -19,7 +19,7 @@ namespace FPTU_Starter.Domain.Entity
         public string? Address { get; set; }
         public Gender? Gender { get; set; }
         public DateTime? DayOfBirth { get; set; }
-
+        public bool UserStatus { get; set; }
         public ICollection<PackageBacker> ProjectPackageUsers { get; set; }       
         [InverseProperty("Backer")]
         public Wallet? Wallet { get; set; }

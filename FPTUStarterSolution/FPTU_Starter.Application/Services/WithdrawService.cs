@@ -4,6 +4,7 @@ using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.WithdrawReqDTO;
 using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Domain.Enum;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
@@ -20,19 +21,22 @@ namespace FPTU_Starter.Application.Services
         private readonly IMapper _mapper;
         private readonly IUserManagementService _userManagementService;
         private readonly IWalletService _walletService;
+        private readonly ISystemWalletService _systemWalletService;
         private const int EXPIRED_DATE = 5;
         public WithdrawService(IUnitOfWork unitOfWork,
             IMapper mapper,
             IUserManagementService userManagementService,
-            IWalletService walletService)
+            IWalletService walletService,
+            ISystemWalletService systemWalletService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userManagementService = userManagementService;
             _walletService = walletService;
+            _systemWalletService = systemWalletService;
         }
 
-        public async Task<ResultDTO<WithdrawReqResponse>> createWithdrawRequest(WithdrawRequestDTO requestDTO)
+        public async Task<ResultDTO<WithdrawReqResponse>> createCashOutRequest(WithdrawRequestDTO requestDTO)
         {
             try
             {
@@ -56,22 +60,32 @@ namespace FPTU_Starter.Application.Services
                     return ResultDTO<WithdrawReqResponse>.Fail("User wallet is null");
                 }
                 //check project status 
-                if (!project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Successful))
+                if (!project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Successful)
+                    && !project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Withdrawed))
                 {
                     return ResultDTO<WithdrawReqResponse>.Fail("Project is not avaliable");
                 }
-
                 // Create new request
                 WithdrawRequest request = new WithdrawRequest();
                 request.Id = Guid.NewGuid();
                 request.WalletId = userWallet._data.Id;
                 request.IsFinished = false;
-                request.Amount = project.ProjectBalance;
+
                 request.ProjectId = project.Id;
                 request.Status = Domain.Enum.WithdrawRequestStatus.Pending;
                 request.CreatedDate = DateTime.UtcNow;
                 request.ExpiredDate = request.CreatedDate.AddDays(EXPIRED_DATE);
                 request.RequestType = Domain.Enum.TransactionTypes.CashOut;
+
+                if (project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Successful))
+                {
+                    request.Amount = project.ProjectBalance;
+                    project.ProjectStatus = ProjectEnum.ProjectStatus.Withdrawed;
+                }
+                else if (project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Withdrawed))
+                {
+                    request.Amount = project.ProjectBalance - project.ProjectTarget;
+                }
 
                 _unitOfWork.WithdrawRepository.Add(request);
                 //commit database
@@ -98,18 +112,19 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<ProcessingWithdrawRequest>.Fail("wrong request !!!");
                 }
+
                 //get project 
                 var project = await _unitOfWork.ProjectRepository.GetAsync(x => x.Id.Equals(request.ProjectId));
+
                 //check date expired
                 if (request.ExpiredDate < DateTime.Now)
                 {
                     return ResultDTO<ProcessingWithdrawRequest>.Fail("expired!!!");
                 }
-                //store bankaccount
 
                 request.Status = WithdrawRequestStatus.Processing;
                 await _unitOfWork.CommitAsync();
-                return ResultDTO<ProcessingWithdrawRequest>.Success(new ProcessingWithdrawRequest { projectBankAccount = project.BankAccount }, "please transfer money into this bank account");
+                return ResultDTO<ProcessingWithdrawRequest>.Success(new ProcessingWithdrawRequest { projectBankAccount = project.BankAccount, BackerName = project.ProjectOwner?.AccountName }, "please transfer money into this bank account");
 
             }
             catch (Exception ex)
@@ -118,12 +133,31 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
-        public async Task<List<WithdrawRequest>> getAllRequest()
+        public async Task<ResultDTO<List<DetailWithdraw>>> getAllRequest()
         {
             try
             {
-                var list = await _unitOfWork.WithdrawRepository.GetAllAsync();
-                return list.ToList();
+                var withdrawRequests = await _unitOfWork.WithdrawRepository.GetAllAsync();
+                var detailWithdrawList = new List<DetailWithdraw>();
+
+                foreach (var withdrawRequest in withdrawRequests)
+                {
+                    // Assuming you have methods to get BankAccount and backerName based on withdrawRequest
+                    var wallet = await _unitOfWork.WalletRepository.GetByIdAsync(withdrawRequest.WalletId);
+                    var bankAccount = await _unitOfWork.BankAccountRepository.GetByIdAsync(wallet.BankAccountId);
+                    var BackerName = await _unitOfWork.UserRepository.GetByIdAsync(wallet.BackerId);
+
+                    var detailWithdraw = new DetailWithdraw
+                    {
+                        WithdrawRequest = withdrawRequest,
+                        BankAccount = bankAccount,
+                        backerName = BackerName.AccountName.ToString(),
+                    };
+
+                    detailWithdrawList.Add(detailWithdraw);
+                   
+                }
+                return ResultDTO<List<DetailWithdraw>>.Success(detailWithdrawList, "List Request");
             }
             catch (Exception ex)
             {
@@ -152,7 +186,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<WithdrawRequest>.Fail("request Failed: request status is processing");
                 }
-                project.ProjectBalance -= request.Amount;
+                //project.ProjectBalance -= request.Amount;
                 request.Status = WithdrawRequestStatus.Successful;
                 request.IsFinished = true;
 
@@ -181,17 +215,17 @@ namespace FPTU_Starter.Application.Services
         {
             try
             {
-                var user = _userManagementService.GetUserInfo().Result;
+                var user = await _userManagementService.GetUserInfo();
                 ApplicationUser exitUser = _mapper.Map<ApplicationUser>(user._data);
-                var userWallet = await _walletService.GetUserWallet();
+                var userWallet = _unitOfWork.WalletRepository.Get(x => x.BackerId.Equals(exitUser.Id));
 
-                //check user
+                // Check user
                 if (user is null)
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("User is null");
                 }
 
-                //check user wallet
+                // Check user wallet
                 if (userWallet is null)
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("User wallet is null");
@@ -201,55 +235,59 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("Amount not valid");
                 }
-                //transferMoney Backer => Admin
-                var transfer = await _walletService.TransferMoney(new ViewModel.TransferDTO.TransferRequest
-                {
-                    Amount = request.Amount,
-                    DestinationWalletID = Guid.Parse("285EADB4-AF27-4029-AD1E-2958F0EC0878"),
-                    SourceWalletID = userWallet._data.Id
-                });
-                //create new Transaction
+
+
+                // Deduct amount from user wallet
+                userWallet.Balance -= request.Amount;
+                Wallet walletParse = _mapper.Map<Wallet>(userWallet);
+                _unitOfWork.WalletRepository.Update(walletParse);
+
+                // Create new Transaction
                 Transaction transaction = new Transaction
                 {
                     Id = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
-                    Description = $"{exitUser.Name} has just transfer {request.Amount} to ADMIN",
+                    Description = $"{exitUser.Name} has just transferred {request.Amount} to ADMIN",
                     TotalAmount = request.Amount,
                     TransactionType = TransactionTypes.Withdraw,
-                    WalletId = userWallet._data.Id,
+                    WalletId = userWallet.Id,
                 };
                 await _unitOfWork.TransactionRepository.AddAsync(transaction);
 
-                // Create new request
+                // Create new withdraw request
                 WithdrawRequest newRequest = new WithdrawRequest
                 {
                     Id = Guid.NewGuid(),
-                    WalletId = userWallet._data.Id,
+                    WalletId = userWallet.Id,
                     IsFinished = false,
                     Amount = request.Amount,
                     Status = Domain.Enum.WithdrawRequestStatus.Pending,
                     CreatedDate = DateTime.UtcNow,
                     ExpiredDate = DateTime.UtcNow.AddDays(EXPIRED_DATE),
                     RequestType = TransactionTypes.Withdraw,
-                    
                 };
                 await _unitOfWork.WithdrawRepository.AddAsync(newRequest);
-                //commit database
-                await _unitOfWork.CommitAsync();
+                //bankAccount 
+                BankAccount bank = _mapper.Map<BankAccount>(request.bankAccountRequest);
+                bank.Id = userWallet.BankAccountId;
+                _unitOfWork.BankAccountRepository.Update(bank);
 
+                // Commit database
+                await _unitOfWork.CommitAsync();
                 WithdrawWalletResponse response = new WithdrawWalletResponse
                 {
                     Amount = request.Amount,
-                    WalletId = userWallet._data.Id,
+                    WalletId = userWallet.Id,
+                    BankAccount = bank,
                 };
-                return ResultDTO<WithdrawWalletResponse>.Success(response, "successfully create withdraw request, please wait for admin to approved");
-
+                return ResultDTO<WithdrawWalletResponse>.Success(response, "Successfully created withdraw request, please wait for admin approval.");
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
             }
         }
+
 
         public async Task<ResultDTO<WithdrawWalletResponse>> AdminApprovedWithdrawWalletRequest(Guid requestId)
         {
@@ -261,32 +299,23 @@ namespace FPTU_Starter.Application.Services
                 if (request == null)
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("wrong request !!!");
-                }               
+                }
+                if (!request.Status.Equals(WithdrawRequestStatus.Processing))
+                {
+                    return ResultDTO<WithdrawWalletResponse>.Fail("request has not been processing !!");
+                }
                 if (request.IsFinished)
                 {
                     return ResultDTO<WithdrawWalletResponse>.Fail("request has already done !!");
                 }
-                var userWallet = await _walletService.GetUserWallet(); //admin wallet
-                if (userWallet is null)
-                {
-                    return ResultDTO<WithdrawWalletResponse>.Fail("admin wallet is null");
-                }
-                if (userWallet._data.Balance <= request.Amount)
-                {
-                    return ResultDTO<WithdrawWalletResponse>.Fail("admin wallet dont have enough money to transfer");
-                }
+
                 if (request.ExpiredDate < DateTime.Now)
                 {
                     if (request.Status.Equals(WithdrawRequestStatus.Rejected))
                     {
                         return ResultDTO<WithdrawWalletResponse>.Fail("This Request is Rejected already!!");
                     }
-                    var transfer = await _walletService.TransferMoney(new ViewModel.TransferDTO.TransferRequest
-                    {
-                        Amount = request.Amount,
-                        DestinationWalletID = userWallet._data.Id, //admin wallet
-                        SourceWalletID = request.WalletId
-                    });
+
                     //create new Transaction
                     Transaction TerminatedTransaction = new Transaction
                     {
@@ -301,12 +330,9 @@ namespace FPTU_Starter.Application.Services
                     await _unitOfWork.CommitAsync();
                     return ResultDTO<WithdrawWalletResponse>.Fail("This Request is expired!!");
                 }
+
                 request.Status = WithdrawRequestStatus.Successful;
                 request.IsFinished = true;
-                
-                var adminWallet = await _unitOfWork.WalletRepository.GetByIdAsync(userWallet._data.Id);
-                adminWallet.Balance -= request.Amount;
-                _unitOfWork.WalletRepository.Update(adminWallet);
 
                 //transaction 
                 Transaction transaction = new Transaction
@@ -322,6 +348,168 @@ namespace FPTU_Starter.Application.Services
                 //commit
                 await _unitOfWork.CommitAsync();
                 return ResultDTO<WithdrawWalletResponse>.Success(new WithdrawWalletResponse { WalletId = request.WalletId, Amount = request.Amount }, "Your request has been updated to successfull");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<ResultDTO<WithdrawDetailResponse>> WithdrawRequestDetail(Guid RequestId)
+        {
+            try
+            {
+                //get request withdrawRequest
+                var request = await _unitOfWork.WithdrawRepository.GetByIdAsync(RequestId);
+                //check null 
+                if (request == null)
+                {
+                    return ResultDTO<WithdrawDetailResponse>.Fail("wrong request !!!");
+                }
+
+                //check date expired
+                if (request.ExpiredDate < DateTime.Now)
+                {
+                    return ResultDTO<WithdrawDetailResponse>.Fail("expired!!!");
+                }
+                //bank
+                var wallet = await _unitOfWork.WalletRepository.GetByIdAsync(request.WalletId);
+                if (wallet is null)
+                {
+                    return ResultDTO<WithdrawDetailResponse>.Fail("Không tìm thấy ví");
+                }
+                var bankAcc = await _unitOfWork.BankAccountRepository.GetByIdAsync(wallet.BankAccountId);
+                if (bankAcc is null)
+                {
+                    return ResultDTO<WithdrawDetailResponse>.Fail("Không tìm thấy Bank");
+                }
+                // backer name 
+                var BackerName = await _unitOfWork.UserRepository.GetByIdAsync(wallet.BackerId);
+                if (BackerName is null)
+                {
+                    return ResultDTO<WithdrawDetailResponse>.Fail("Không tìm thấy tên của Backer");
+                }
+                request.Status = WithdrawRequestStatus.Processing;
+                await _unitOfWork.CommitAsync();
+                return ResultDTO<WithdrawDetailResponse>.Success(new WithdrawDetailResponse { bankAcoount = bankAcc, BackerName = BackerName.AccountName }, "please transfer money into this bank account");
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<ResultDTO<WithdrawRequest>> RejectProcessingRequestWallet(Guid requestId)
+        {
+            try
+            {
+                //get request withdrawRequest
+                var request = await _unitOfWork.WithdrawRepository.GetByIdAsync(requestId);
+                //check null 
+                if (request == null)
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("wrong request !!!");
+                }
+                if (!request.Status.Equals(WithdrawRequestStatus.Processing) && !request.Status.Equals(WithdrawRequestStatus.Pending))
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("request has not been processing !!");
+                }
+                if (request.IsFinished)
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("request has already done !!");
+                }
+
+                if (request.Status.Equals(WithdrawRequestStatus.Rejected))
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("This Request is Rejected already!!");
+                }
+                //TransferMoney
+                var getWallet = await _unitOfWork.WalletRepository.GetAsync(x => x.Id.Equals(request.WalletId));
+                if (getWallet == null)
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("This Wallet is Null already!!");
+                }
+                getWallet.Balance += request.Amount;
+                _unitOfWork.WalletRepository.Update(getWallet);
+
+                //create new Transaction
+                Transaction TerminatedTransaction = new Transaction
+                {
+                    Id = Guid.NewGuid(),
+                    CreateDate = DateTime.Now,
+                    Description = $"Your request expried, transfer money {request.Amount} back to wallet {request.WalletId}",
+                    TotalAmount = request.Amount,
+                    TransactionType = TransactionTypes.Refund,
+                    WalletId = request.WalletId,
+                };
+
+                //Rejected
+                request.Status = WithdrawRequestStatus.Rejected;
+                await _unitOfWork.TransactionRepository.AddAsync(TerminatedTransaction);
+
+                //commit
+                await _unitOfWork.CommitAsync();
+                return ResultDTO<WithdrawRequest>.Success(new WithdrawRequest { WalletId = request.WalletId, Amount = request.Amount }, "Your request has been updated to Rejected");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<ResultDTO<WithdrawRequest>> RejectProcessingRequestProject(Guid requestId)
+        {
+            try
+            {
+                //get request withdrawRequest
+                var request = await _unitOfWork.WithdrawRepository.GetByIdAsync(requestId);
+                //check null 
+                if (request == null)
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("wrong request !!!");
+                }
+                if (!request.Status.Equals(WithdrawRequestStatus.Processing) || !request.Status.Equals(WithdrawRequestStatus.Pending))
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("request has not been processing !!");
+                }
+                if (request.IsFinished)
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("request has already done !!");
+                }
+
+                if (request.Status.Equals(WithdrawRequestStatus.Rejected))
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("This Request is Rejected already!!");
+                }
+
+                //TransferMoney
+                var getWallet = await _unitOfWork.ProjectRepository.GetAsync(x => x.Id.Equals(request.ProjectId));
+                if (getWallet == null)
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("This Wallet is Null already!!");
+                }
+                getWallet.ProjectBalance += request.Amount;
+                _unitOfWork.ProjectRepository.Update(getWallet);
+
+                //create new Transaction
+                Transaction TerminatedTransaction = new Transaction
+                {
+                    Id = Guid.NewGuid(),
+                    CreateDate = DateTime.Now,
+                    Description = $"Your request expried, transfer money {request.Amount} back to Project {request.WalletId}",
+                    TotalAmount = request.Amount,
+                    TransactionType = TransactionTypes.Refund,
+                    WalletId = request.WalletId,
+                };
+
+                //Rejected
+                request.Status = WithdrawRequestStatus.Rejected;
+                await _unitOfWork.TransactionRepository.AddAsync(TerminatedTransaction);
+
+                //commit
+                await _unitOfWork.CommitAsync();
+                return ResultDTO<WithdrawRequest>.Success(new WithdrawRequest { WalletId = request.WalletId, Amount = request.Amount }, "Your request has been updated to Rejected");
             }
             catch (Exception ex)
             {

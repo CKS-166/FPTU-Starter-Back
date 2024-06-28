@@ -1,4 +1,5 @@
-﻿using FPTU_Starter.Application.ViewModel.TransactionDTO;
+﻿using FPTU_Starter.Application.ViewModel.BankAccountDTO;
+using FPTU_Starter.Application.ViewModel.TransactionDTO;
 using FPTU_Starter.Application.ViewModel.WithdrawReqDTO;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace FPTU_Starter.Application.ViewModel.WalletDTO
 
         public List<TransactionInfoResponse> Transactions { get; set; }
         public List<WithdrawReqResponse> WithdrawRequests { get; set; }
+        public BankAccountResponse BankAccount { get; set; }
 
     }
 }

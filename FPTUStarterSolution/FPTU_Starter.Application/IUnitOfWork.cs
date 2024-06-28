@@ -20,7 +20,8 @@ namespace FPTU_Starter.Application
         IAboutUsRepository AboutUsRepository { get; }
         IWithdrawRepository WithdrawRepository { get; }
         IStageRepository StageRepository { get; }
-
+        ISystemWalletRepository SystemWalletRepository { get; }
+        IBankAccountRepository BankAccountRepository { get; }
         void Commit();
         void Rollback();
         Task CommitAsync();

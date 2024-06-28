@@ -7,9 +7,10 @@ namespace FPTU_Starter.Application.Services.IService
     {
         Task<ResultDTO<UserInfoResponse>> GetUserInfo();
         Task<ResultDTO<string>> UpdateUser(UserUpdateRequest userUpdateRequest);
-        Task<bool> CheckIfUserExistByEmail(string email);
+        Task<(bool Exists, string Provider)> CheckIfUserExistByEmail(string email);
         Task<ResultDTO<UserInfoResponse>> GetUserInfoById(Guid id);
         Task<ResultDTO<List<UserInfoResponse>>> GetAllUsers(string? search, string? roleName);
         Task<ResultDTO<string>> UpdatePassword(string newPassword, string confirmPassword, string userEmail);
+        Task<ResultDTO<UserInfoResponse>> GetUserInfoByEmail(string email);
     }
 }

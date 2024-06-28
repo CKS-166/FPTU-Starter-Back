@@ -10,7 +10,7 @@ namespace FPTU_Starter.Application.ViewModel.BankAccountDTO
     {
         public Guid Id { get; set; }
         public string? OwnerName { get; set; }
-        public int BankAccountNumber { get; set; }
-        public string? BankAccountName { get; }
+        public string BankAccountNumber { get; set; }
+        public string? BankAccountName { get; set; }
     }
 }

@@ -114,6 +114,9 @@ namespace FPTU_Starter.Infrastructure.Dependecy_Injection
             service.AddScoped<IRewardItemRepository, RewardItemRepository>();
             service.AddScoped<IWithdrawRepository, WithdrawRepository>();
             service.AddScoped<IWithdrawService, WithdrawService>();
+            service.AddScoped<ISystemWalletRepository,SystemWalletRepository>();
+            service.AddScoped<ISystemWalletService,SystemWalletService>();
+            service.AddScoped<IBankAccountRepository,BankAccountRepository>();
             service.AddHostedService<WorkerService>();
             return service;
         }

@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace FPTU_Starter.Application.ViewModel.WithdrawReqDTO
 {
-    public class ProcessingWithdrawRequest
+    public class WithdrawDetailResponse
     {
-        public BankAccount? projectBankAccount {  get; set; }
+        public BankAccount? bankAcoount {get; set;}
+        public string? BackerName { get; set; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using FPTU_Starter.Application.ViewModel.BankAccountDTO;
-using FPTU_Starter.Domain.Entity;
+﻿using FPTU_Starter.Domain.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace FPTU_Starter.Application.ViewModel.WithdrawReqDTO
 {
-    public class WithdrawWalletResponse
+    public class DetailWithdraw
     {
-        public Guid WalletId { get; set; }
-        public decimal Amount { get; set; }
+        public WithdrawRequest? WithdrawRequest { get; set; }
+        public string? backerName { get; set; }
         public BankAccount? BankAccount { get; set; }
+        
     }
 }
