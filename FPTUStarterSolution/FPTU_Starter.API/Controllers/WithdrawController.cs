@@ -84,5 +84,17 @@ namespace FPTU_Starter.API.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = Role.Admin)]
+        [HttpPost("admin-withdraw-wallet-processing")]
+        public async Task<IActionResult> WithdrawRequestDetail([FromForm] Guid requestId)
+        {
+            var result = await _withdrawService.WithdrawRequestDetail(requestId);
+            if (!result._isSuccess)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
     }
 }
