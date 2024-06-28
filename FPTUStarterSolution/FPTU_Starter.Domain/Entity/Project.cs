@@ -13,7 +13,6 @@ namespace FPTU_Starter.Domain.Entity
     {
         public Project()
         {
-
             Packages = new HashSet<ProjectPackage>();
         }
         [Key]

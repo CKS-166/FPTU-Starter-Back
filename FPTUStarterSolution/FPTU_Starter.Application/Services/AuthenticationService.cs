@@ -86,10 +86,17 @@ namespace FPTU_Starter.Application.Services
 
                 if (getUser is null || !await _userManager.CheckPasswordAsync(getUser, loginDTO.Password))
                     return ResultDTO<ResponseToken>.Fail("Email hoặc mật khẩu không đúng");
+                if (getUser.EmailConfirmed == false)
+                {
+                    var emailToken = await _userManager.GenerateTwoFactorTokenAsync(getUser, "Email");
+                    var mess = new Message(new string[] { getUser.Email! }, "OTP Verification", emailToken);
+                    _emailService.SendEmail(mess);
+                    return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = $"OTP have been sent to your email {getUser.Email}" }, "otp_sent");
+                }
 
                 var userRole = await _userManager.GetRolesAsync(getUser);
                 var token = _tokenGenerator.GenerateToken(getUser, userRole);
-                return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = token }, "successfull create token");
+                return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = token }, "token_generated");
 
             }
             catch (Exception ex)
@@ -97,6 +104,7 @@ namespace FPTU_Starter.Application.Services
                 throw new Exception(ex.Message, ex);
             }
         }
+
 
         public async Task<ResultDTO<ResponseToken>> LoginWithOTPAsync(string code, string username)
         {
@@ -113,6 +121,13 @@ namespace FPTU_Starter.Application.Services
 
                 if (signIn)
                 {
+                    user.EmailConfirmed = true;
+                    var updateResult = await _userManager.UpdateAsync(user);
+                    if (!updateResult.Succeeded)
+                    {
+                        _logger.LogError($"Failed to update user {username}. Errors: {string.Join(", ", updateResult.Errors.Select(e => e.Description))}");
+                        return ResultDTO<ResponseToken>.Fail("Failed to update user.");
+                    }
                     var userRole = await _userManager.GetRolesAsync(user);
                     var token = _tokenGenerator.GenerateToken(user, userRole);
                     return ResultDTO<ResponseToken>.Success(new ResponseToken { Token = token }, "Successfully created token");

@@ -74,5 +74,12 @@ namespace FPTU_Starter.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("get-user-by-email")]
+        public async Task<IActionResult> GetUserInfoByEmail(string userEmail)
+        {
+            var result = await _userManagementService.GetUserInfoByEmail(userEmail);
+            return Ok(result);
+        }
     }
 }

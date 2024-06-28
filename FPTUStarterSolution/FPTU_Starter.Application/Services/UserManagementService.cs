@@ -239,5 +239,23 @@ namespace FPTU_Starter.Application.Services
                 throw new Exception(ex.Message, ex);
             }
         }
+
+        public async Task<ResultDTO<UserInfoResponse>> GetUserInfoByEmail(string email)
+        {
+            try
+            {
+                var user = await _unitOfWork.UserRepository.GetAsync(x => x.Email == email);
+                if (user is null)
+                {
+                    return ResultDTO<UserInfoResponse>.Fail("User not found.");
+                }
+                var userRes = _mapper.Map<UserInfoResponse>(user);
+                return ResultDTO<UserInfoResponse>.Success(userRes);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
     }
 }
