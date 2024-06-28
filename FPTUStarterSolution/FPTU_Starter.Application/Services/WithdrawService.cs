@@ -411,7 +411,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<WithdrawRequest>.Fail("wrong request !!!");
                 }
-                if (!request.Status.Equals(WithdrawRequestStatus.Processing) || !request.Status.Equals(WithdrawRequestStatus.Pending))
+                if (!request.Status.Equals(WithdrawRequestStatus.Processing) && !request.Status.Equals(WithdrawRequestStatus.Pending))
                 {
                     return ResultDTO<WithdrawRequest>.Fail("request has not been processing !!");
                 }
