@@ -186,7 +186,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     return ResultDTO<WithdrawRequest>.Fail("request Failed: request status is processing");
                 }
-                project.ProjectBalance -= request.Amount;
+                //project.ProjectBalance -= request.Amount;
                 request.Status = WithdrawRequestStatus.Successful;
                 request.IsFinished = true;
 
