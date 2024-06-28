@@ -133,12 +133,31 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
-        public async Task<ResultDTO<List<WithdrawRequest>>> getAllRequest()
+        public async Task<ResultDTO<List<DetailWithdraw>>> getAllRequest()
         {
             try
             {
-                var list = await _unitOfWork.WithdrawRepository.GetAllAsync();
-                return ResultDTO<List<WithdrawRequest>>.Success(list.ToList(), "List Request");
+                var withdrawRequests = await _unitOfWork.WithdrawRepository.GetAllAsync();
+                var detailWithdrawList = new List<DetailWithdraw>();
+
+                foreach (var withdrawRequest in withdrawRequests)
+                {
+                    // Assuming you have methods to get BankAccount and backerName based on withdrawRequest
+                    var wallet = await _unitOfWork.WalletRepository.GetByIdAsync(withdrawRequest.WalletId);
+                    var bankAccount = await _unitOfWork.BankAccountRepository.GetByIdAsync(wallet.BankAccountId);
+                    var BackerName = await _unitOfWork.UserRepository.GetByIdAsync(wallet.BackerId);
+
+                    var detailWithdraw = new DetailWithdraw
+                    {
+                        WithdrawRequest = withdrawRequest,
+                        BankAccount = bankAccount,
+                        backerName = BackerName.AccountName.ToString(),
+                    };
+
+                    detailWithdrawList.Add(detailWithdraw);
+                   
+                }
+                return ResultDTO<List<DetailWithdraw>>.Success(detailWithdrawList, "List Request");
             }
             catch (Exception ex)
             {
@@ -374,6 +393,123 @@ namespace FPTU_Starter.Application.Services
                 await _unitOfWork.CommitAsync();
                 return ResultDTO<WithdrawDetailResponse>.Success(new WithdrawDetailResponse { bankAcoount = bankAcc, BackerName = BackerName.AccountName }, "please transfer money into this bank account");
 
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<ResultDTO<WithdrawRequest>> RejectProcessingRequestWallet(Guid requestId)
+        {
+            try
+            {
+                //get request withdrawRequest
+                var request = await _unitOfWork.WithdrawRepository.GetByIdAsync(requestId);
+                //check null 
+                if (request == null)
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("wrong request !!!");
+                }
+                if (!request.Status.Equals(WithdrawRequestStatus.Processing) || !request.Status.Equals(WithdrawRequestStatus.Pending))
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("request has not been processing !!");
+                }
+                if (request.IsFinished)
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("request has already done !!");
+                }
+
+                if (request.Status.Equals(WithdrawRequestStatus.Rejected))
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("This Request is Rejected already!!");
+                }
+                //TransferMoney
+                var getWallet = await _unitOfWork.WalletRepository.GetAsync(x => x.Id.Equals(request.WalletId));
+                if (getWallet == null)
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("This Wallet is Null already!!");
+                }
+                getWallet.Balance += request.Amount;
+                _unitOfWork.WalletRepository.Update(getWallet);
+
+                //create new Transaction
+                Transaction TerminatedTransaction = new Transaction
+                {
+                    Id = Guid.NewGuid(),
+                    CreateDate = DateTime.Now,
+                    Description = $"Your request expried, transfer money {request.Amount} back to wallet {request.WalletId}",
+                    TotalAmount = request.Amount,
+                    TransactionType = TransactionTypes.Refund,
+                    WalletId = request.WalletId,
+                };
+
+                //Rejected
+                request.Status = WithdrawRequestStatus.Rejected;
+                await _unitOfWork.TransactionRepository.AddAsync(TerminatedTransaction);
+
+                //commit
+                await _unitOfWork.CommitAsync();
+                return ResultDTO<WithdrawRequest>.Success(new WithdrawRequest { WalletId = request.WalletId, Amount = request.Amount }, "Your request has been updated to Rejected");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<ResultDTO<WithdrawRequest>> RejectProcessingRequestProject(Guid requestId)
+        {
+            try
+            {
+                //get request withdrawRequest
+                var request = await _unitOfWork.WithdrawRepository.GetByIdAsync(requestId);
+                //check null 
+                if (request == null)
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("wrong request !!!");
+                }
+                if (!request.Status.Equals(WithdrawRequestStatus.Processing) || !request.Status.Equals(WithdrawRequestStatus.Pending))
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("request has not been processing !!");
+                }
+                if (request.IsFinished)
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("request has already done !!");
+                }
+
+                if (request.Status.Equals(WithdrawRequestStatus.Rejected))
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("This Request is Rejected already!!");
+                }
+
+                //TransferMoney
+                var getWallet = await _unitOfWork.ProjectRepository.GetAsync(x => x.Id.Equals(request.ProjectId));
+                if (getWallet == null)
+                {
+                    return ResultDTO<WithdrawRequest>.Fail("This Wallet is Null already!!");
+                }
+                getWallet.ProjectBalance += request.Amount;
+                _unitOfWork.ProjectRepository.Update(getWallet);
+
+                //create new Transaction
+                Transaction TerminatedTransaction = new Transaction
+                {
+                    Id = Guid.NewGuid(),
+                    CreateDate = DateTime.Now,
+                    Description = $"Your request expried, transfer money {request.Amount} back to Project {request.WalletId}",
+                    TotalAmount = request.Amount,
+                    TransactionType = TransactionTypes.Refund,
+                    WalletId = request.WalletId,
+                };
+
+                //Rejected
+                request.Status = WithdrawRequestStatus.Rejected;
+                await _unitOfWork.TransactionRepository.AddAsync(TerminatedTransaction);
+
+                //commit
+                await _unitOfWork.CommitAsync();
+                return ResultDTO<WithdrawRequest>.Success(new WithdrawRequest { WalletId = request.WalletId, Amount = request.Amount }, "Your request has been updated to Rejected");
             }
             catch (Exception ex)
             {
