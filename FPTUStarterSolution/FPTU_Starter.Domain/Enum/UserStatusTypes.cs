@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace FPTU_Starter.Domain.Enum
 {
-    public enum Gender
+    public enum UserStatusTypes
     {
-        Nam,
-        Nữ,
-        Khác
+        ACTIVE,
+        INACTIVE
     }
 }
