@@ -38,7 +38,7 @@ namespace FPTU_Starter.Application.Services
             RoleManager<IdentityRole> roleManager,
             IEmailService.IEmailService emailService,
             ILogger<AuthenticationService> logger,
-            IGoogleService googleService ,
+            IGoogleService googleService,
             IUserManagementService userManagementService)
         {
             _unitOfWork = unitOfWork;
@@ -172,15 +172,26 @@ namespace FPTU_Starter.Application.Services
                     await _userManager.AddToRoleAsync(newUser, role);
                 }
                 //Create new Wallet for every User sign in
+                BankAccount bankAccount = new BankAccount
+                {
+                    Id = Guid.NewGuid(),
+                    BankAccountName = string.Empty,
+                    BankAccountNumber = string.Empty,
+                    OwnerName = null,
+
+                };
                 var wallet = new Wallet
                 {
                     Id = Guid.NewGuid(),
                     Balance = 0,
                     Backer = newUser,
                     BackerId = newUser.Id,
-
+                    BankAccountId = bankAccount.Id,
+                    BankAccount = bankAccount,
                 };
+                await _unitOfWork.BankAccountRepository.AddAsync(bankAccount);
                 await _unitOfWork.WalletRepository.AddAsync(wallet);
+
 
                 // Optionally commit the changes if using a unit of work pattern
                 await _unitOfWork.CommitAsync();
@@ -312,7 +323,8 @@ namespace FPTU_Starter.Application.Services
                         return ResultDTO<string>.Fail($"Lỗi xảy ra, vui lòng thử lại sau");
                     }
                 }
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return ResultDTO<string>.Fail($"An error occurred: {ex.Message}");
             }

@@ -248,6 +248,10 @@ namespace FPTU_Starter.Application.Services
                     RequestType = TransactionTypes.Withdraw,
                 };
                 await _unitOfWork.WithdrawRepository.AddAsync(newRequest);
+                //bankAccount 
+                BankAccount bank = _mapper.Map<BankAccount>(request.bankAccountRequest);
+                bank.Id = userWallet.BankAccountId;
+                 _unitOfWork.BankAccountRepository.Update(bank);
 
                 // Commit database
                 await _unitOfWork.CommitAsync();
@@ -255,6 +259,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     Amount = request.Amount,
                     WalletId = userWallet.Id,
+                    BankAccount = bank,
                 };
                 return ResultDTO<WithdrawWalletResponse>.Success(response, "Successfully created withdraw request, please wait for admin approval.");
             }
