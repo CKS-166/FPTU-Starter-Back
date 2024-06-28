@@ -11,5 +11,6 @@ namespace FPTU_Starter.Application.Services.IService
         Task<ResultDTO<UserInfoResponse>> GetUserInfoById(Guid id);
         Task<ResultDTO<List<UserInfoResponse>>> GetAllUsers(string? search, string? roleName);
         Task<ResultDTO<string>> UpdatePassword(string newPassword, string confirmPassword, string userEmail);
+        Task<ResultDTO<UserInfoResponse>> GetUserInfoByEmail(string email);
     }
 }
