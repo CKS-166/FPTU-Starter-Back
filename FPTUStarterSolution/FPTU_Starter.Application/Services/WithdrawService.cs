@@ -47,23 +47,23 @@ namespace FPTU_Starter.Application.Services
                 //check user
                 if (user is null)
                 {
-                    return ResultDTO<WithdrawReqResponse>.Fail("User is null");
+                    return ResultDTO<WithdrawReqResponse>.Fail("không tìm thấy user");
                 }
                 //check project
                 if (project is null)
                 {
-                    return ResultDTO<WithdrawReqResponse>.Fail("Project cannot be found");
+                    return ResultDTO<WithdrawReqResponse>.Fail("Không tìm thấy project");
                 }
                 //check user wallet
                 if (userWallet is null)
                 {
-                    return ResultDTO<WithdrawReqResponse>.Fail("User wallet is null");
+                    return ResultDTO<WithdrawReqResponse>.Fail("không tìm thấy ví của user này");
                 }
                 //check project status 
                 if (!project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Successful)
                     && !project.ProjectStatus.Equals(ProjectEnum.ProjectStatus.Withdrawed))
                 {
-                    return ResultDTO<WithdrawReqResponse>.Fail("Project is not avaliable");
+                    return ResultDTO<WithdrawReqResponse>.Fail("Trạng thái của project không hợp lệ");
                 }
                 // Create new request
                 WithdrawRequest request = new WithdrawRequest();
@@ -92,7 +92,7 @@ namespace FPTU_Starter.Application.Services
                 await _unitOfWork.CommitAsync();
 
                 WithdrawReqResponse response = _mapper.Map<WithdrawReqResponse>(request);
-                return ResultDTO<WithdrawReqResponse>.Success(response, "successfully create withdraw request, please wait for admin to approved");
+                return ResultDTO<WithdrawReqResponse>.Success(response, "Thành công tạo lệnh rút tiền, chờ admin duyệt ...");
             }
             catch (Exception ex)
             {
@@ -157,7 +157,7 @@ namespace FPTU_Starter.Application.Services
                     detailWithdrawList.Add(detailWithdraw);
                    
                 }
-                return ResultDTO<List<DetailWithdraw>>.Success(detailWithdrawList, "List Request");
+                return ResultDTO<List<DetailWithdraw>>.Success(detailWithdrawList, "danh sách các lệnh rút");
             }
             catch (Exception ex)
             {
@@ -174,17 +174,17 @@ namespace FPTU_Starter.Application.Services
                 //check null 
                 if (request == null)
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("wrong request !!!");
+                    return ResultDTO<WithdrawRequest>.Fail("không tìm thấy lệnh rút");
                 }
                 //get project 
                 var project = await _unitOfWork.ProjectRepository.GetAsync(x => x.Id.Equals(request.ProjectId));
                 if (request.IsFinished)
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("request has already done !!");
+                    return ResultDTO<WithdrawRequest>.Fail("lệnh rút đã được thực thi trước đó, lỗi");
                 }
                 if (!request.Status.Equals(WithdrawRequestStatus.Processing))
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("request Failed: request status is processing");
+                    return ResultDTO<WithdrawRequest>.Fail("lệnh rút không đúng trạng thái");
                 }
                 //project.ProjectBalance -= request.Amount;
                 request.Status = WithdrawRequestStatus.Successful;
@@ -195,7 +195,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     Id = Guid.NewGuid(),
                     CreateDate = DateTime.UtcNow,
-                    Description = $"project {project.ProjectName} has bean CASH OUT with amount: {request.Amount}",
+                    Description = $"project {project.ProjectName} đã được CASHOUT với số tiền: {request.Amount}",
                     TotalAmount = request.Amount,
                     TransactionType = TransactionTypes.CashOut,
                     WalletId = request.WalletId,
@@ -203,7 +203,7 @@ namespace FPTU_Starter.Application.Services
                 await _unitOfWork.TransactionRepository.AddAsync(transaction);
                 //commit
                 await _unitOfWork.CommitAsync();
-                return ResultDTO<WithdrawRequest>.Success(request, "Your request has been updated to successfull");
+                return ResultDTO<WithdrawRequest>.Success(request, "tạo lệnh thành công");
             }
             catch (Exception ex)
             {
@@ -222,18 +222,18 @@ namespace FPTU_Starter.Application.Services
                 // Check user
                 if (user is null)
                 {
-                    return ResultDTO<WithdrawWalletResponse>.Fail("User is null");
+                    return ResultDTO<WithdrawWalletResponse>.Fail("Không tìm thấy user này");
                 }
 
                 // Check user wallet
                 if (userWallet is null)
                 {
-                    return ResultDTO<WithdrawWalletResponse>.Fail("User wallet is null");
+                    return ResultDTO<WithdrawWalletResponse>.Fail("Khôgn tìm thấy ví");
                 }
                 var isEnough = await _walletService.CheckAccoutBallance(request.Amount);
                 if (!isEnough._data)
                 {
-                    return ResultDTO<WithdrawWalletResponse>.Fail("Amount not valid");
+                    return ResultDTO<WithdrawWalletResponse>.Fail("Số tiền không hợp lệ ");
                 }
 
 
@@ -247,7 +247,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     Id = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
-                    Description = $"{exitUser.Name} has just transferred {request.Amount} to ADMIN",
+                    Description = $"{exitUser.Name} vừa chuyển số tiền {request.Amount} cho ADMIN",
                     TotalAmount = request.Amount,
                     TransactionType = TransactionTypes.Withdraw,
                     WalletId = userWallet.Id,
@@ -280,7 +280,7 @@ namespace FPTU_Starter.Application.Services
                     WalletId = userWallet.Id,
                     BankAccount = bank,
                 };
-                return ResultDTO<WithdrawWalletResponse>.Success(response, "Successfully created withdraw request, please wait for admin approval.");
+                return ResultDTO<WithdrawWalletResponse>.Success(response, "tạo lệnh thành công, hãy đợi admin phê duyệt");
             }
             catch (Exception ex)
             {
@@ -298,22 +298,22 @@ namespace FPTU_Starter.Application.Services
                 //check null 
                 if (request == null)
                 {
-                    return ResultDTO<WithdrawWalletResponse>.Fail("wrong request !!!");
+                    return ResultDTO<WithdrawWalletResponse>.Fail("không tìm thấy lệnh");
                 }
                 if (!request.Status.Equals(WithdrawRequestStatus.Processing))
                 {
-                    return ResultDTO<WithdrawWalletResponse>.Fail("request has not been processing !!");
+                    return ResultDTO<WithdrawWalletResponse>.Fail("lệnh không trong trạng thái PROCESSING");
                 }
                 if (request.IsFinished)
                 {
-                    return ResultDTO<WithdrawWalletResponse>.Fail("request has already done !!");
+                    return ResultDTO<WithdrawWalletResponse>.Fail("không thể tạo lại Lệnh đã được hoàn thành trước đó");
                 }
 
                 if (request.ExpiredDate < DateTime.Now)
                 {
                     if (request.Status.Equals(WithdrawRequestStatus.Rejected))
                     {
-                        return ResultDTO<WithdrawWalletResponse>.Fail("This Request is Rejected already!!");
+                        return ResultDTO<WithdrawWalletResponse>.Fail("Lệnh này đã bị REJECTED, không thể rút");
                     }
 
                     //create new Transaction
@@ -321,14 +321,14 @@ namespace FPTU_Starter.Application.Services
                     {
                         Id = Guid.NewGuid(),
                         CreateDate = DateTime.Now,
-                        Description = $"Your request expried, transfer money {request.Amount} back to wallet {request.WalletId}",
+                        Description = $"Lệnh rút của bạn đã quá hạn, số tiền: {request.Amount} sẽ được chuyển lại vào ví {request.WalletId}",
                         TotalAmount = request.Amount,
                         TransactionType = TransactionTypes.Refund,
                         WalletId = request.WalletId,
                     };
                     request.Status = WithdrawRequestStatus.Rejected;
                     await _unitOfWork.CommitAsync();
-                    return ResultDTO<WithdrawWalletResponse>.Fail("This Request is expired!!");
+                    return ResultDTO<WithdrawWalletResponse>.Fail("lệnh này đã bị huỷ");
                 }
 
                 request.Status = WithdrawRequestStatus.Successful;
@@ -339,7 +339,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     Id = Guid.NewGuid(),
                     CreateDate = DateTime.UtcNow,
-                    Description = $"wallet {request.WalletId} has bean WithDraw with amount: {request.Amount}",
+                    Description = $"Ví {request.WalletId} đã được WITHDRAW với số tiền {request.Amount}",
                     TotalAmount = request.Amount,
                     TransactionType = TransactionTypes.Withdraw,
                     WalletId = request.WalletId,
@@ -347,7 +347,7 @@ namespace FPTU_Starter.Application.Services
                 await _unitOfWork.TransactionRepository.AddAsync(transaction);
                 //commit
                 await _unitOfWork.CommitAsync();
-                return ResultDTO<WithdrawWalletResponse>.Success(new WithdrawWalletResponse { WalletId = request.WalletId, Amount = request.Amount }, "Your request has been updated to successfull");
+                return ResultDTO<WithdrawWalletResponse>.Success(new WithdrawWalletResponse { WalletId = request.WalletId, Amount = request.Amount }, "Lệnh rút của bạn thành công");
             }
             catch (Exception ex)
             {
@@ -364,13 +364,13 @@ namespace FPTU_Starter.Application.Services
                 //check null 
                 if (request == null)
                 {
-                    return ResultDTO<WithdrawDetailResponse>.Fail("wrong request !!!");
+                    return ResultDTO<WithdrawDetailResponse>.Fail("lệnh sai");
                 }
 
                 //check date expired
                 if (request.ExpiredDate < DateTime.Now)
                 {
-                    return ResultDTO<WithdrawDetailResponse>.Fail("expired!!!");
+                    return ResultDTO<WithdrawDetailResponse>.Fail("quá hạn");
                 }
                 //bank
                 var wallet = await _unitOfWork.WalletRepository.GetByIdAsync(request.WalletId);
@@ -391,7 +391,7 @@ namespace FPTU_Starter.Application.Services
                 }
                 request.Status = WithdrawRequestStatus.Processing;
                 await _unitOfWork.CommitAsync();
-                return ResultDTO<WithdrawDetailResponse>.Success(new WithdrawDetailResponse { bankAcoount = bankAcc, BackerName = BackerName.AccountName }, "please transfer money into this bank account");
+                return ResultDTO<WithdrawDetailResponse>.Success(new WithdrawDetailResponse { bankAcoount = bankAcc, BackerName = BackerName.AccountName }, "Xin hãy chuyển vào tài khoản này");
 
             }
             catch (Exception ex)
@@ -409,26 +409,26 @@ namespace FPTU_Starter.Application.Services
                 //check null 
                 if (request == null)
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("wrong request !!!");
+                    return ResultDTO<WithdrawRequest>.Fail("Không tìm thấy Lệnh");
                 }
                 if (!request.Status.Equals(WithdrawRequestStatus.Processing) && !request.Status.Equals(WithdrawRequestStatus.Pending))
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("request has not been processing !!");
+                    return ResultDTO<WithdrawRequest>.Fail("Trạng thái không đúng processing/pending !!");
                 }
                 if (request.IsFinished)
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("request has already done !!");
+                    return ResultDTO<WithdrawRequest>.Fail("không thể tạo lệnh đã được làm !!");
                 }
 
                 if (request.Status.Equals(WithdrawRequestStatus.Rejected))
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("This Request is Rejected already!!");
+                    return ResultDTO<WithdrawRequest>.Fail("Lệnh đã bị Từ chối");
                 }
                 //TransferMoney
                 var getWallet = await _unitOfWork.WalletRepository.GetAsync(x => x.Id.Equals(request.WalletId));
                 if (getWallet == null)
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("This Wallet is Null already!!");
+                    return ResultDTO<WithdrawRequest>.Fail("Ví không tìm thấy");
                 }
                 getWallet.Balance += request.Amount;
                 _unitOfWork.WalletRepository.Update(getWallet);
@@ -438,7 +438,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     Id = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
-                    Description = $"Your request expried, transfer money {request.Amount} back to wallet {request.WalletId}",
+                    Description = $"Lệnh của bạn đã hết hạn, số tiền {request.Amount} sẽ được hoàn lại vào ví {request.WalletId}",
                     TotalAmount = request.Amount,
                     TransactionType = TransactionTypes.Refund,
                     WalletId = request.WalletId,
@@ -450,7 +450,7 @@ namespace FPTU_Starter.Application.Services
 
                 //commit
                 await _unitOfWork.CommitAsync();
-                return ResultDTO<WithdrawRequest>.Success(new WithdrawRequest { WalletId = request.WalletId, Amount = request.Amount }, "Your request has been updated to Rejected");
+                return ResultDTO<WithdrawRequest>.Success(new WithdrawRequest { WalletId = request.WalletId, Amount = request.Amount }, "Huỷ Lệnh thành công");
             }
             catch (Exception ex)
             {
@@ -467,27 +467,27 @@ namespace FPTU_Starter.Application.Services
                 //check null 
                 if (request == null)
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("wrong request !!!");
+                    return ResultDTO<WithdrawRequest>.Fail("Lệnh không tìm thấy");
                 }
                 if (!request.Status.Equals(WithdrawRequestStatus.Processing) || !request.Status.Equals(WithdrawRequestStatus.Pending))
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("request has not been processing !!");
+                    return ResultDTO<WithdrawRequest>.Fail("Trạng thái không đúng pending/processing");
                 }
                 if (request.IsFinished)
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("request has already done !!");
+                    return ResultDTO<WithdrawRequest>.Fail("");
                 }
 
                 if (request.Status.Equals(WithdrawRequestStatus.Rejected))
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("This Request is Rejected already!!");
+                    return ResultDTO<WithdrawRequest>.Fail("không thể tạo lệnh đã được làm !!");
                 }
 
                 //TransferMoney
                 var getWallet = await _unitOfWork.ProjectRepository.GetAsync(x => x.Id.Equals(request.ProjectId));
                 if (getWallet == null)
                 {
-                    return ResultDTO<WithdrawRequest>.Fail("This Wallet is Null already!!");
+                    return ResultDTO<WithdrawRequest>.Fail("Ví không tìm thấy");
                 }
                 getWallet.ProjectBalance += request.Amount;
                 _unitOfWork.ProjectRepository.Update(getWallet);
@@ -497,7 +497,7 @@ namespace FPTU_Starter.Application.Services
                 {
                     Id = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
-                    Description = $"Your request expried, transfer money {request.Amount} back to Project {request.WalletId}",
+                    Description = $"Lệnh của bạn đã hết hạn, số tiền {request.Amount} sẽ được hoàn lại vào project {getWallet.ProjectName}",
                     TotalAmount = request.Amount,
                     TransactionType = TransactionTypes.Refund,
                     WalletId = request.WalletId,
@@ -509,7 +509,7 @@ namespace FPTU_Starter.Application.Services
 
                 //commit
                 await _unitOfWork.CommitAsync();
-                return ResultDTO<WithdrawRequest>.Success(new WithdrawRequest { WalletId = request.WalletId, Amount = request.Amount }, "Your request has been updated to Rejected");
+                return ResultDTO<WithdrawRequest>.Success(new WithdrawRequest { WalletId = request.WalletId, Amount = request.Amount }, "Lệnh của bạn đã được từ chối");
             }
             catch (Exception ex)
             {
