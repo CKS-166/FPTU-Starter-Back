@@ -110,7 +110,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
             CreateMap<Wallet, WalletResponse>()
                 .ForMember(dest => dest.Transactions, opt => opt.MapFrom(src => src.Transactions))
                 .ForMember(dest => dest.WithdrawRequests, opt => opt.MapFrom(src => src.WithdrawRequests))
-                .ForMember(dest => dest.BankAccount, opt => opt.MapFrom(src => src.BankAccount))
+
                 .ReverseMap();
         }
         public void MappingTransaction()
