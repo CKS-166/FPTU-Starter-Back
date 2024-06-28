@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
+using FPTU_Starter.Application.ViewModel.BankAccountDTO;
 using FPTU_Starter.Application.ViewModel.TransferDTO;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Application.ViewModel.WalletDTO;
@@ -94,7 +95,16 @@ namespace FPTU_Starter.Application.Services
                 }
                 var walletList = await _unitOfWork.WalletRepository.GetQueryable().AsNoTracking().Include(w => w.Transactions).ToListAsync();
                 var wallet = walletList.FirstOrDefault(x => x.BackerId.Equals(userIdClaim.Value));
+                BankAccount bankAcc = _unitOfWork.BankAccountRepository.GetQueryable().FirstOrDefault(b => b.Id == wallet.BankAccountId);
                 var walletDTO = _mapper.Map<WalletResponse>(wallet);
+                BankAccountResponse bankDTO = new BankAccountResponse
+                {
+                    Id = bankAcc.Id,
+                    OwnerName = bankAcc.OwnerName,
+                    BankAccountName = bankAcc.BankAccountName,
+                    BankAccountNumber = bankAcc.BankAccountNumber
+                };
+                walletDTO.BankAccount = bankDTO;
                 return ResultDTO<WalletResponse>.Success(walletDTO);
             }
             catch (Exception e)
