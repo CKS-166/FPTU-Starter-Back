@@ -24,6 +24,30 @@ namespace FPTU_Starter.Application.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
+
+        public async Task<ResultDTO<decimal>> GetAllDonations()
+        {
+            try
+            {
+                decimal donations = 0;
+                List<Transaction> trans = _unitOfWork.TransactionRepository.GetAll().ToList();
+                foreach (Transaction transaction in trans)
+                {
+                    if (transaction.TransactionType == TransactionTypes.FreeDonation || transaction.TransactionType == TransactionTypes.PackageDonation)
+                    {
+                        donations += transaction.TotalAmount;
+                    }
+                }
+                return ResultDTO<decimal>.Success(donations);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+
         public async Task<ResultDTO<List<TransactionInfoResponse>>> GetAllTrans()
         {
             try
