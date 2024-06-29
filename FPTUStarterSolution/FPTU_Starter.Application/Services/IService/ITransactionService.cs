@@ -12,5 +12,7 @@ namespace FPTU_Starter.Application.Services.IService
     {
         public Task<ResultDTO<List<TransactionInfoResponse>>> GetAllTrans();
         public Task<ResultDTO<string>> RefundToBackers(Guid projectId);
+
+        public Task<ResultDTO<decimal>> GetAllDonations();
     }
 }

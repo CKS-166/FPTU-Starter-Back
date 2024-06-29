@@ -819,5 +819,27 @@ namespace FPTU_Starter.Application.Services
                 throw new Exception(ex.Message, ex);
             }
         }
+
+        public async Task<ResultDTO<List<ProjectSuccessRateDTO>>> GetProjectSuccessRate()
+        {
+            try
+            {
+                List<Project> allProjects = _unitOfWork.ProjectRepository.GetAll().ToList();
+                List<ProjectSuccessRateDTO> results = new List<ProjectSuccessRateDTO>();
+                foreach(Project project in allProjects)
+                {
+                    results.Add(new ProjectSuccessRateDTO
+                    {
+                        ProjectName = project.ProjectName,
+                        SuccessRate = (decimal)project.ProjectBalance / project.ProjectTarget
+                    });
+                }
+                return ResultDTO<List<ProjectSuccessRateDTO>>.Success(results);
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
     }
 }
