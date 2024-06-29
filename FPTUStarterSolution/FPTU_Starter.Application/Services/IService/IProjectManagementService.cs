@@ -32,5 +32,7 @@ namespace FPTU_Starter.Application.Services.IService
         Task<ResultDTO<bool>> CheckBackerProject(Guid projectId);
         Task<ResultDTO<List<TransactionBacker>>> GetProjectBackers(Guid projectId); 
 
+        Task<ResultDTO<List<ProjectSuccessRateDTO>>> GetProjectSuccessRate();
+
     }
 }

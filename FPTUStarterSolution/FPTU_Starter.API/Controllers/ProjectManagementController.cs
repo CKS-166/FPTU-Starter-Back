@@ -299,5 +299,18 @@ namespace FPTU_Starter.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("get-success-rate")]
+        public async Task<IActionResult> GetProjectSuccess()
+        {
+            try
+            {
+                var result = _projectService.GetProjectSuccessRate();
+                return Ok(result);
+            }
+            catch (ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
