@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace FPTU_Starter.Infrastructure.Migrations
 {
-    public partial class NewMigration : Migration
+    public partial class initalCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -36,7 +36,7 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Gender = table.Column<int>(type: "int", nullable: true),
                     DayOfBirth = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UserStatus = table.Column<bool>(type: "bit", nullable: false),
+                    UserStatus = table.Column<int>(type: "int", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -103,7 +103,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CommissionRate = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
