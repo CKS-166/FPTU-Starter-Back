@@ -1,10 +1,10 @@
-name: Build and deploy .NET Core application to Web App fptustarter-api
+name: Build and deploy .NET Core application to Web App fptu-starter-api
 on:
   push:
     branches:
     - main
 env:
-  AZURE_WEBAPP_NAME: fptustarter-api
+  AZURE_WEBAPP_NAME: fptu-starter-api
   AZURE_WEBAPP_PACKAGE_PATH: ./publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 6.0.x
@@ -44,5 +44,5 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.fptustarter_api_710C }}
+        publish-profile: ${{ secrets.fptu_starter_api_68C8 }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
