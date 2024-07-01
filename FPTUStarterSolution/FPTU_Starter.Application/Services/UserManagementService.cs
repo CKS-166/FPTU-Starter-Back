@@ -3,10 +3,12 @@ using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Domain.Entity;
+using FPTU_Starter.Domain.Enum;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace FPTU_Starter.Application.Services
@@ -255,6 +257,43 @@ namespace FPTU_Starter.Application.Services
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<ResultDTO<UserInfoResponse>> ChangeUserStatus(Guid userId)
+        {
+            try
+            {
+                var user = await GetUserInfoById(userId);
+                ApplicationUser parseUser = _mapper.Map<ApplicationUser>(user);
+                if (parseUser.UserStatus.Equals(UserStatusTypes.ACTIVE)) // ACTIVE
+                {
+                    parseUser.UserStatus = UserStatusTypes.INACTIVE;
+                    await _unitOfWork.CommitAsync();
+                    return ResultDTO<UserInfoResponse>.Success(user._data, "đổi trang thái thành INACTIVE");
+                }
+                parseUser.UserStatus = UserStatusTypes.ACTIVE;
+                await _unitOfWork.CommitAsync();
+
+                return ResultDTO<UserInfoResponse>.Success(user._data, "đổi trang thái thành ACTIVE");
+            }
+            catch (Exception ex)
+            {
+                return ResultDTO<UserInfoResponse>.Fail("Không thể đổi trạng thái user");
+            }
+        }
+
+        public async Task<ResultDTO<List<UserInfoResponse>>> FilterUserByStatus(UserStatusTypes types)
+        {
+            try
+            {
+                var getList = await _unitOfWork.UserRepository.GetAsync(x => x.UserStatus.Equals(types));
+                List<UserInfoResponse> listParse = _mapper.Map<List<UserInfoResponse>>(getList);
+                return ResultDTO<List<UserInfoResponse>>.Success(listParse.ToList(), $"danh sách trạng thái {types}" );
+            }
+            catch (Exception ex)
+            {
+                return ResultDTO<List<UserInfoResponse>>.Fail("lỗi");
             }
         }
     }

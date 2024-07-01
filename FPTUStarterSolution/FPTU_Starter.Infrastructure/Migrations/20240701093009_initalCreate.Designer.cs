@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FPTU_Starter.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240627153418_NewMigration")]
-    partial class NewMigration
+    [Migration("20240701093009_initalCreate")]
+    partial class initalCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -118,8 +118,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<bool>("UserStatus")
-                        .HasColumnType("bit");
+                    b.Property<int>("UserStatus")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -437,6 +437,9 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<float>("CommissionRate")
+                        .HasColumnType("real");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
