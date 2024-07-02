@@ -116,8 +116,8 @@ namespace FPTU_Starter.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<bool>("UserStatus")
-                        .HasColumnType("bit");
+                    b.Property<int>("UserStatus")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -435,6 +435,9 @@ namespace FPTU_Starter.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<float>("CommissionRate")
+                        .HasColumnType("real");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
