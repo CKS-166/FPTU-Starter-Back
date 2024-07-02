@@ -1,6 +1,7 @@
 ﻿using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Domain.Constrain;
+using FPTU_Starter.Domain.Enum;
 using FPTU_Starter.Infrastructure.OuterService.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -79,6 +80,29 @@ namespace FPTU_Starter.API.Controllers
         public async Task<IActionResult> GetUserInfoByEmail(string userEmail)
         {
             var result = await _userManagementService.GetUserInfoByEmail(userEmail);
+            return Ok(result);
+        }
+
+        [HttpGet("get-user-by-status")]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> GetUserStatus([FromQuery] UserStatusTypes types)
+        {
+            var result = await _userManagementService.FilterUserByStatus(types);
+            if (!result._isSuccess)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+        [HttpPatch("change-status")]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> ChangeUserStatus([FromQuery] string id)
+        {
+            var result = await _userManagementService.ChangeUserStatus(id);
+            if (!result._isSuccess)
+            {
+                return BadRequest(result);
+            }
             return Ok(result);
         }
     }
