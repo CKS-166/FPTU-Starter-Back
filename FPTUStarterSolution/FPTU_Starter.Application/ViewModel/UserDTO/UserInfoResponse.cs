@@ -19,6 +19,7 @@ namespace FPTU_Starter.Application.ViewModel.UserDTO
         public Gender? UserGender { get; set; }
         public string? UserAvatarUrl { get; set; }
         public string? UserBgAvatarUrl { get; set; }
+        public UserStatusTypes? UserStatus { get; set; }    
 
     }
 }

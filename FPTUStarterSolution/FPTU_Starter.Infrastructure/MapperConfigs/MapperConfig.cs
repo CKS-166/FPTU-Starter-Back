@@ -14,6 +14,7 @@ using FPTU_Starter.Application.ViewModel.UserDTO;
 using FPTU_Starter.Application.ViewModel.WalletDTO;
 using FPTU_Starter.Application.ViewModel.WithdrawReqDTO;
 using FPTU_Starter.Domain.Entity;
+using Microsoft.AspNetCore.Routing.Constraints;
 
 namespace FPTU_Starter.Infrastructure.MapperConfigs
 {
@@ -78,6 +79,7 @@ namespace FPTU_Starter.Infrastructure.MapperConfigs
                 .ForMember(dest => dest.UserGender, opt => opt.MapFrom(src => src.Gender))
                 .ForMember(dest => dest.UserAvatarUrl, opt => opt.MapFrom(src => src.Avatar))
                 .ForMember(dest => dest.UserBgAvatarUrl, opt => opt.MapFrom(src => src.BackgroundAvatar))
+                .ForMember(dest => dest.UserStatus, opt => opt.MapFrom(src => src.UserStatus))
                 .ReverseMap();
         }
 
