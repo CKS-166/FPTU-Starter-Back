@@ -260,40 +260,38 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
-        public async Task<ResultDTO<UserInfoResponse>> ChangeUserStatus(Guid userId)
+        public async Task<ResultDTO<ApplicationUser>> ChangeUserStatus(string userId)
         {
             try
             {
-                var user = await GetUserInfoById(userId);
-                ApplicationUser parseUser = _mapper.Map<ApplicationUser>(user);
+                ApplicationUser parseUser = await _unitOfWork.UserRepository.GetAsync(x=>x.Id.Equals(userId));
                 if (parseUser.UserStatus.Equals(UserStatusTypes.ACTIVE)) // ACTIVE
                 {
                     parseUser.UserStatus = UserStatusTypes.INACTIVE;
                     await _unitOfWork.CommitAsync();
-                    return ResultDTO<UserInfoResponse>.Success(user._data, "đổi trang thái thành INACTIVE");
+                    return ResultDTO<ApplicationUser>.Success(parseUser, "đổi trang thái thành INACTIVE");
                 }
                 parseUser.UserStatus = UserStatusTypes.ACTIVE;
                 await _unitOfWork.CommitAsync();
 
-                return ResultDTO<UserInfoResponse>.Success(user._data, "đổi trang thái thành ACTIVE");
+                return ResultDTO<ApplicationUser>.Success(parseUser, "đổi trang thái thành ACTIVE");
             }
             catch (Exception ex)
             {
-                return ResultDTO<UserInfoResponse>.Fail("Không thể đổi trạng thái user");
+                return ResultDTO<ApplicationUser>.Fail("Không thể đổi trạng thái user");
             }
         }
 
-        public async Task<ResultDTO<List<UserInfoResponse>>> FilterUserByStatus(UserStatusTypes types)
+        public async Task<ResultDTO<List<ApplicationUser>>> FilterUserByStatus(UserStatusTypes types)
         {
             try
             {
-                var getList = await _unitOfWork.UserRepository.GetAsync(x => x.UserStatus.Equals(types));
-                List<UserInfoResponse> listParse = _mapper.Map<List<UserInfoResponse>>(getList);
-                return ResultDTO<List<UserInfoResponse>>.Success(listParse.ToList(), $"danh sách trạng thái {types}" );
+                var getList = await _unitOfWork.UserRepository.GetAllAsync(x => x.UserStatus.Equals(types));
+                return ResultDTO<List<ApplicationUser>>.Success(getList.ToList(), $"danh sách trạng thái {types}" );
             }
             catch (Exception ex)
             {
-                return ResultDTO<List<UserInfoResponse>>.Fail("lỗi");
+                return ResultDTO<List<ApplicationUser>>.Fail("lỗi");
             }
         }
     }
