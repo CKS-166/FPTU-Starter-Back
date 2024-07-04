@@ -1,4 +1,5 @@
 ﻿using FPTU_Starter.Application.ViewModel;
+using FPTU_Starter.Application.ViewModel.BankAccountDTO;
 using FPTU_Starter.Application.ViewModel.TransferDTO;
 using FPTU_Starter.Application.ViewModel.WalletDTO;
 using FPTU_Starter.Domain.Entity;
@@ -17,5 +18,7 @@ namespace FPTU_Starter.Application.Services.IService
         public Task<ResultDTO<bool>> AddLoadedMoneyToWallet(Guid walletId, int amount, DateTime createdDate);
         public Task<ResultDTO<TransferResponse>> TransferMoney(TransferRequest request);
         public Task<ResultDTO<TransferResponse>> TransferProjectMoney(TransferProjectMoneyRequest request);
+
+        public Task<ResultDTO<WalletResponse>> ConnectBankToWallet(Guid walletId, BankAccountRequest request);
     }
 }
