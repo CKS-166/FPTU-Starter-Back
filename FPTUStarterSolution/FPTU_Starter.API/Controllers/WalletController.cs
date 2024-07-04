@@ -1,4 +1,6 @@
 ﻿using FPTU_Starter.Application.Services.IService;
+using FPTU_Starter.Application.ViewModel.BankAccountDTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,6 +38,13 @@ namespace FPTU_Starter.API.Controllers
             DateTime parsedDate = DateTime.Parse(createdDate);
             var updateResult = await _walletService.AddLoadedMoneyToWallet(walletId, amount, parsedDate);
             return Ok(updateResult);
+        }
+
+        [HttpPost("connect-wallet-bank/{id}")]
+        public async Task<IActionResult> ConnectBankWallet(Guid id, [FromBody] BankAccountRequest req)
+        {
+            var result = _walletService.ConnectBankToWallet(id, req);
+            return Ok(result);  
         }
     }
 }
