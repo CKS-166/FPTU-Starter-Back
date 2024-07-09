@@ -21,7 +21,7 @@ namespace FPTU_Starter.API.Controllers
         }
 
         [HttpGet("user-profile")]
-        [Authorize(Roles = Role.Backer + "," + Role.ProjectOwner)]
+        [Authorize(Roles = Role.Backer + "," + Role.ProjectOwner + "," + Role.Admin)]
         public async Task<ActionResult> GetUserInformation()
         {
             var result = await _userManagementService.GetUserInfo();
