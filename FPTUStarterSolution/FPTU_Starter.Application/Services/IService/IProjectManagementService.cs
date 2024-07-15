@@ -34,5 +34,9 @@ namespace FPTU_Starter.Application.Services.IService
 
         Task<ResultDTO<List<ProjectSuccessRateDTO>>> GetProjectSuccessRate();
 
+        Task<ResultDTO<int>> GetProgressingProjects();
+        Task<ResultDTO<decimal>> GetProjectsRate();
+
+
     }
 }

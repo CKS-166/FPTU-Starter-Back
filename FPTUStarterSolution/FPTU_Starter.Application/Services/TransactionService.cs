@@ -67,6 +67,24 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
+        public async Task<ResultDTO<decimal>> GetProfits()
+        {
+            try
+            {
+                decimal profit = 0;
+                List<SystemWallet> sysWallet = _unitOfWork.SystemWalletRepository.GetAll().ToList();
+
+                foreach(SystemWallet sys in sysWallet)
+                {
+                    profit += sys.TotalAmount;
+                }
+                return ResultDTO<decimal>.Success(profit);
+            }catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
         public async Task<ResultDTO<string>> RefundToBackers(Guid projectId)
         {
             try

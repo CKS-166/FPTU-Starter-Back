@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FPTU_Starter.Application.Services.IService;
 using FPTU_Starter.Application.ViewModel;
+using FPTU_Starter.Application.ViewModel.CommissionDTO;
 using FPTU_Starter.Application.ViewModel.WithdrawReqDTO;
 using FPTU_Starter.Domain.Entity;
 using FPTU_Starter.Domain.Enum;
@@ -11,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace FPTU_Starter.Application.Services
@@ -22,6 +24,7 @@ namespace FPTU_Starter.Application.Services
         private readonly IUserManagementService _userManagementService;
         private readonly IWalletService _walletService;
         private readonly ISystemWalletService _systemWalletService;
+        private readonly string _configFilePath = "appsettings.json";
         private const int EXPIRED_DATE = 5;
         public WithdrawService(IUnitOfWork unitOfWork,
             IMapper mapper,
@@ -201,6 +204,21 @@ namespace FPTU_Starter.Application.Services
                     WalletId = request.WalletId,
                 };
                 await _unitOfWork.TransactionRepository.AddAsync(transaction);
+                //system comission
+                var json = await File.ReadAllTextAsync(_configFilePath);
+                var jsonDocument = JsonDocument.Parse(json);
+                var root = jsonDocument.RootElement;
+                var commissionSection = root.GetProperty("Commission");
+                var commisionRate = (float)commissionSection.GetProperty("CommissionRate").GetDecimal();
+                SystemWallet commisionCash = new SystemWallet
+                {
+                    Id = Guid.NewGuid(),
+                    CommissionRate = commisionRate,
+                    TotalAmount = request.Amount * (decimal)commisionRate,
+                    CreateDate = DateTime.UtcNow
+
+                };
+                _unitOfWork.SystemWalletRepository.Add(commisionCash);
                 //commit
                 await _unitOfWork.CommitAsync();
                 return ResultDTO<WithdrawRequest>.Success(request, "tạo lệnh thành công");
