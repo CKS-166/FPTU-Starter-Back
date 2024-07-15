@@ -841,5 +841,40 @@ namespace FPTU_Starter.Application.Services
             }
         }
 
+        public async Task<ResultDTO<int>> GetProgressingProjects()
+        {
+            try
+            {
+                List<Project> projects = _unitOfWork.ProjectRepository.GetQueryable()
+                     .Where(p => p.ProjectStatus == ProjectStatus.Processing || p.ProjectStatus == ProjectStatus.Successful || p.ProjectStatus == ProjectStatus.Withdrawed)
+                    .ToList();
+                return ResultDTO<int>.Success(projects.Count);
+            }catch(Exception e)
+            {
+                throw new Exception(e.Message, e);
+            }
+        }
+
+        public async Task<ResultDTO<decimal>> GetProjectsRate()
+        {
+            try
+            {
+                decimal totalBalance = 0;
+                decimal totalTarget = 0;
+
+                List<Project> projects = _unitOfWork.ProjectRepository.GetQueryable()
+                    .Where(p => p.ProjectStatus != ProjectStatus.Rejected && p.ProjectStatus != ProjectStatus.Deleted)
+                    .ToList();
+                foreach(Project project in projects)
+                {
+                    totalBalance += project.ProjectBalance;
+                    totalTarget += project.ProjectTarget;
+                }
+                return ResultDTO<decimal>.Success((decimal)totalBalance / totalTarget);
+            }catch(Exception e)
+            {
+                throw new Exception(e.Message, e);
+            }
+        }
     }
 }
