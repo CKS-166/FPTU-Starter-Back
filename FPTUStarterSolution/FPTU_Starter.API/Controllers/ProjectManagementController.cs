@@ -312,5 +312,35 @@ namespace FPTU_Starter.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("count-progress-projects")]
+        public async Task<IActionResult> CountProgressProjects()
+        {
+            try
+            {
+                var result = _projectService.GetProgressingProjects();
+                return Ok(result);
+            }
+            catch (ExceptionError e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("average-sucess-rate")]
+        public async Task<IActionResult> AverageProjectsRate()
+        {
+            try
+            {
+                var result = _projectService.GetProjectsRate();
+                return Ok(result);
+            }
+            catch (ExceptionError e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
     }
 }

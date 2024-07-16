@@ -234,5 +234,31 @@ namespace FPTU_Starter.Application.Services
                 throw new Exception(e.Message, e);
             }
         }
+
+        public async Task<ResultDTO<WalletResponse>> ConnectBankToWallet(Guid walletId, BankAccountRequest request)
+        {
+            try
+            {
+                var existedWallet = _unitOfWork.WalletRepository.GetQueryable().AsNoTracking().Include(w => w.Transactions).FirstOrDefault(x => x.Id == walletId);
+                var bankAcc = _unitOfWork.BankAccountRepository.GetQueryable().FirstOrDefault(b => b.Id == existedWallet.BankAccountId);
+                bankAcc.BankAccountNumber = request.BankAccountNumber;
+                bankAcc.OwnerName = request.OwnerName;
+                bankAcc.BankAccountName = request.BankAccountName;
+                _unitOfWork.CommitAsync();
+                var walletDTO = _mapper.Map<WalletResponse>(existedWallet);
+                BankAccountResponse bankDTO = new BankAccountResponse
+                {
+                    Id = bankAcc.Id,
+                    OwnerName = bankAcc.OwnerName,
+                    BankAccountName = bankAcc.BankAccountName,
+                    BankAccountNumber = bankAcc.BankAccountNumber
+                };
+                walletDTO.BankAccount = bankDTO;
+                return ResultDTO<WalletResponse>.Success(walletDTO);
+            }catch(Exception e)
+            {
+                throw new Exception(e.Message, e);
+            }
+        }
     }
 }

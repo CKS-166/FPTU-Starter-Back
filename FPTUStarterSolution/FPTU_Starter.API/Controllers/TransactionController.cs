@@ -41,6 +41,20 @@ namespace FPTU_Starter.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("get-profit")]
+        public async Task<IActionResult> GetProfit()
+        {
+            try
+            {
+                var result = _transactionService.GetProfits();
+                return Ok(result);
+            }catch(ExceptionError ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         
     }
 }
