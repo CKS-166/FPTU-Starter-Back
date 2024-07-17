@@ -722,7 +722,7 @@ namespace FPTU_Starter.Application.Services
                                 Id = transaction.Id,
                                 PackageId = transaction.PackageId,
                                 TotalAmount = transaction.TotalAmount,
-                                TransactionTypes = transaction.TransactionType == 0 ? "Package" : "Free",
+                                TransactionTypes = transaction.TransactionType == 0 ? "Free" : "Package",
                                 CreateDate = transaction.CreateDate,
                                 BackerName = backerWallet.Backer.AccountName,
                                 BackerUrl = backerWallet.Backer.Avatar
