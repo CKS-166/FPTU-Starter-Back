@@ -66,7 +66,7 @@ namespace FPTU_Starter.Application.Services
                 }
 
                 //check balance
-                if (userWallet.Balance > amount)
+                if (userWallet.Balance >= amount)
                 {
                     return ResultDTO<bool>.Success(true, "your wallet is have enough money to do this transaction");
                 }
