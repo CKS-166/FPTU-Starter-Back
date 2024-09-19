@@ -1,11 +1,11 @@
-name: Build and deploy .NET Core application to Web App fptu-starter-api
+name: Build and deploy .NET Core application to Web App testest
 on:
   push:
     branches:
     - test_deploy
 env:
-  AZURE_WEBAPP_NAME: fptu-starter-api
-  AZURE_WEBAPP_PACKAGE_PATH: ./publish
+  AZURE_WEBAPP_NAME: testest
+  AZURE_WEBAPP_PACKAGE_PATH: FPTU_Starter.API/publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 6.0.x
   WORKING_DIRECTORY: ./FPTUStarterSolution/FPTU_Starter.API
@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
@@ -44,5 +44,5 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.fptu_starter_api_68C8 }}
+        publish-profile: ${{ secrets.testest_D427 }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
